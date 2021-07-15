@@ -37,6 +37,8 @@
 #'   event_list: List containing events to be passed to the ODE solver. See
 #'   the documentation for the R package deSolve.
 #'
+#'   method: Integration method to be used by "deSolve". Default solver is "lsoda"
+#'
 #' Returns:
 #'   out: Dataframe containing values of all state variables (named in the
 #'   argument "Y0") and all output variables (named in the global environment
@@ -46,7 +48,7 @@
 #' @export
 
 run_model <- function(mName, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6,
-                      forcing=NULL, fcontrol=NULL, event_list=NULL) {
+                      forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {
 
 
   # Construct DLL name from mName.
@@ -67,7 +69,7 @@ run_model <- function(mName, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6,
   out = ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol,
             dllname=dll_name, initforc="initforc", forcing=forcing,
             fcontrol=fcontrol, initfunc="initmod", nout=length(Outputs),
-            outnames=Outputs, events=event_list)
+            outnames=Outputs, events=event_list, method=method)
 
   # Return the simulation output.
   return(out)
