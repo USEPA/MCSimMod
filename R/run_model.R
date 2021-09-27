@@ -47,7 +47,7 @@
 #' @import deSolve
 #' @export
 
-run_model <- function(mName, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6,
+run_model <- function(mName, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, maxsteps=5000,
                       forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {
 
 
@@ -66,7 +66,7 @@ run_model <- function(mName, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6,
   }
 
   # Solve the ODE system using the "ode" function from the package "deSolve".
-  out = ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol,
+  out = ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol, maxsteps=maxsteps,
             dllname=dll_name, initforc="initforc", forcing=forcing,
             fcontrol=fcontrol, initfunc="initmod", nout=length(Outputs),
             outnames=Outputs, events=event_list, method=method)
