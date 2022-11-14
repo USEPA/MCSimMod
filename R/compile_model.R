@@ -31,7 +31,13 @@ compile_model <- function(mName) {
   # code compatible with functions in the R deSolve package.
   #system(paste("mod -R ", model_file, " ", c_file, sep = ""))
 
-  system(paste(shQuote(paste(file.path(system.file(package = "RMCSim"), "bin"), "mod", sep="/")), paste(" -R ", model_file, " ", c_file, sep = ""), sep=''))
+  if (.Platform$OS.type == 'windows') {
+    system(paste(shQuote(paste(file.path(system.file(package = "RMCSim"), "bin"), "mod", sep="/")), paste(" -R ", model_file, " ", c_file, sep = ""), sep=''))
+  } else if (.Platform$OS.type == 'unix'){
+    system(paste(paste(file.path(system.file(package = "RMCSim"), "bin"), "mod", sep="/"), paste(" -R ", model_file, " ", c_file, sep = ""), sep=''))
+  } else {
+    message("RMCSim only available for windows or unix OS")
+  }
 
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   system(paste("R CMD SHLIB ", c_file, sep = ""))
