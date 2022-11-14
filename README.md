@@ -1,6 +1,10 @@
 # RMCSim package
 <Insert intro>
 
+`deSolve` needed for `RMCSim`:
+
+`library.packages("deSolve")`
+
 ## Windows Install
 Make sure RTools (https://cran.r-project.org/bin/windows/Rtools/) is installed prior to RMCSim install.
 
@@ -11,9 +15,11 @@ For example, this would be the necessary paths for RTools 4.0:
 
 Ultimately, the RTools usr/bin and mingw32/bin must be added to PATH before the install.
 
-Once RTools is insalled, run
+Once RTools is installed, run
+
 `install.packages(RMCSim)` <Future: depending on how the install happens, this line might be different>
 
 ## Linux install
 Simply run:
+
 `install.packages(RMCSim)` <Future: depending on how the install happens, this line might be different>
