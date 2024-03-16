@@ -21,6 +21,10 @@
    template model (if used).
    Requires libSBML to be installed.
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include "config.h"
 
@@ -41,6 +45,7 @@
 #include "modd.h"
 #include "modo.h"
 #include "strutil.h"
+
 
 #include "sbml/SBMLReader.h"
 #include "sbml/SBMLTypes.h"

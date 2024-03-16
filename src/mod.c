@@ -43,6 +43,10 @@
                         The routinine is called just be outputting
                         values specified in Print().
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <stdlib.h>
 #include <stdio.h>

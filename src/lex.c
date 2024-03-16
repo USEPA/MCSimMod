@@ -29,6 +29,9 @@
 
    A pointer is provided in the INPUTBUF structure to hold user information.
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +41,7 @@
 #include "lex.h"
 #include "lexerr.h"
 #include "mod.h"
+
 
 #ifndef SEEK_CUR
 #define SEEK_CUR 1

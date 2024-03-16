@@ -18,6 +18,10 @@
    along with GNU MCSim; if not, see <http://www.gnu.org/licenses/>
 
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 

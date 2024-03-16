@@ -19,6 +19,10 @@
 
    Reports errors and exits program if fatal.
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <stdlib.h>
 #include <stdio.h>

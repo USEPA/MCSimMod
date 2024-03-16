@@ -19,7 +19,9 @@
 
    Contains routines for defining the model from the input file.
 */
-
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
 
 #include <stdlib.h>
 #include <stdio.h>

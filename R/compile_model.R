@@ -11,7 +11,6 @@
 #'   file should be provided.
 #'
 #' @export
-
 compile_model <- function(mName) {
 
   # Construct names of required files and objects from mName.
@@ -39,6 +38,10 @@ compile_model <- function(mName) {
     message("RMCSim only available for windows or unix OS")
   }
 
+  # Not needed for compiled executable
+  #.Call('mod', model_file, c_file, PACKAGE='RMCSim')
+  #.C("mod", model_file, c_file, 'RMCSim.so')
+  
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   system(paste("R CMD SHLIB ", c_file, sep = ""))
 }

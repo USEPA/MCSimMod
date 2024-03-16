@@ -24,6 +24,10 @@
    facility and the simulation input routines.
    
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,6 +41,7 @@
 #include "lexerr.h"
 
 #include "mod.h"
+
 
 
 /* Macros */

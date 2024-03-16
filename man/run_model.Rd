@@ -14,9 +14,11 @@ run_model(
   parms = NULL,
   rtol = 1e-06,
   atol = 1e-06,
+  maxsteps = 5000,
   forcing = NULL,
   fcontrol = NULL,
-  event_list = NULL
+  event_list = NULL,
+  method = "lsoda"
 )
 }
 \description{
@@ -54,6 +56,8 @@ package "deSolve".
 
 event_list: List containing events to be passed to the ODE solver. See
 the documentation for the R package deSolve.
+
+method: Integration method to be used by "deSolve". Default solver is "lsoda"
 
 Returns:
 out: Dataframe containing values of all state variables (named in the

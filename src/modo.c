@@ -22,6 +22,10 @@
    Modified on 07/07/97 by FB - added yourcode.h to WriteIncludes().
 
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +40,7 @@
 #include "modi.h"
 #include "modd.h"
 #include "modo.h"
+
 
 
 /* Global Variables */

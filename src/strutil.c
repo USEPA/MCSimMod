@@ -28,6 +28,10 @@
 
    MyStrlen(), MyStrcpy(), MyStrcmp(), MyStrchr(), MyStrtok()
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <string.h>
 

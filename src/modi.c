@@ -19,6 +19,10 @@
 
    Handles parsing input of the Model Definition File.
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 
 #include <stdio.h>
@@ -32,6 +36,7 @@
 #include "modd.h"
 #include "modi.h"
 #include "modiSBML.h"
+
   
 /* Global Keyword Map Structure */
 

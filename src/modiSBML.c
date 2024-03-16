@@ -21,6 +21,10 @@
    template model (if used).
    Primitive, but does not require libSBML.
 */
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include "config.h"
 
@@ -41,6 +45,7 @@
 #include "modd.h"
 #include "modo.h"
 #include "strutil.h"
+
 
 
 /* ----------------------------------------------------------------------------

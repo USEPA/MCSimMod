@@ -1,3 +1,0 @@
-This directory can't be empty
-
-The mod.exe is installed here

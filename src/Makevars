@@ -1,0 +1,37 @@
+# Define compiler
+CC = gcc 
+
+# Define flags (adjust as needed, consider using AM_CFLAGS for consistency)
+CFLAGS = -O3 -Wall
+
+# Makevars is in src/ so compile from within src/
+SRC_DIR = .
+
+INSTALL_DIR = ../inst/bin
+
+# List all source files
+SOURCES = $(wildcard $(SRC_DIR)/*.c)
+
+OBJECTS = $(SOURCES:.c=.o)
+
+MAIN = mod # Name of exectuable
+
+.PHONY: depend clean
+
+all: directories $(MAIN)
+	@echo Compiled all .c files in src/ and wrote exectuable to inst/bin
+
+directories: $(INSTALL_DIR)
+
+$(INSTALL_DIR):
+	mkdir -p $(INSTALL_DIR)
+
+$(MAIN): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(INSTALL_DIR)/$(MAIN) $(OBJECTS)
+
+.c.o:
+	$(CC) $(CFLAGS) - c $< -o $@
+
+clean:
+	$(RM) *.o *~ $(MAIN)
+
