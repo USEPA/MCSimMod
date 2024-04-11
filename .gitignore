@@ -2,3 +2,6 @@
 RMCSim.Rproj
 .Rhistory
 .RData
+*.o
+*.exe
+*.dll
