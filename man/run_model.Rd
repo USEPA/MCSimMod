@@ -8,7 +8,7 @@ be compiled (using the function "compile_model") and loaded into the R
 workspace (using the function "load_model").}
 \usage{
 run_model(
-  mName,
+  model,
   times,
   Y0 = NULL,
   parms = NULL,

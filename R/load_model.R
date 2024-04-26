@@ -11,21 +11,38 @@
 #'
 #' @export
 
-load_model <- function(mName) {
+load_model <- function(model) {
+  mName = model$mName
   # Construct names of required files and objects from mName.
-  dll_name = paste(mName, "_model", sep="")
-  dll_file = paste(dll_name, .Platform$dynlib.ext, sep="")
-  inits_file = paste(dll_name, "_inits.R", sep="")
+  model$dll_name <- paste(mName, "_model", sep="")
+  model$dll_file <- paste(model$dll_name, .Platform$dynlib.ext, sep="")
+  model$inits_file <- paste(model$dll_name, "_inits.R", sep="")
+
+  # Construct the compiled model names
+  model$model_file = paste(mName, ".model", sep="")
+  model$c_file = paste(mName, "_model.c", sep="")
+  model$dll_name = paste(mName, "_model", sep="")
+  model$dll_file = paste(model$dll_name, .Platform$dynlib.ext, sep="")
+
+  if (!file.exists(model$dll_file)) {
+    compile_model(model)
+  }
+
+  # Logic for compiling here if trying to load an uncompiled model
 
   # Load the compiled model (DLL).
-  dyn.load(dll_file)
+  dyn.load(model$dll_file)
 
   # Run script that defines initialization functions.
-  source(inits_file)
+  source(model$inits_file)
+  model$initParms <- initParms
+  model$initStates <- initStates
+  model$Outputs <- Outputs
+  model
 
   # Assign initialization functions and list of output variable names to the
   # "global" environment.
-  assign("initParms", initParms, envir=.GlobalEnv)
-  assign("initStates", initStates, envir=.GlobalEnv)
-  assign("Outputs", Outputs, envir=.GlobalEnv)
+  #assign("initParms", initParms, envir=.GlobalEnv)
+  #assign("initStates", initStates, envir=.GlobalEnv)
+  #assign("Outputs", Outputs, envir=.GlobalEnv)
 }

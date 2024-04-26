@@ -8,7 +8,7 @@ model to create an object code (".o") file and a dynamic linked library
 (".dll") file, as well as an R script ("_inits.R") containing several R
 functions that can be used for initializing model states and parameters.}
 \usage{
-compile_model(mName)
+compile_model(model)
 }
 \description{
 Inputs:

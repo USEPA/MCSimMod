@@ -11,8 +11,8 @@
 #'   file should be provided.
 #'
 #' @export
-compile_model <- function(mName) {
-
+compile_model <- function(model) {
+  mName = model$mName
   # Construct names of required files and objects from mName.
   model_file = paste(mName, ".model", sep="")
   c_file = paste(mName, "_model.c", sep="")
