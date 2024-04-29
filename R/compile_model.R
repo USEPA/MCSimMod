@@ -14,10 +14,11 @@
 compile_model <- function(model) {
   mName = model$mName
   # Construct names of required files and objects from mName.
-  model_file = paste(mName, ".model", sep="")
-  c_file = paste(mName, "_model.c", sep="")
-  dll_name = paste(mName, "_model", sep="")
-  dll_file = paste(dll_name, .Platform$dynlib.ext, sep="")
+  model_file <- model$model_file
+  c_file <- model$c_file
+  dll_name <- model$dll_name
+  dll_file <- model$dll_file
+
 
   # Unload DLL if it has been loaded.
   if (is.loaded("derivs", PACKAGE=dll_name)) {
