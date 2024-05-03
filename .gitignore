@@ -5,3 +5,8 @@ RMCSim.Rproj
 *.o
 *.exe
 *.dll
+
+tests/data/*.R
+tests/data/*.c
+tests/data/*.dll
+tests/data/*.o
