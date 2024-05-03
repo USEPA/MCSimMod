@@ -37,11 +37,26 @@ testthat::test_that("RMCSimModel", {
 })
 
 testthat::test_that("fromString", {
+    model = fromString('
+    States = {A};
+    Outputs = {Bout, Cout};
+    Inputs = {Bin, Cin};
+    A0 = 1e-6;
+    r = 1.4;
 
-    contents <- paste(readLines('../data/exponential.model'), collapse="\n")
-    model = fromString(contents)
-    model = load_model(model)
+    Initialize {
+        A = A0;
+    }
 
+    Dynamics {
+        Bout = Bin;
+        Cout = Cin;
+        dt(A) = r * A;
+    }
+
+    End.
+    ')
+    model <- load_model(model)
     parms = model$initParms()
     parms["r"] = -0.5
     parms["A0"] = 100
