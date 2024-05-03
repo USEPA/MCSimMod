@@ -75,6 +75,3 @@ run_model <- function(model, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, m
   # Return the simulation output.
   return(out)
 }
-
-
-# TODO - load a model from memory

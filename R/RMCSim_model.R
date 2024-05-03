@@ -16,3 +16,15 @@ RMCSimModel <- function(model_name) {
     obj$Outputs <- NULL
     return(obj)
 }
+
+#' Return an RMCSim instance from a string-based model
+#'
+#' Convenience method to build a string-based method.
+#'
+#' @export
+fromString <- function(string){
+    file <- tempfile(pattern="tmp_mcsim", tmpdir='.')
+    writeLines(string, paste0(file, ".model"))
+    model = RMCSimModel(basename(file))
+    return(model)
+}
