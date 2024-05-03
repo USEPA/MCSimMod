@@ -2,11 +2,12 @@
 
 cleanup <- function(model){
     name = model$mName
+    dyn.unload(model$dll_file)
     rm(model)
     file.remove(paste0(name,'_model.o'))
     file.remove(paste0(name,'_model.c'))
-    # file.remove(paste0(name,'_model_inits.R'))
-    # file.remove(paste0(name,'_model.dll'))  # TODO - fix permission denied error
+    file.remove(paste0(name,'_model_inits.R'))
+    file.remove(paste0(name,'_model.dll'))
 }
 
 testthat::test_that("RMCSimModel", {
