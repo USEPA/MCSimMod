@@ -30,6 +30,20 @@ Git clone the repository. Within an R session in the working directory:
 
 ```R
 install.packages(c('devtools'))
-devtools::install('.')
+
+devtools::document()
+devtools::build()
+devtools::install()
+devtools::test()
+covr::report(file='coverage_html/index.html')
 ```
 
+You can also call from the command-line:
+
+```bash
+R -e "devtools::document()"
+R -e "devtools::build()"
+R -e "devtools::install()"
+R -e "devtools::test()"
+R -e "covr::report(file='coverage_html/index.html')"
+```
