@@ -1,7 +1,7 @@
 Package: RMCSim
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "First",
            family = "Last",
            role = c("aut", "cre"),
@@ -10,9 +10,15 @@ Authors@R:
 Description: What the package does (one paragraph).
 Imports:
     deSolve
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
+Suggests:
+    testthat (>= 3.0.0)
+Config/Needs/dev:
+    devtools,
+    testthat,
+    covr
+Config/testthat/edition: 3

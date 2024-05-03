@@ -1,0 +1,84 @@
+name: ci-checks
+
+# run on all pull requests and on select branch pushes
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-22.04, r: 'release'}
+          - {os: windows-2022, r: 'release'}
+    env:
+      R_KEEP_PKG_SOURCE: yes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck, any::covr, any::DT, any::devtools
+      - name: check package
+        uses: r-lib/actions/check-r-package@v2
+        continue-on-error: true  #  TODO - remove continue-on-error after fixing issues
+      - name: Test coverage
+        run: |
+          coverage_output <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+          )
+          covr::report(
+            coverage_output,
+            file = 'coverage_html/index.html',
+            browse =  FALSE
+          )
+          markdown <- function(x, group = c("filename", "functions"), by = "line", ...) {
+            if (length(x) == 0) {
+              return(invisible(x))
+            }
+            group <- match.arg(group)
+            df <- covr::tally_coverage(x, by = by)
+
+            if (!NROW(df)) {
+              return(invisible(x))
+            }
+            percents <- tapply(
+              df$value, df[[group]],
+              FUN = function(x) (sum(x > 0) / length(x)) * 100
+            )
+            overall_percentage <- covr::percent_coverage(df, by = by)
+            paste0(
+              "|file|percents|\n|----|----|\n",
+              paste0("|Overall|", format(overall_percentage, digits = 4), "%|\n"),
+              paste0("|", names(percents), "|", format(percents, digits = 4), "%|", collapse = "\n"),
+              "\n"
+            )
+          }
+          coverage_output_markdown <- markdown(coverage_output)
+          # log output to $GITHUB_STEP_SUMMARY
+          gh <- "# Coverage Summary Report"
+          gh <- paste(gh, coverage_output_markdown, sep="\n")
+          gh <- paste(gh, "View the interactive report by downloading the artifact.", sep="\n")
+          # Get system information
+          sys_info <- Sys.info()
+          is_linux <- sys_info["sysname"] == "Linux"
+          if (is_linux) {
+            write(gh, file=Sys.getenv("GITHUB_STEP_SUMMARY"))
+          }
+        shell: Rscript {0}
+      - name: upload coverage interactive report
+        uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: rscaffold-coverage
+          path: coverage_html
+          retention-days: 7
