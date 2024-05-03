@@ -7,7 +7,7 @@ based on translation of an MCSim model (".model") file. The R functions
 "initParms" and "initStates" and the R vector "Outputs" are defined and
 assigned to the "global" environment.}
 \usage{
-load_model(mName)
+load_model(model)
 }
 \description{
 Inputs:
