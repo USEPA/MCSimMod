@@ -23,3 +23,13 @@ Once RTools is installed, run
 Simply run:
 
 `install.packages(RMCSim)` <Future: depending on how the install happens, this line might be different>
+
+## Developer installation
+
+Git clone the repository. Within an R session in the working directory:
+
+```R
+install.packages(c('devtools'))
+devtools::install('.')
+```
+
