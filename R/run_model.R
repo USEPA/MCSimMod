@@ -51,7 +51,7 @@ run_model <- function(model, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, m
                       forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {
 
   mName = model$mName
-  
+
   # Construct DLL name from mName.
   dll_name = paste(mName, "_model", sep="")
 
