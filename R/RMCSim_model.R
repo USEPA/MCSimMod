@@ -6,7 +6,8 @@
 #' @import deSolve
 #' @export RMCSimModel
   RMCSimModel <- setRefClass("RMCSimModel", 
-                             fields=list(mName='character', initParms='function', initStates='function', Outputs='character'),
+                             fields=list(mName='character', initParms='function', initStates='function', Outputs='character',
+                                         parms='numeric', Y0='numeric'),
                              methods = list(
                                
                                load_model=function() {
@@ -35,30 +36,41 @@
                                  initParms <<- initParms
                                  initStates <<- initStates
                                  Outputs <<- Outputs
+                                 
+                                 parms <<- initParms()
+                                 Y0 <<- initStates(parms)
+                                 
                                
                              }, 
                              
-                             run_model=function(times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, maxsteps=5000,
-                                                forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {
+                             update_parms = function(new_parms=NULL) {
+                               parms <<- initParms(new_parms)
+                               
+                             },
+                             
+                             update_Y0 = function(new_states=NULL) {
+                               Y0 <<- initStates(parms,new_states)
+                             },
+                             
+                             run_model=function(times, method="lsoda", ...) {
                                  # Construct DLL name from mName.
                                  dll_name <- paste(mName, "_model", sep="")
                                  
                                  # If parameter values are not provided, use default values.
-                                 if (is.null(parms)) {
-                                   parms <- initParms()
-                                 }
+                                 #if (is.null(parms)) {
+                                 #   parms <- initParms()
+                                 #}
                                  
                                  # If initial values for state variables are not provided, use default
                                  # values.
-                                 if (is.null(Y0)) {
-                                   Y0 <- initStates(parms)
-                                 }
+                                 #if (is.null(Y0)) {
+                                 #   Y0 <- initStates(parms)
+                                 #}
                                  
                                  # Solve the ODE system using the "ode" function from the package "deSolve".
-                                 out <- ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol, maxsteps=maxsteps,
-                                            dllname=dll_name, initforc="initforc", forcing=forcing,
-                                            fcontrol=fcontrol, initfunc="initmod", nout=length(Outputs),
-                                            outnames=Outputs, events=event_list, method=method)
+                                 out <- ode(Y0, times, func="derivs", parms=parms, dllname=dll_name,
+                                            initforc="initforc", initfunc="initmod", nout=length(Outputs),
+                                            outnames=Outputs, method=method, ...)
                                  
                                  # Return the simulation output.
                                  return(out)
