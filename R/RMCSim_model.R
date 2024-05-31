@@ -10,7 +10,7 @@
                                          parms='numeric', Y0='numeric'),
                              methods = list(
                                
-                               load_model=function() {
+                               loadModel=function() {
                                  # Construct names of required files and objects from mName.
                                  dll_name <- paste(mName, "_model", sep="")
                                  dll_file <- paste(dll_name, .Platform$dynlib.ext, sep="")
@@ -43,16 +43,16 @@
                                
                              }, 
                              
-                             update_parms = function(new_parms=NULL) {
+                             updateParms = function(new_parms=NULL) {
                                parms <<- initParms(new_parms)
                                
                              },
                              
-                             update_Y0 = function(new_states=NULL) {
+                             updateY0 = function(new_states=NULL) {
                                Y0 <<- initStates(parms,new_states)
                              },
                              
-                             run_model=function(times, method="lsoda", ...) {
+                             runModel=function(times, method="lsoda", ...) {
                                  # Construct DLL name from mName.
                                  dll_name <- paste(mName, "_model", sep="")
                                  
