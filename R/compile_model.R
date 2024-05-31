@@ -11,15 +11,7 @@
 #'   file should be provided.
 #'
 #' @export
-compile_model <- function(model) {
-  mName = model$mName
-  # Construct names of required files and objects from mName.
-  model_file <- model$model_file
-  c_file <- model$c_file
-  dll_name <- model$dll_name
-  dll_file <- model$dll_file
-
-
+compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # Unload DLL if it has been loaded.
   if (is.loaded("derivs", PACKAGE=dll_name)) {
     dyn.unload(dll_file)

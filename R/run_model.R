@@ -46,32 +46,32 @@
 #'
 #' @import deSolve
 #' @export
-
-run_model <- function(model, times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, maxsteps=5000,
+run_model <- function(times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, maxsteps=5000,
                       forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {
 
-  mName = model$mName
-
+  #mName = model$mName
+  
   # Construct DLL name from mName.
-  dll_name = paste(mName, "_model", sep="")
+  dll_name <- paste(mName, "_model", sep="")
 
   # If parameter values are not provided, use default values.
   if (is.null(parms)) {
-    parms = model$initParms()
+    parms <- initParms()
   }
 
   # If initial values for state variables are not provided, use default
   # values.
   if (is.null(Y0)) {
-    Y0 = model$initStates(parms)
+    Y0 <- initStates(parms)
   }
 
   # Solve the ODE system using the "ode" function from the package "deSolve".
-  out = ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol, maxsteps=maxsteps,
+  out <- ode(Y0, times, func="derivs", parms=parms, rtol=rtol, atol=atol, maxsteps=maxsteps,
             dllname=dll_name, initforc="initforc", forcing=forcing,
-            fcontrol=fcontrol, initfunc="initmod", nout=length(model$Outputs),
-            outnames=model$Outputs, events=event_list, method=method)
+            fcontrol=fcontrol, initfunc="initmod", nout=length(Outputs),
+            outnames=Outputs, events=event_list, method=method)
 
   # Return the simulation output.
   return(out)
 }
+

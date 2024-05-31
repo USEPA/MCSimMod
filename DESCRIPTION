@@ -8,6 +8,8 @@ Authors@R:
            email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: What the package does (one paragraph).
+Depends:
+	methods
 Imports:
     deSolve
 License: MIT
