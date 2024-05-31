@@ -2,7 +2,9 @@
 
 cleanup <- function(model){
     name = model$mName
-    dyn.unload(model$dll_file)
+    dll_name <- paste(name, "_model", sep="")
+    dll_file <- paste(dll_name, .Platform$dynlib.ext, sep="")
+    dyn.unload(dll_file)
     rm(model)
     file.remove(paste0(name,'_model.o'))
     file.remove(paste0(name,'_model.c'))
@@ -20,14 +22,17 @@ testthat::test_that("RMCSimModel", {
     setwd('../data')
     testthat::expect_true(file.exists('exponential.model'))
 
-    exp_mod <- RMCSimModel('exponential')
-    exp_mod <- load_model(exp_mod)
-    exp_parms = exp_mod$initParms()
-    exp_parms["r"] = -0.5
-    exp_parms["A0"] = 100
-    Y0_exp = exp_mod$initStates(exp_parms)
+    exp_mod <- RMCSimModel$new(mName='exponential')
+    exp_mod$load_model() # Default parms are loaded to exp_mod object
+    
+    # Update parms for user-defined parameters
+    exp_mod$update_parms(list(r=-0.5, A0=100))
+    
+    # Update initial states
+    exp_mod$update_Y0()
+    
     times = seq(from=0, to=10, by=0.1)
-    exp_out = run_model(exp_mod, times, Y0=Y0_exp, parms=exp_parms)
+    exp_out = exp_mod$run_model(times)
 
     testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
     testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
@@ -56,13 +61,14 @@ testthat::test_that("fromString", {
 
     End.
     ')
-    model <- load_model(model)
-    parms = model$initParms()
-    parms["r"] = -0.5
-    parms["A0"] = 100
-    Y0 = model$initStates(parms)
+    model$load_model()
+    
+    model$update_parms(list(r=-0.5, A0=100))
+    
+    model$update_Y0()
+    
     times = seq(from=0, to=10, by=0.1)
-    output = run_model(model, times, Y0=Y0, parms=parms)
+    output = model$run_model(times)
 
     testthat::expect_true(all(dim(output) == c(length(times), 4)))
     testthat::expect_true(all(colnames(output) == c("time", "A", "Bout", "Cout")))
