@@ -102,17 +102,20 @@ void PromptFilenames (PSTR *pszFileIn, PSTR *pszFileOut)
 
   printf ("Input filename? ");
 
-  fgets (*pszFileIn, MAX_FILENAMESIZE, stdin);
-  *pszFileIn = strtok (*pszFileIn, " \t\n");
-
-  if (!(*pszFileIn)) /* Nothing entered, quit */
+  if(fgets (*pszFileIn, MAX_FILENAMESIZE, stdin)){
+    *pszFileIn = strtok (*pszFileIn, " \t\n");
+  }
+  else {/* Nothing entered, quit */
+    printf("input file not specified\n");
     return;
+  }
 
   if ((*pszFileIn)[0]) { /* Input file specified */
     printf ("Output filename? ");
 
-    fgets (*pszFileOut, MAX_FILENAMESIZE, stdin);
-    *pszFileOut = strtok (*pszFileOut, " \t\n");
+    if(fgets (*pszFileOut, MAX_FILENAMESIZE, stdin)){
+      *pszFileOut = strtok (*pszFileOut, " \t\n");
+    }
   }
 
   if (!(*pszFileOut) || !(*pszFileOut)[0]) { /* If no output specified */
