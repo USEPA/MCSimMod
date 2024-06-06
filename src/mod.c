@@ -403,9 +403,17 @@ void Cleanup (PINPUTINFO pinfo)
    main -- Entry point for the simulation model preprocessor
    
 */
+void  c_mod ( char** modelNamePtr, char** outputNamePtr){
+  // since we are now loading this a a library instead of calling an executable,
+  // the following need to be reset for each call because they are global variables 
+  // (and thus stay modified in memory after returning from this call)
+  optarg = 0;
+  optind = 0;
 
-int main (int nArg, PSTR rgszArg[])
-{
+  int nArg = 4;
+  PSTR rgszArg[] = {"RMCSIM","-R",*modelNamePtr, *outputNamePtr};
+
+  
   INPUTINFO info;
   INPUTINFO tempinfo;
   PSTR szFileIn, szFileOut;
@@ -430,47 +438,4 @@ int main (int nArg, PSTR rgszArg[])
     WriteModel (&info, szFileOut);
 
   Cleanup (&info);
-
-  return 0;
-
-} /* main */
-
-
-// might as well reuse everything that already exists!
-void  c_mod ( char** modelNamePtr, char** outputNamePtr){
-  // since we are now loading this a a library instead of calling an executable,
-  // the following need to be reset for each call because they are global variables 
-  // (and thus stay modified in memory after returning from this call)
-  optarg = 0;
-  optind = 0;
-
-  int nArg = 4;
-  PSTR rgszArg[] = {"RMCSIM","-R",*modelNamePtr, *outputNamePtr};
-
-  main (nArg, rgszArg);
-
-//   INPUTINFO info;
-//   INPUTINFO tempinfo;
-//   PSTR szFileIn, szFileOut;
-
-//   AnnounceProgram ();
-
-//   InitInfo (&info, rgszArg[0]);
-//   InitInfo (&tempinfo, rgszArg[0]);
-
-
-//   GetCmdLineArgs (nArg, rgszArg, &szFileIn, &szFileOut, &info);
-
-//   ReadModel (&info, &tempinfo, szFileIn);
-
-//   /* I think that here we should manipulate info if a pure template has
-//      been read, assuming we care about that case, otherwise it should be
-//      an error to define a pure template without SBML to follow */
-//   if (info.bforR == TRUE)
-//     Write_R_Model (&info, szFileOut);
-//   else 
-//     WriteModel (&info, szFileOut);
-
-//   Cleanup (&info);
-// Cleanup (&tempinfo);
 }
