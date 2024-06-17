@@ -131,6 +131,7 @@ typedef struct tagINPUTINFO {
   BOOL bDelays;
   BOOL bforR;
   BOOL bTemplateInUse;
+  BOOL bClearState;
   PSTR szInputFilename;
   PSTR szModGenName;
 

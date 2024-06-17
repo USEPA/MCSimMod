@@ -102,17 +102,20 @@ void PromptFilenames (PSTR *pszFileIn, PSTR *pszFileOut)
 
   printf ("Input filename? ");
 
-  fgets (*pszFileIn, MAX_FILENAMESIZE, stdin);
-  *pszFileIn = strtok (*pszFileIn, " \t\n");
-
-  if (!(*pszFileIn)) /* Nothing entered, quit */
+  if(fgets (*pszFileIn, MAX_FILENAMESIZE, stdin)){
+    *pszFileIn = strtok (*pszFileIn, " \t\n");
+  }
+  else {/* Nothing entered, quit */
+    printf("input file not specified\n");
     return;
+  }
 
   if ((*pszFileIn)[0]) { /* Input file specified */
     printf ("Output filename? ");
 
-    fgets (*pszFileOut, MAX_FILENAMESIZE, stdin);
-    *pszFileOut = strtok (*pszFileOut, " \t\n");
+    if(fgets (*pszFileOut, MAX_FILENAMESIZE, stdin)){
+      *pszFileOut = strtok (*pszFileOut, " \t\n");
+    }
   }
 
   if (!(*pszFileOut) || !(*pszFileOut)[0]) { /* If no output specified */
@@ -400,9 +403,17 @@ void Cleanup (PINPUTINFO pinfo)
    main -- Entry point for the simulation model preprocessor
    
 */
+void  c_mod ( char** modelNamePtr, char** outputNamePtr){
+  // since we are now loading this a a library instead of calling an executable,
+  // the following need to be reset for each call because they are global variables 
+  // (and thus stay modified in memory after returning from this call)
+  optarg = 0;
+  optind = 0;
 
-int main (int nArg, PSTR rgszArg[])
-{
+  int nArg = 4;
+  PSTR rgszArg[] = {"RMCSIM","-R",*modelNamePtr, *outputNamePtr};
+
+  
   INPUTINFO info;
   INPUTINFO tempinfo;
   PSTR szFileIn, szFileOut;
@@ -415,6 +426,7 @@ int main (int nArg, PSTR rgszArg[])
   GetCmdLineArgs (nArg, rgszArg, &szFileIn, &szFileOut, &info);
 
   ReadModel (&info, &tempinfo, szFileIn);
+  
 
   /* I think that here we should manipulate info if a pure template has
      been read, assuming we care about that case, otherwise it should be
@@ -426,7 +438,4 @@ int main (int nArg, PSTR rgszArg[])
     WriteModel (&info, szFileOut);
 
   Cleanup (&info);
-
-  return 0;
-
-} /* main */
+}
