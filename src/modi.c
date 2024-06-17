@@ -311,6 +311,16 @@ void ProcessWord (PINPUTBUF pibIn, PSTR szLex, PSTR szEqn)
   static BOOL bDynamicsDefined    = FALSE;
   static BOOL bInitializeDefined  = FALSE;
   static BOOL bJacobianDefined    = FALSE;
+
+  //need to clear state when we are handling a new model in ".so" mode
+  //as the 'static' variables are not reset from model to model
+  if (!pibIn) {
+    bCalcOutputsDefined = FALSE;
+    bDynamicsDefined    = FALSE;
+    bInitializeDefined  = FALSE;
+    bJacobianDefined    = FALSE;
+    return;
+  }
   
   if (!pibIn || !szLex || !szLex[0] || !szEqn)
     return;
@@ -502,6 +512,10 @@ void ReadModel (PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn)
   PSTRLEX szLex; /* Lex elem of MAX_LEX length */
   PSTREQN szEqn; /* Equation buffer of MAX_EQN length */
   int iLexType;
+
+//need to clear state when we are handling a new model in ".so" mode
+  //as the 'static' variables are not reset from model to model
+  ProcessWord(NULL,0,0);
 
   if (!InitBuffer(&ibIn, -1, szFileIn))
     ReportError(&ibIn, RE_INIT | RE_FATAL, "ReadModel", NULL);

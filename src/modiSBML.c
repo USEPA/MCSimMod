@@ -233,8 +233,16 @@ void ConstructEqn (PINPUTBUF pibIn, PSTR szRName, VARTYPES eType)
 
   /* reactions are supposed to happen in the one compartment defined:
      pad species name with that compartment name */
-  if (!GetVarPTR (pinfo->pvmGloVars, szSName))
-    sprintf (szSName, "%s_%s", szSName, pinfo->pvmLocalCpts->szName);
+  if (!GetVarPTR (pinfo->pvmGloVars, szSName)){
+    int len = strlen(szSName) + strlen(pinfo->pvmLocalCpts->szName) + 1 + 1;
+    if (len > MAX_LEX){
+      printf ("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n",
+              szSName, pinfo->pvmLocalCpts->szName);
+      printf ("Exiting...\n\n");
+      exit (0);
+    }
+    snprintf (szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName);
+  }
 
   /* padded species should have been declared State variables or 
      parameters if they were set to boundary conditions */
@@ -472,10 +480,24 @@ int Transcribe1AlgEqn (PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo)
     NextLex (&ibDummy, szLex, &iType); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER ) && !(IsMathFunc (szLex)) && 
-        (szLex[0] == '_'))
-      sprintf (szTmpEq, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
-    else
-      sprintf (szTmpEq, "%s%s", szTmpEq, szLex);
+        (szLex[0] == '_')) {
+          int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
+          if (len > MAX_EQN){
+            printf ("\n***Error: max string length MAX_EQN exceeded in Transcribe1AlgEqn: %s%s%s\n", szTmpEq, pV->szName, szLex);
+            printf ("Exiting...\n\n");
+            exit (0);
+          }
+        snprintf (szTmpEq,len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+    }
+    else{
+      int len = strlen(szTmpEq) + strlen(szLex) + 1;
+      if (len > MAX_EQN){
+        printf ("\n***Error: max string length MAX_EQN exceeded in Transcribe1AlgEqn: %s%s\n", szTmpEq, szLex);
+        printf ("Exiting...\n\n");
+        exit (0);
+      }
+      snprintf (szTmpEq,len, "%s%s", szTmpEq, szLex);
+    }
   
   } /* while */
 
@@ -524,9 +546,9 @@ int Transcribe1DiffEqn (PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo)
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
-    sprintf (szTmpName, "%s%s", pV->szName, pvm->szName);
+    snprintf (szTmpName,MAX_LEX, "%s%s", pV->szName, pvm->szName);
   }
-  else sprintf (szTmpName, "%s", pvm->szName); /* simple copy */
+  else snprintf (szTmpName,MAX_LEX, "%s", pvm->szName); /* simple copy */
 
   /* deal with the equation */
   MakeStringBuffer (NULL, &ibDummy, pvm->szEqn);
@@ -536,10 +558,24 @@ int Transcribe1DiffEqn (PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo)
     NextLex (&ibDummy, szLex, &iType); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER ) && !(IsMathFunc (szLex)) && 
-        (szLex[0] == '_'))
-      sprintf (szTmpEq, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
-    else
-      sprintf (szTmpEq, "%s%s", szTmpEq, szLex);
+        (szLex[0] == '_')){
+      int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
+      if (len > MAX_EQN){
+        printf ("\n***Error: max string length MAX_EQN exceeded in Transcribe1DiffEqn: %s%s%s\n", szTmpEq, pV->szName, szLex);
+        printf ("Exiting...\n\n");
+        exit (0);
+      }
+      snprintf (szTmpEq,len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+    }
+    else{
+      int len = strlen(szTmpEq) + strlen(szLex) + 1;
+      if (len > MAX_EQN){
+        printf ("\n***Error: max string length MAX_EQN exceeded in Transcribe1DiffEqn: %s%s\n", szTmpEq, szLex);
+        printf ("Exiting...\n\n");
+        exit (0);
+      }
+      snprintf (szTmpEq,len, "%s%s", szTmpEq, szLex);
+    }
   
   } /* while */
 
@@ -931,8 +967,15 @@ void ReadApply (PINPUTBUF pibIn, PINT bInited, PSTR szEqn)
 
         /* if PK template is used, reactions are supposed to happen in the 
            one compartment defined: pad species name with compartment name */
-        if ((pinfo->bTemplateInUse) && (!GetVarPTR (pinfo->pvmGloVars, szLex)))
-          sprintf (szLex, "%s_%s", szLex, pinfo->pvmLocalCpts->szName);
+        if ((pinfo->bTemplateInUse) && (!GetVarPTR (pinfo->pvmGloVars, szLex))){
+          int len = strlen(szLex) + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
+          if (len > MAX_LEX){
+            printf ("\n***Error: max string length MAX_LEN exceeded in ReadApply: %s_%s\n", szLex, pinfo->pvmLocalCpts->szName);
+            printf ("Exiting...\n\n");
+            exit (0);
+          }
+          snprintf (szLex,len, "%s_%s", szLex, pinfo->pvmLocalCpts->szName);
+        }
 
         ithTerm++;
 
@@ -1161,8 +1204,15 @@ void Read1Species (PINPUTBUF pibIn, BOOL bProcessPK_ODEs)
         printf (" compartment '%s' - exiting...\n\n", szCpt);
         exit (0);
       }
-      else /* extend the variable name with the compartment name */
-        sprintf (szName, "%s_%s", szName, szCpt);
+      else {/* extend the variable name with the compartment name */
+        int len = strlen(szName) + 1 + strlen(szCpt) + 1;
+        if (len > MAX_LEX){
+          printf ("\n***Error: max string length MAX_LEN exceeded in Read1Species: %s_%s\n", szName, szCpt);
+          printf ("Exiting...\n\n");
+          exit (0);
+        }
+        snprintf (szName,len, "%s_%s", szName, szCpt);
+      }
 
       if (bBoundary) { 
         /* species assigned boundary conditions are defined as parameters */

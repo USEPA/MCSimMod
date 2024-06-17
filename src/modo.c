@@ -1144,6 +1144,15 @@ int WriteOne_R_SODefine (PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo)
 {
   static long iStates  = 0; /* indexing states  */
   static long iOutputs = 0; /* indexing outputs */
+  PINPUTINFO pinfo = (PINPUTINFO) pInfo;
+
+  //need to clear state when we are handling a new model in ".so" mode
+  //as the 'static' variables are not reset from model to model
+  if (pinfo && pinfo->bClearState == TRUE){
+    iStates = 0;
+    iOutputs = 0;
+    pinfo->bClearState = FALSE;
+  }
 
   if (pvm->szEqn != vszHasInitializer) {
     fprintf(pfile, "#define ");
@@ -1325,6 +1334,16 @@ int WriteOne_R_PIDefine (PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo)
 {
   static long iParms = 0; /* indexing parameters */
   static long iForcs = 0; /* indexing input functions (forcing function) */
+
+  PINPUTINFO pinfo = (PINPUTINFO) pInfo;
+
+  //need to clear state when we are handling a new model in ".so" mode
+  //as the 'static' variables are not reset from model to model
+  if (pinfo &&pinfo->bClearState == TRUE){
+    iParms = 0;
+    iForcs = 0;
+    pinfo->bClearState = FALSE;
+  }
 
   assert(TYPE(pvm) != ID_OUTPUT);
   assert(TYPE(pvm) != ID_STATE);
@@ -1639,14 +1658,19 @@ void Write_R_InitPOS (PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmScale)
 void Write_R_Decls (PFILE pfile, PVMMAPSTRCT pvmGlo)
 {
   fprintf(pfile, "\n/* Model variables: States */\n");
-  ForAllVar(pfile, pvmGlo, &WriteOne_R_SODefine, ID_STATE, NULL);
+  //need to clear state when we are handling a new model in ".so" mode
+  //as the 'static' variables are not reset from model to model
+  INPUTINFO info;
+  info.bClearState=TRUE;
+  ForAllVar(pfile, pvmGlo, &WriteOne_R_SODefine, ID_STATE, &info);
 
   fprintf(pfile, "\n/* Model variables: Outputs */\n");
   ForAllVar(pfile, pvmGlo, &WriteOne_R_SODefine, ID_OUTPUT, NULL);
 
   fprintf(pfile, "\n/* Parameters */\n");
   fprintf(pfile, "static double parms[%d];\n\n", vnParms);
-  ForAllVar(pfile, pvmGlo, &WriteOne_R_PIDefine, ID_PARM, NULL);
+  info.bClearState=TRUE;
+  ForAllVar(pfile, pvmGlo, &WriteOne_R_PIDefine, ID_PARM, &info );
 
   fprintf(pfile, "\n/* Forcing (Input) functions */\n");
   fprintf(pfile, "static double forc[%d];\n\n", vnInputs);

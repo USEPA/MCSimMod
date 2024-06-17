@@ -1093,7 +1093,7 @@ void GetStatement (PINPUTBUF pibIn, PSTR szStmt, int iKWCode)
              be treated as a comment, but passed verbatim */
           *pibIn->pbufCur++;
           if (*pibIn->pbufCur != CH_COMMENT) {
-            char szTmp[2];
+            char szTmp[3];// 2 chars + '\0' for terminating the string
             sprintf(szTmp, "\\%c", *pibIn->pbufCur);
             ReportError(pibIn, RE_UNEXPESCAPE | RE_FATAL, szTmp, NULL);
           }

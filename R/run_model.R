@@ -44,7 +44,9 @@
 #'   argument "Y0") and all output variables (named in the global environment
 #'   variable "Outputs") at all times (defined in the argument "times").
 #'
+#' 
 #' @import deSolve
+#' @useDynLib RMCSim
 #' @export
 run_model <- function(times, Y0=NULL, parms=NULL, rtol=1e-6, atol=1e-6, maxsteps=5000,
                       forcing=NULL, fcontrol=NULL, event_list=NULL, method="lsoda") {

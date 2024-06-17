@@ -10,6 +10,7 @@ cleanup <- function(model){
     file.remove(paste0(name,'_model.c'))
     file.remove(paste0(name,'_model_inits.R'))
     file.remove(paste0(name,'_model.dll'))
+    file.remove(paste0(name,'_model.so'))
 
     prefix = "tmp_mcsim"
     if (substr(name,1,nchar(prefix)) == prefix){
