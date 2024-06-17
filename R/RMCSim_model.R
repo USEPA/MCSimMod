@@ -4,8 +4,8 @@
 #' 
 #' @import methods
 #' @import deSolve
-#' @export RMCSimModel
-  RMCSimModel <- setRefClass("RMCSimModel", 
+#' @export Model
+  Model <- setRefClass("Model", 
                              fields=list(mName='character', initParms='function', initStates='function', Outputs='character',
                                          parms='numeric', Y0='numeric'),
                              methods = list(
@@ -86,6 +86,6 @@
   fromString <- function(string){
     file <- tempfile(pattern="tmp_mcsim", tmpdir='.')
     writeLines(string, paste0(file, ".model"))
-    model = RMCSimModel$new(mName=basename(file))
+    model = Model$new(mName=basename(file))
     return(model)
   }
