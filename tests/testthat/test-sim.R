@@ -20,7 +20,7 @@ cleanup <- function(model){
 
 testthat::test_that("Model", {
 
-    setwd('../data')
+    setwd('../../inst/extdata')
     testthat::expect_true(file.exists('exponential.model'))
 
     exp_mod <- Model$new(mName='exponential')
