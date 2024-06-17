@@ -1,0 +1,20 @@
+# A one-state exponential growth/decay model.
+
+States = {A};
+Outputs = {Bout, Cout};
+Inputs = {Bin, Cin};
+
+A0 = 1e-6;
+r = 1.4;
+
+Initialize {
+  A = A0;
+}
+
+Dynamics {
+  Bout = Bin;
+  Cout = Cin;
+  dt(A) = r * A;
+}
+
+End.
