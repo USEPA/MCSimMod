@@ -10,6 +10,7 @@
 #'   than the one containing the ".model" file, the full path of the ".model"
 #'   file should be provided.
 #'
+#' @useDynLib MCSimMod
 #' @export
 compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # Unload DLL if it has been loaded.
