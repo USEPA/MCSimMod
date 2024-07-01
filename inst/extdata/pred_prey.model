@@ -1,9 +1,9 @@
 #-------------------------------------------------------------------------------
-# exponential.model
+# pred_prey.model
 #
-# A one-state exponential growth/decay model.
+# A Lotka-Volterra predator-prey model.
 #
-# Author: Dustin Kapraun, U.S. EPA, July 2019
+# Author: Dustin Kapraun, U.S. EPA, June 2019
 #-------------------------------------------------------------------------------
 
 
@@ -11,7 +11,8 @@
 # STATE VARIABLES for the model (for which ODEs are provided).
 
 States = {
-    A,        # Amount of substance or number of individuals or items.
+    x,        # Number of rabbits (1000s).
+    y,        # Number of foxes (1000s).
 };
 
 # End of STATE VARIABLES.
@@ -41,9 +42,11 @@ Inputs = {};
 #-------------------------------------------------------------------------------
 # PARAMETERS for the model (which are independent of time).
 
-# Experimental parameters.
-A0 = 1e-6;       # Initial amount or number.
-r = 1.4;         # Exponential rate of change (time^-1).
+# Model parameters.
+alpha = 0.67;   # Birth rate of rabbits (1/d).
+beta = 1.33;    # Death rate of rabbits (1/d per 1000 foxes).
+gamma = 1.00;   # Birth rate of foxes (1/d per 1000 rabbits).
+delta = 1.00;   # Death rate of foxes (1/d).
 
 # End of PARAMETERS.
 #-------------------------------------------------------------------------------
@@ -53,8 +56,9 @@ r = 1.4;         # Exponential rate of change (time^-1).
 # MODEL INITIALIZATION section.
 
 Initialize {
-    # Assign an initial value for each state.
-    A = A0;
+    # Assign an initial value for each state variable.
+    x = 1.00;     # Initial number of rabbits (1000s).
+    y = 0.75;     # Initial number of foxes (1000s).
 }
 
 # End of MODEL INITIALIZATION.
@@ -65,8 +69,9 @@ Initialize {
 # DYNAMICS section.
 
 Dynamics {
-    # Time rate of change of state variable.
-    dt(A) = r * A;
+    # Time rates of change of state variables (ODEs).
+    dt(x) = alpha * x - beta * x * y;
+    dt(y) = gamma * x * y - delta * y;
 }
 
 # End of DYNAMICS.
