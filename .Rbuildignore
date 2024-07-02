@@ -1,2 +1,4 @@
 ^MCSimMod\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^.*\.Rproj$
