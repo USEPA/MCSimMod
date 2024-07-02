@@ -411,7 +411,7 @@ void  c_mod ( char** modelNamePtr, char** outputNamePtr){
   optind = 0;
 
   int nArg = 4;
-  PSTR rgszArg[] = {"RMCSIM","-R",*modelNamePtr, *outputNamePtr};
+  PSTR rgszArg[] = {"MCSIMMOD","-R",*modelNamePtr, *outputNamePtr};
 
   
   INPUTINFO info;

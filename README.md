@@ -1,12 +1,12 @@
-# RMCSim package
+# MCSimMod package
 <Insert intro>
 
-`deSolve` needed for `RMCSim`:
+`deSolve` needed for `MCSimMod`:
 
 `library.packages("deSolve")`
 
 ## Windows Install
-Make sure RTools (https://cran.r-project.org/bin/windows/Rtools/) is installed prior to RMCSim install.
+Make sure RTools (https://cran.r-project.org/bin/windows/Rtools/) is installed prior to MCSimMod install.
 
 Before installing, add the appropriate RTools bins to the path. Each RTools base directory will be different depending on the version.
 
@@ -17,12 +17,12 @@ Ultimately, the RTools usr/bin and mingw32/bin must be added to PATH before the 
 
 Once RTools is installed, run
 
-`install.packages(RMCSim)` <Future: depending on how the install happens, this line might be different>
+`install.packages(MCSimMod)` <Future: depending on how the install happens, this line might be different>
 
 ## Linux install
 Simply run:
 
-`install.packages(RMCSim)` <Future: depending on how the install happens, this line might be different>
+`install.packages(MCSimMod)` <Future: depending on how the install happens, this line might be different>
 
 ## Developer installation
 
