@@ -3,14 +3,17 @@ MCSimMod.Rproj
 *.Rproj
 .Rhistory
 .RData
+*.so
 *.o
 *.exe
 *.dll
+.quarto/
 
 coverage_html/
 docs/
 
-tests/data/*.R
-tests/data/*.c
-tests/data/*.dll
-tests/data/*.o
+vignettes/*.html
+vignettes/*.R
+inst/doc
+/doc/
+/Meta/

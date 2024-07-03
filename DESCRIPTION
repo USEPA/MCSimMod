@@ -18,9 +18,12 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/Needs/dev:
     devtools,
     testthat,
     covr
 Config/testthat/edition: 3
+VignetteBuilder: knitr
