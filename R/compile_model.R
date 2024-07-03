@@ -12,25 +12,29 @@
 #'
 #' @useDynLib MCSimMod
 #' @export
-compile_model <- function(model_file, c_file, dll_name, dll_file) {
-  # Unload DLL if it has been loaded.
-  if (is.loaded("derivs", PACKAGE = dll_name)) {
-    dyn.unload(dll_file)
-  }
+compile_model <- function(model_file, c_file, dll_name, dll_file, p1="") {
 
-  # Create a C model file (ending with ".c") and an R parameter
-  # initialization file (ending with "_inits.R") from the GNU MCSim model
-  # definition file (ending with ".model"). Using the "-R" option generates
-  # code compatible with functions in the R deSolve package.
-  # system(paste("mod -R ", model_file, " ", c_file, sep = ""))
+  p0 = getwd()
+  tryCatch({
+    if (p1 != ""){
+      setwd(p1)
+    }
+    # Unload DLL if it has been loaded.
+    if (is.loaded("derivs", PACKAGE = dll_name)) {
+      dyn.unload(dll_file)
+    }
 
-  .C("c_mod", model_file, c_file)
-  # .C ("c_mod")
+    # Create a C model file (ending with ".c") and an R parameter
+    # initialization file (ending with "_inits.R") from the GNU MCSim model
+    # definition file (ending with ".model"). Using the "-R" option generates
+    # code compatible with functions in the R deSolve package.
+    # system(paste("mod -R ", model_file, " ", c_file, sep = ""))
+    .C("c_mod", model_file, c_file)
 
-  # Not needed for compiled executable
-  # .Call("mod", model_file, c_file, PACKAGE = "RMCSim")
-  # .C("mod", model_file, c_file, 'RMCSim.so')
-
-  # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
-  system(paste("R CMD SHLIB ", c_file, sep = ""))
+      # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
+    system(paste("R CMD SHLIB ", c_file, sep = ""))
+  },
+  finally = {
+    setwd(p0)
+  })
 }

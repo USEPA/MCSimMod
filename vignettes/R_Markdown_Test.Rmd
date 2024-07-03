@@ -75,7 +75,6 @@ Next, we will use the **MCSimMod** package to solve an initial value problem. On
 
 Using the following commands, we create an exponential model using the model specification file `exponential.model` that is included in the **MCSimMod** package, set the model parameters to $A_0 = 100$ and $r = -0.5$, specify the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$), and perform a model simulation.
 ```{r}
-
 exponential = '
 States = {A};
 
@@ -98,7 +97,7 @@ Dynamics {
 End.
 '
 
-model = MCSimMod::fromString(exponential)
+model = MCSimMod::Model(mString=exponential)
 model$loadModel()
 model$updateParms(c(A0=100, r=-0.5))
 model$updateY0()
