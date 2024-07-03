@@ -9,4 +9,4 @@
 library(testthat)
 library(MCSimMod)
 
-test_check("MCSimMod")
+testthat::test_check("MCSimMod")
