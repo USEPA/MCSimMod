@@ -20,7 +20,7 @@ Next, we will use the **MCSimMod** package to solve an initial value problem. On
 
 Using the following commands, we create an exponential model using the model specification file `exponential.model` that is included in the **MCSimMod** package, set the model parameters to $A_0 = 100$ and $r = -0.5$, specify the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$), and perform a model simulation.
 ```{r}
-exponential = '
+exponential <- "
 States = {A};
 
 Outputs = {Bout, Cout};
@@ -40,21 +40,21 @@ Dynamics {
     dt(A) = r * A;
 }
 End.
-'
+"
 
-model = MCSimMod::Model(mString=exponential)
+model <- MCSimMod::Model(mString = exponential)
 model$loadModel()
-model$updateParms(c(A0=100, r=-0.5))
+model$updateParms(c(A0 = 100, r = -0.5))
 model$updateY0()
 
-times = seq(from=0, to=20, by=0.1)
-out = model$runModel(times)
+times <- seq(from = 0, to = 20, by = 0.1)
+out <- model$runModel(times)
 ```
 
 The the final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the exponential model, is always labeled "time" in the output data structure.
 ```{r, echo=FALSE, results='asis'}
 library(knitr)
-kable(out[1:5, ], caption="Simulation Results")
+kable(out[1:5, ], caption = "Simulation Results")
 ```
 
 We can examine the parameter values and initial conditions that were used for this simulation using the following commands. Note that executing the command `model$updateParms(c(A0=100, r=-0.5))` (in the previous block of code) updated the parameter values from those that were provided in the model specification file and that executing the command `model$updateY0()` updated the initial value of the state variable using the updated value of `A0`.
@@ -66,6 +66,8 @@ model$Y0
 Finally, we can create a visual representation of the simulation results. For example, we can plot the amount vs. time using the following command.
 ```{r, echo=TRUE}
 # Plot simulation results.
-plot(out[, "time"], out[, "A"], type="l", lty=1, lwd=2,
-     xlab="Time (h)", ylab="Amount (g)")
+plot(out[, "time"], out[, "A"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time (h)", ylab = "Amount (g)"
+)
 ```
