@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Solving an Initial Value Problem
+ ## Solving an Initial Value Problem
 
 Next, we will use the **MCSimMod** package to solve an initial value problem. One might also call this process "peforming a simulation" with the model.
 

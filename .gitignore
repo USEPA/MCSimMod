@@ -17,3 +17,6 @@ vignettes/*.R
 inst/doc
 /doc/
 /Meta/
+
+# compiled models from strings
+mcsimmod_*

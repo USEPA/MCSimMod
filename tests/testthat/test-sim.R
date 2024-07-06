@@ -1,11 +1,12 @@
 testthat::test_that("Model$fromFile", {
-  testthat::expect_true(file.exists(file.path("../data", "exponential.model")))
+  setwd('../data')  
+  testthat::expect_true(file.exists("exponential.model"))
 
-  model <- Model(mName = "exponential", mPath = "../data")
+  model <- Model(mName = "exponential")
   model$loadModel()
   model$updateParms(list(r = -0.5, A0 = 100))
   model$updateY0()
-
+  
   times <- seq(from = 0, to = 10, by = 0.1)
   exp_out <- model$runModel(times)
 
@@ -49,5 +50,5 @@ testthat::test_that("Model$fromString", {
   testthat::expect_true(all(colnames(output) == c("time", "A", "Bout", "Cout")))
   testthat::expect_true(sum(output[, 2]) > 0)
 
-  model$cleanup()
+  model$cleanup(deleteModel=T)
 })
