@@ -12,7 +12,7 @@ Depends:
 	methods
 Imports:
     deSolve
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
