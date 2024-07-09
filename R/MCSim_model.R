@@ -82,6 +82,8 @@
   #'
   #' Convenience method to build a string-based method.
   #'
+  #' @param string model string specifying a complete MCSim ODE model
+  #' @returns An MCSimMod model object
   #' @export
   fromString <- function(string){
     file <- tempfile(pattern="tmp_mcsim", tmpdir='.')

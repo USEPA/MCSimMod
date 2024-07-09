@@ -6,6 +6,12 @@
 \usage{
 fromString(string)
 }
+\arguments{
+\item{string}{model string specifying a complete MCSim ODE model}
+}
+\value{
+An MCSimMod model object
+}
 \description{
 Convenience method to build a string-based method.
 }

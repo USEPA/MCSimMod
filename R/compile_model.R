@@ -9,6 +9,10 @@
 #'   suffix ".model". If the function is called from a working directory other
 #'   than the one containing the ".model" file, the full path of the ".model"
 #'   file should be provided.
+#' @param model_file model file name that needs to be compiled
+#' @param c_file output c_file that is compiled by `c_mod`
+#' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
+#' @param dll_file Possible previously compiled dll
 #'
 #' @useDynLib MCSimMod
 #' @export
