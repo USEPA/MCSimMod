@@ -218,14 +218,17 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
   /* reactions are supposed to happen in the one compartment defined:
      pad species name with that compartment name */
   if (!GetVarPTR(pinfo->pvmGloVars, szSName)) {
-    int len = strlen(szSName) + strlen(pinfo->pvmLocalCpts->szName) + 1 + 1;
+    int len = strlen(szSName) + strlen(pinfo->pvmLocalCpts->szName) + 1 + 1 + 1;
     if (len > MAX_LEX) {
       printf("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n",
              szSName, pinfo->pvmLocalCpts->szName);
       printf("Exiting...\n\n");
       exit(0);
     }
-    snprintf(szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName);
+    if (snprintf(szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName) <
+        0) { // truncated--should never happen with the above check.
+      exit(0);
+    }
   }
 
   /* padded species should have been declared State variables or
@@ -460,7 +463,7 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
-      int len = strlen(szTmpEq) + strlen(szLex) + 1;
+      int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
         printf("\n***Error: max string length MAX_EQN exceeded in "
                "Transcribe1AlgEqn: %s%s\n",
@@ -468,7 +471,10 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
         printf("Exiting...\n\n");
         exit(0);
       }
-      snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex);
+      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
+          0) { // truncated--should never happen with the above check.
+        exit(0);
+      }
     }
 
   } /* while */
@@ -537,7 +543,7 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
-      int len = strlen(szTmpEq) + strlen(szLex) + 1;
+      int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
         printf("\n***Error: max string length MAX_EQN exceeded in "
                "Transcribe1DiffEqn: %s%s\n",
@@ -545,7 +551,10 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
         printf("Exiting...\n\n");
         exit(0);
       }
-      snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex);
+      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
+          0) { // truncated--should never happen with the above check.
+        exit(0);
+      }
     }
 
   } /* while */
@@ -934,7 +943,8 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
         /* if PK template is used, reactions are supposed to happen in the
            one compartment defined: pad species name with compartment name */
         if ((pinfo->bTemplateInUse) && (!GetVarPTR(pinfo->pvmGloVars, szLex))) {
-          int len = strlen(szLex) + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
+          int len =
+              strlen(szLex) + 1 + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
           if (len > MAX_LEX) {
             printf("\n***Error: max string length MAX_LEN exceeded in "
                    "ReadApply: %s_%s\n",
@@ -942,7 +952,11 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
             printf("Exiting...\n\n");
             exit(0);
           }
-          snprintf(szLex, len, "%s_%s", szLex, pinfo->pvmLocalCpts->szName);
+          if (snprintf(szLex, len, "%s_%s", szLex,
+                       pinfo->pvmLocalCpts->szName) <
+              0) { // truncated--should never happen with the above check.
+            exit(0);
+          }
         }
 
         ithTerm++;
@@ -1172,7 +1186,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
         printf(" compartment '%s' - exiting...\n\n", szCpt);
         exit(0);
       } else { /* extend the variable name with the compartment name */
-        int len = strlen(szName) + 1 + strlen(szCpt) + 1;
+        int len = strlen(szName) + 1 + 1 + strlen(szCpt) + 1;
         if (len > MAX_LEX) {
           printf("\n***Error: max string length MAX_LEN exceeded in "
                  "Read1Species: %s_%s\n",
@@ -1180,7 +1194,10 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
           printf("Exiting...\n\n");
           exit(0);
         }
-        snprintf(szName, len, "%s_%s", szName, szCpt);
+        if (snprintf(szName, len, "%s_%s", szName, szCpt) <
+            0) { // truncated--should never happen with the above check.
+          exit(0);
+        }
       }
 
       if (bBoundary) {
