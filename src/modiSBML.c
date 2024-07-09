@@ -259,14 +259,14 @@ long CountLines(PFILE pFileIn) {
   char szDummy[2];
 
   /* skip the first line of comments in pFileIn */
-  fscanf(pFileIn, "%*[^\n]");
+  int ret = fscanf(pFileIn, "%*[^\n]");
   getc(pFileIn);
 
   /* keep reading lines as long as we have not reached eof */
   while (!(feof(pFileIn))) {
     if (fscanf(pFileIn, "%1s", szDummy) > 0)
       nLines++;
-    fscanf(pFileIn, "%*[^\n]");
+    ret = fscanf(pFileIn, "%*[^\n]");
     getc(pFileIn); /* throw away rest of line */
   }
 
