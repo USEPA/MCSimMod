@@ -32,35 +32,30 @@
 #include <R.h>
 #include <Rinternals.h>
 
-
 #include <string.h>
 
 #include "strutil.h"
 
 /* ---------------------------------------------------------------------------
-*/
-int MyStrcmp(const char* sz1, const char* sz2)
-{
+ */
+int MyStrcmp(const char *sz1, const char *sz2) {
   if (!sz1) {
     if (sz2)
-      return (-1);  /* NULL comes before the -something- */
+      return (-1); /* NULL comes before the -something- */
     else
-      return (0);   /* Two NULL strings compare equal */
-  } /* if */
+      return (0); /* Two NULL strings compare equal */
+  }               /* if */
 
   else { /* assert (sz1) */
     if (sz2)
-      return (strcmp(sz1, sz2));  /* Normal comparison */
+      return (strcmp(sz1, sz2)); /* Normal comparison */
     else
-      return (1);   /* -Something- comes after the NULL */
-  } /* else */
+      return (1); /* -Something- comes after the NULL */
+  }               /* else */
 
   /* Prevent compiler complaints */
   return 0; /* Never reached! */
 
 } /* MyStrcmp */
 
-
 /* End */
-
-

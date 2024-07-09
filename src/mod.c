@@ -21,23 +21,23 @@
 
    Calls ReadModel() to define the model and WriteModel() to create
    the output file.
-   
+
    The INPUTINFO struct is defined as follows:
-     
-     wContext	:	A flag for the current context of the input. 
+
+     wContext	:	A flag for the current context of the input.
 
      pvmGloVars :       Vars of type ID_LOCAL* are accessible
                         only within the respective section.  If
-		        states are given a value outside of the
-			Dynamics section, it is used as an INITIAL
-			value, otherwise they are initialized to 0.0. 
+                        states are given a value outside of the
+                        Dynamics section, it is used as an INITIAL
+                        value, otherwise they are initialized to 0.0.
 
      pvmDynEqns:	List of equations to go into the CalcDeriv(),
      pvmJacobEqns:	Jacobian(), and ScaleModel() routines, respectively.
      pvmScaleEqns:	The LHS of equations of state variables in Dynamics
-			are actually dt().  The hType field gives the type of
-			the LHS and also a flag for space in the uppermost
-			bit.
+                        are actually dt().  The hType field gives the type of
+                        the LHS and also a flag for space in the uppermost
+                        bit.
      pvmCalcOutEqns:    List of equations to into CalcOutputs().  These
                         can be used to scale output variables *only*.
                         The routinine is called just be outputting
@@ -47,9 +47,8 @@
 #include <R.h>
 #include <Rinternals.h>
 
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "getopt.h"
@@ -60,31 +59,27 @@
 #include "modo.h"
 #include "strutil.h"
 
-
 /* Globals */
 static char vszOptions[] = "hHDRG";
 static char vszFilenameDefault[] = "model.c";
 char szFileWithExt[MAX_FILENAMESIZE];
 
-
 /* ----------------------------------------------------------------------------
    AnnounceProgram
 */
-void AnnounceProgram (void)
-{
-  printf ("\n________________________________________\n");
-  printf ("\nMod " VSZ_VERSION " - Model Generator for MCSim\n\n");
+void AnnounceProgram(void) {
+  printf("\n________________________________________\n");
+  printf("\nMod " VSZ_VERSION " - Model Generator for MCSim\n\n");
 
-  printf ("MCSim and associated software comes with ABSOLUTELY NO WARRANTY;\n"
-          "This is free software, and you are welcome to redistribute it\n"
-          "under certain conditions; see the GNU General Public License.\n\n");
+  printf("MCSim and associated software comes with ABSOLUTELY NO WARRANTY;\n"
+         "This is free software, and you are welcome to redistribute it\n"
+         "under certain conditions; see the GNU General Public License.\n\n");
 
 #ifdef HAVE_LIBSBML
-  printf ("Using LibSBML.\n\n");
+  printf("Using LibSBML.\n\n");
 #endif
 
 } /* AnnounceProgram */
-
 
 /* ----------------------------------------------------------------------------
    PromptFilenames
@@ -92,64 +87,58 @@ void AnnounceProgram (void)
    prompts for both input and output file names. The space allocated
    for inputting the files is reallocated to their actual size.
 */
-void PromptFilenames (PSTR *pszFileIn, PSTR *pszFileOut)
-{
-  if (!(*pszFileIn  = (PSTR) calloc (1, MAX_FILENAMESIZE)))
-    ReportError (NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
+  if (!(*pszFileIn = (PSTR)calloc(1, MAX_FILENAMESIZE)))
+    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
 
-  if (!(*pszFileOut = (PSTR) calloc (1, MAX_FILENAMESIZE)))
-    ReportError (NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+  if (!(*pszFileOut = (PSTR)calloc(1, MAX_FILENAMESIZE)))
+    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
 
-  printf ("Input filename? ");
+  printf("Input filename? ");
 
-  if(fgets (*pszFileIn, MAX_FILENAMESIZE, stdin)){
-    *pszFileIn = strtok (*pszFileIn, " \t\n");
-  }
-  else {/* Nothing entered, quit */
+  if (fgets(*pszFileIn, MAX_FILENAMESIZE, stdin)) {
+    *pszFileIn = strtok(*pszFileIn, " \t\n");
+  } else { /* Nothing entered, quit */
     printf("input file not specified\n");
     return;
   }
 
   if ((*pszFileIn)[0]) { /* Input file specified */
-    printf ("Output filename? ");
+    printf("Output filename? ");
 
-    if(fgets (*pszFileOut, MAX_FILENAMESIZE, stdin)){
-      *pszFileOut = strtok (*pszFileOut, " \t\n");
+    if (fgets(*pszFileOut, MAX_FILENAMESIZE, stdin)) {
+      *pszFileOut = strtok(*pszFileOut, " \t\n");
     }
   }
 
   if (!(*pszFileOut) || !(*pszFileOut)[0]) { /* If no output specified */
-    free (*pszFileOut);                      /* .. use default later */
+    free(*pszFileOut);                       /* .. use default later */
     *pszFileOut = NULL;
-  }
-  else {
-    if (!(*pszFileIn  = (PSTR) realloc (*pszFileIn,  MyStrlen(*pszFileIn)  + 1)))
-      ReportError (NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
-    if (!(*pszFileOut = (PSTR) realloc (*pszFileOut, MyStrlen(*pszFileOut) + 1)))
-      ReportError (NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+  } else {
+    if (!(*pszFileIn = (PSTR)realloc(*pszFileIn, MyStrlen(*pszFileIn) + 1)))
+      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+    if (!(*pszFileOut = (PSTR)realloc(*pszFileOut, MyStrlen(*pszFileOut) + 1)))
+      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
   }
 
 } /* PromptFilenames */
 
-
 /* ----------------------------------------------------------------------------
    ShowHelp
 */
-void ShowHelp ()
-{
-  printf ("Help:\n");
-  printf ("Usage: mod [options] [input-file [output-file]]\n");
-  printf ("Options:\n");
-  printf ("  -h  Display this information\n");
-  printf ("  -H  Display this information\n");
-  printf ("  -D  Debug mode\n");
-  printf ("  -R  Generate an R deSolve compatible C file\n");
+void ShowHelp() {
+  printf("Help:\n");
+  printf("Usage: mod [options] [input-file [output-file]]\n");
+  printf("Options:\n");
+  printf("  -h  Display this information\n");
+  printf("  -H  Display this information\n");
+  printf("  -D  Debug mode\n");
+  printf("  -R  Generate an R deSolve compatible C file\n");
 
-  printf ("Creates file 'output-file' (or 'model.c', by default)\n");
-  printf ("according to the input-file specifications.\n\n");
+  printf("Creates file 'output-file' (or 'model.c', by default)\n");
+  printf("according to the input-file specifications.\n\n");
 
 } /* ShowHelp */
-
 
 /* ----------------------------------------------------------------------------
    GetCmdLineArgs
@@ -181,43 +170,43 @@ void ShowHelp ()
      int   opterr;    -- 0 value flags to inhibit GNU error messages
 
 */
-void GetCmdLineArgs (int nArg, char *const *rgszArg, PSTR *pszFileIn, 
-		     PSTR *pszFileOut, PINPUTINFO pinfo)
-{
+void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
+                    PSTR *pszFileOut, PINPUTINFO pinfo) {
   int c;
 
   opterr = 1; /* inhibit internal -getopt error messages */
 
-  *pszFileIn = *pszFileOut = (PSTR) NULL;
+  *pszFileIn = *pszFileOut = (PSTR)NULL;
 
   while (1) {
 
-    c = _getopt (nArg, rgszArg, vszOptions);
+    c = _getopt(nArg, rgszArg, vszOptions);
     if (c == EOF) /* Finish with option args */
       break;
 
     switch (c) {
-      case 'D':
-        /* Could setup to run with certain debug flags, not used  */
-        printf (">> Debug mode using option '%s': "
-                "Not implemented, ignored.\n\n", optarg);
-        break;
+    case 'D':
+      /* Could setup to run with certain debug flags, not used  */
+      printf(">> Debug mode using option '%s': "
+             "Not implemented, ignored.\n\n",
+             optarg);
+      break;
 
-      case 'H':
-      case 'h':
-        ShowHelp ();
-        exit (0);
-        break;
+    case 'H':
+    case 'h':
+      ShowHelp();
+      exit(0);
+      break;
 
-      case 'R':
-        printf (">> Generating code for linking with R deSolve package.\n\n");
-        pinfo->bforR = TRUE;
-        break;
+    case 'R':
+      printf(">> Generating code for linking with R deSolve package.\n\n");
+      pinfo->bforR = TRUE;
+      break;
 
-      case '?':
-      default:
-        ShowHelp ();
-        exit (0);
+    case '?':
+    default:
+      ShowHelp();
+      exit(0);
 
     } /* switch */
 
@@ -225,37 +214,37 @@ void GetCmdLineArgs (int nArg, char *const *rgszArg, PSTR *pszFileIn,
 
   switch (nArg - optind) { /* Remaining args should be filenames */
 
-    case 2: /* Output and input file specified */
-      *pszFileOut = rgszArg[optind + 1];
+  case 2: /* Output and input file specified */
+    *pszFileOut = rgszArg[optind + 1];
 
-      /* Fall through! */
+    /* Fall through! */
 
-    case 1: /* Input file specified */
-      *pszFileIn = rgszArg[optind];
-      break;
+  case 1: /* Input file specified */
+    *pszFileIn = rgszArg[optind];
+    break;
 
-    case 0: /* No file names specified */
-      PromptFilenames (pszFileIn, pszFileOut);
-      break;
+  case 0: /* No file names specified */
+    PromptFilenames(pszFileIn, pszFileOut);
+    break;
 
-    default: 
-      printf ("mod: too many parameters on command line\n");
-      ShowHelp ();
-      exit (-1);
-      break;
+  default:
+    printf("mod: too many parameters on command line\n");
+    ShowHelp();
+    exit(-1);
+    break;
 
   } /* switch */
 
   while (*pszFileIn && (*pszFileIn)[0] &&      /* Files specified   */
          !MyStrcmp(*pszFileIn, *pszFileOut)) { /* and not different */
 
-    printf ("\n** Input and output filename must be different.\n");
-    PromptFilenames (pszFileIn, pszFileOut);
+    printf("\n** Input and output filename must be different.\n");
+    PromptFilenames(pszFileIn, pszFileOut);
   } /* while */
 
   if (!(*pszFileIn && (*pszFileIn)[0])) { /* no input name given is an error */
-    printf ("Error: an input file name must be specified - Exiting\n\n");
-    exit (-1);
+    printf("Error: an input file name must be specified - Exiting\n\n");
+    exit(-1);
   }
 
   /* store input file name for use by modo.c */
@@ -264,10 +253,10 @@ void GetCmdLineArgs (int nArg, char *const *rgszArg, PSTR *pszFileIn,
 #ifdef _WIN32
   /* avoid compiler errors because of invalid escapes
      when the path is presented in source */
-  PSTR pStr = strchr (pinfo->szInputFilename, '\\');
+  PSTR pStr = strchr(pinfo->szInputFilename, '\\');
   while (pStr) {
     *pStr = '/';
-    pStr = strchr (pStr + 1, '\\');
+    pStr = strchr(pStr + 1, '\\');
   }
 #endif /* _WIN32 */
 
@@ -277,42 +266,39 @@ void GetCmdLineArgs (int nArg, char *const *rgszArg, PSTR *pszFileIn,
 
 } /* GetCmdLineArgs */
 
-
 /* ----------------------------------------------------------------------------
    InitInfo
 */
 
-void InitInfo (PINPUTINFO pinfo, PSTR szModGenName)
-{
-  pinfo->wContext       = CN_GLOBAL;
-  pinfo->bDelays        = FALSE;
-  pinfo->bforR          = FALSE;
+void InitInfo(PINPUTINFO pinfo, PSTR szModGenName) {
+  pinfo->wContext = CN_GLOBAL;
+  pinfo->bDelays = FALSE;
+  pinfo->bforR = FALSE;
   pinfo->bTemplateInUse = FALSE;
-  pinfo->szModGenName   = szModGenName;
+  pinfo->szModGenName = szModGenName;
 
 #ifdef _WIN32
   /* avoid compiler errors because of invalid escapes
      when the path is presented in source */
-  PSTR pStr = strchr (pinfo->szModGenName, '\\');
+  PSTR pStr = strchr(pinfo->szModGenName, '\\');
   while (pStr) {
     *pStr = '/';
-    pStr = strchr (pStr + 1, '\\');
+    pStr = strchr(pStr + 1, '\\');
   }
 #endif /* _WIN32 */
-  
-  pinfo->pvmGloVars     = NULL;
-  pinfo->pvmDynEqns     = NULL;
-  pinfo->pvmScaleEqns   = NULL;
-  pinfo->pvmJacobEqns   = NULL;
-  pinfo->pvmCalcOutEqns = NULL;
-  pinfo->pvmEventEqns   = NULL;
-  pinfo->pvmRootEqns    = NULL;
 
-  pinfo->pvmCpts        = NULL;
-  pinfo->pvmLocalCpts   = NULL;
+  pinfo->pvmGloVars = NULL;
+  pinfo->pvmDynEqns = NULL;
+  pinfo->pvmScaleEqns = NULL;
+  pinfo->pvmJacobEqns = NULL;
+  pinfo->pvmCalcOutEqns = NULL;
+  pinfo->pvmEventEqns = NULL;
+  pinfo->pvmRootEqns = NULL;
+
+  pinfo->pvmCpts = NULL;
+  pinfo->pvmLocalCpts = NULL;
 
 } /* InitInfo */
-
 
 /* ----------------------------------------------------------------------------
    Cleanup
@@ -320,9 +306,8 @@ void InitInfo (PINPUTINFO pinfo, PSTR szModGenName)
    deallocate memory.
 */
 
-void Cleanup (PINPUTINFO pinfo)
-{
-  PVMMAPSTRCT  next;
+void Cleanup(PINPUTINFO pinfo) {
+  PVMMAPSTRCT next;
 
   while (pinfo->pvmGloVars) {
     next = pinfo->pvmGloVars->pvmNextVar;
@@ -339,7 +324,7 @@ void Cleanup (PINPUTINFO pinfo)
     free(pinfo->pvmDynEqns);
     pinfo->pvmDynEqns = next;
   }
-  
+
   while (pinfo->pvmScaleEqns) {
     next = pinfo->pvmScaleEqns->pvmNextVar;
     free(pinfo->pvmScaleEqns->szName);
@@ -347,7 +332,7 @@ void Cleanup (PINPUTINFO pinfo)
     free(pinfo->pvmScaleEqns);
     pinfo->pvmScaleEqns = next;
   }
-  
+
   while (pinfo->pvmJacobEqns) {
     next = pinfo->pvmJacobEqns->pvmNextVar;
     free(pinfo->pvmJacobEqns->szName);
@@ -398,44 +383,41 @@ void Cleanup (PINPUTINFO pinfo)
 
 } /* Cleanup */
 
-
 /* ----------------------------------------------------------------------------
    main -- Entry point for the simulation model preprocessor
-   
+
 */
-void  c_mod ( char** modelNamePtr, char** outputNamePtr){
+void c_mod(char **modelNamePtr, char **outputNamePtr) {
   // since we are now loading this a a library instead of calling an executable,
-  // the following need to be reset for each call because they are global variables 
-  // (and thus stay modified in memory after returning from this call)
+  // the following need to be reset for each call because they are global
+  // variables (and thus stay modified in memory after returning from this call)
   optarg = 0;
   optind = 0;
 
   int nArg = 4;
-  PSTR rgszArg[] = {"RMCSIM","-R",*modelNamePtr, *outputNamePtr};
+  PSTR rgszArg[] = {"RMCSIM", "-R", *modelNamePtr, *outputNamePtr};
 
-  
   INPUTINFO info;
   INPUTINFO tempinfo;
   PSTR szFileIn, szFileOut;
 
-  AnnounceProgram ();
+  AnnounceProgram();
 
-  InitInfo (&info, rgszArg[0]);
-  InitInfo (&tempinfo, rgszArg[0]);
+  InitInfo(&info, rgszArg[0]);
+  InitInfo(&tempinfo, rgszArg[0]);
 
-  GetCmdLineArgs (nArg, rgszArg, &szFileIn, &szFileOut, &info);
+  GetCmdLineArgs(nArg, rgszArg, &szFileIn, &szFileOut, &info);
 
-  ReadModel (&info, &tempinfo, szFileIn);
-  
+  ReadModel(&info, &tempinfo, szFileIn);
 
   /* I think that here we should manipulate info if a pure template has
      been read, assuming we care about that case, otherwise it should be
      an error to define a pure template without SBML to follow */
 
   if (info.bforR == TRUE)
-    Write_R_Model (&info, szFileOut);
-  else 
-    WriteModel (&info, szFileOut);
+    Write_R_Model(&info, szFileOut);
+  else
+    WriteModel(&info, szFileOut);
 
-  Cleanup (&info);
+  Cleanup(&info);
 }

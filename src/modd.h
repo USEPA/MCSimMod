@@ -22,32 +22,28 @@
 
 #ifndef MODD_H_DEFINED
 
-
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-void AddEquation (PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType);
-HANDLE CalculateVarHandle (PVMMAPSTRCT pvm, PSTR sz);
-PSTR CopyString (PSTR szOrg);
-void DeclareModelVar (PINPUTBUF pibIn, PSTR szName, int iKWCode);
-void DefineCalcOutEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineDynamicsEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, 
-                        HANDLE hType);
-void DefineGlobalVar (PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, 
-                      PSTR szEqn, HANDLE hType);
-void DefineJacobEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineScaleEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineVariable (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode);
-PVMMAPSTRCT GetVarPTR (PVMMAPSTRCT pvm, PSTR szName);
-int  GetVarType (PVMMAPSTRCT pvm, PSTR szName);
-BOOL IsMathFunc (PSTR sz);
-void SetEquation (PVMMAPSTRCT pvm, PSTR szEqn);
-void SetVarType (PVMMAPSTRCT pvm, PSTR szName, HANDLE hType);
-BOOL VerifyEqn (PINPUTBUF pibIn, PSTR szEqn);
+void AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType);
+HANDLE CalculateVarHandle(PVMMAPSTRCT pvm, PSTR sz);
+PSTR CopyString(PSTR szOrg);
+void DeclareModelVar(PINPUTBUF pibIn, PSTR szName, int iKWCode);
+void DefineCalcOutEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+void DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+void DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
+                     HANDLE hType);
+void DefineJacobEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+void DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode);
+PVMMAPSTRCT GetVarPTR(PVMMAPSTRCT pvm, PSTR szName);
+int GetVarType(PVMMAPSTRCT pvm, PSTR szName);
+BOOL IsMathFunc(PSTR sz);
+void SetEquation(PVMMAPSTRCT pvm, PSTR szEqn);
+void SetVarType(PVMMAPSTRCT pvm, PSTR szName, HANDLE hType);
+BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn);
 
 #define MODD_H_DEFINED
 #endif
 
 /* End */
-
-

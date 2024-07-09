@@ -31,11 +31,9 @@
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-void ReportError (PINPUTBUF, WORD, PSTR, PSTR);
+void ReportError(PINPUTBUF, WORD, PSTR, PSTR);
 
 #define LEXERR_H_DEFINED
 #endif
 
 /* End */
-
-

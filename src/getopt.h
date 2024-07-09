@@ -72,8 +72,7 @@ extern int opterr;
    one).  For long options that have a zero `flag' field, `_getopt'
    returns the contents of the `val' field.  */
 
-struct option
-{
+struct option {
   const char *name;
 
   /* has_arg can't be an enum because some compilers complain about
@@ -86,33 +85,23 @@ struct option
 /* ----------------------------------------------------------------------------
    Names for the values of the `has_arg' field of `struct option'.  */
 
-enum _argtype
-{
-  no_argument,
-  required_argument,
-  optional_argument
-};
+enum _argtype { no_argument, required_argument, optional_argument };
 
 /* ----------------------------------------------------------------------------
    Public prototypes */
-int _getopt (int argc, char *const *argv, 
-             const char *shortopts);
-extern int _getopt_long (int argc, char *const *argv, 
-                         const char *shortopts,
-		         const struct option *longopts, int *longind);
-extern int _getopt_long_only (int argc, char *const *argv,
-			      const char *shortopts,
-		              const struct option *longopts, int *longind);
+int _getopt(int argc, char *const *argv, const char *shortopts);
+extern int _getopt_long(int argc, char *const *argv, const char *shortopts,
+                        const struct option *longopts, int *longind);
+extern int _getopt_long_only(int argc, char *const *argv, const char *shortopts,
+                             const struct option *longopts, int *longind);
 
 /* ----------------------------------------------------------------------------
    Internal prototypes only. Users should not call this directly.  */
-extern int _getopt_internal (int argc, char *const *argv,
-			     const char *shortopts,
-		             const struct option *longopts, int *longind,
-			     int long_only);
+extern int _getopt_internal(int argc, char *const *argv, const char *shortopts,
+                            const struct option *longopts, int *longind,
+                            int long_only);
 
 #define GETOPT_H_DEFINED
-#endif  /* GETOPT_H_DEFINED */
+#endif /* GETOPT_H_DEFINED */
 
 /* end */
-

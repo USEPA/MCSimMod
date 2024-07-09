@@ -24,22 +24,19 @@
    ultimately call the standard library routines.
 */
 
-#define  MyStrcpy(szDest, szSource) \
+#define MyStrcpy(szDest, szSource)                                             \
   ((szDest) && (szSource) ? strcpy((szDest), (szSource)) : NULL)
 
-#define  MyStrlen(sz) \
-  ((sz) ? strlen((sz)) : (int) 0)
+#define MyStrlen(sz) ((sz) ? strlen((sz)) : (int)0)
 
-#define  MyStrchr(sz, iChar) \
-  ((sz) ? strchr((sz), (iChar)) : NULL)
+#define MyStrchr(sz, iChar) ((sz) ? strchr((sz), (iChar)) : NULL)
 
-#define  MyStrtok(sz, szToken) \
+#define MyStrtok(sz, szToken)                                                  \
   ((sz) && (szToken) ? strtok((sz), (szToken)) : NULL)
 
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-int MyStrcmp(const char* sz1, const char* sz2);
+int MyStrcmp(const char *sz1, const char *sz2);
 
 /* End */
-

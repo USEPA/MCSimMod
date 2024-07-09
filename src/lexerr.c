@@ -23,13 +23,11 @@
 #include <R.h>
 #include <Rinternals.h>
 
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lexerr.h"
-
 
 /* ---------------------------------------------------------------------------
    ReportError
@@ -38,10 +36,9 @@
    szMessage. If iSeverity is set to RE_FATAL, exits program.
 */
 
-void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
-{
+void ReportError(PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg) {
   char cNull = '\0';
-  BOOL bFatal   = wCode & RE_FATAL;
+  BOOL bFatal = wCode & RE_FATAL;
   BOOL bWarning = wCode & RE_WARNING;
 
   wCode &= ~(RE_FATAL | RE_WARNING);
@@ -56,17 +53,16 @@ void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
       printf("*** Error: ");
       bFatal |= (pibIn && (pibIn->cErrors++ > MAX_ERRORS));
     } /* else */
-  } /* if */
+  }   /* if */
 
   if (pibIn) {
     if (pibIn->pfileIn || pibIn->iLNPrev) { /* Line number is valid */
       printf("line %d: ", pibIn->iLineNum);
-    }
-    else {
+    } else {
       if (wCode != RE_FILENOTFOUND) { /* Dummy pibIn, show buffer */
         PSTRLEX szTmp;
-        szTmp[MAX_LEX-1] = '\0';
-        printf("'%s'...\n  ", strncpy (szTmp, pibIn->pbufOrg, MAX_LEX-1));
+        szTmp[MAX_LEX - 1] = '\0';
+        printf("'%s'...\n  ", strncpy(szTmp, pibIn->pbufOrg, MAX_LEX - 1));
       } /* if */
     }
   }
@@ -98,7 +94,7 @@ void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
   case RE_UNEXPESCAPE:
     printf("Unexpected escape sequence '%s' in input file.", szMsg);
     break;
-    
+
   case RE_UNEXPNUMBER:
     printf("Unexpected number %s in input file.", szMsg);
     break;
@@ -113,9 +109,9 @@ void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
       printf(" before '%s'", szAltMsg);
     break;
 
-  /* USER error handling -- Add user error reporting below */
+    /* USER error handling -- Add user error reporting below */
 
-  /* Model generator errors */
+    /* Model generator errors */
 
   case RE_BADCONTEXT:
     printf("'%s' used in invalid context.", szMsg);
@@ -162,8 +158,7 @@ void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
     break;
 
   case RE_TOOMANYVARS:
-    printf("Too many %s declarations. Limit is %d.", szMsg, 
-            *(PINT)szAltMsg);
+    printf("Too many %s declarations. Limit is %d.", szMsg, *(PINT)szAltMsg);
     break;
 
   case RE_POSITIVE:
@@ -190,8 +185,7 @@ void ReportError (PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg)
 
   if (bFatal) {
     printf("One or more fatal errors: Exiting...\n\n");
-    exit (wCode);
+    exit(wCode);
   } /* if */
 
 } /* ReportError */
-
