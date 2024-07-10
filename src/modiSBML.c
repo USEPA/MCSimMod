@@ -159,17 +159,21 @@ void AugmentEquation(PVMMAPSTRCT pvm, PSTR szEqn, PSTR szStoi, OPSIGNS sign) {
     return;
 
   if (sign == plus)
-    sprintf(szSymbol, " + ");
+    snprintf(szSymbol, MAX_LEX, " + ");
 
   if (sign == minus)
-    sprintf(szSymbol, " - ");
+    snprintf(szSymbol, MAX_LEX, " - ");
 
-  if ((szBuf = (PSTR)malloc(strlen(pvm->szEqn) + strlen(szSymbol) +
-                            strlen(szStoi) + strlen(szEqn) + 5)))
-    if (!strcmp(szStoi, "1"))
-      sprintf(szBuf, "%s%s%s", pvm->szEqn, szSymbol, szEqn);
-    else
-      sprintf(szBuf, "%s%s %s * %s", pvm->szEqn, szSymbol, szStoi, szEqn);
+  int buf_len = strlen(pvm->szEqn) + strlen(szSymbol) + strlen(szStoi) +
+                strlen(szEqn) + 5;
+  if (szBuf = (PSTR)malloc(buf_len)) {
+    if (!strcmp(szStoi, "1")) {
+      snprintf(szBuf, buf_len, "%s%s%s", pvm->szEqn, szSymbol, szEqn);
+    } else {
+      snprintf(szBuf, buf_len, "%s%s %s * %s", pvm->szEqn, szSymbol, szStoi,
+               szEqn);
+    }
+  }
 
   else
     ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szEqn,
@@ -212,17 +216,17 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
     *pibIn->pbufCur++;
     GetNumber(pibIn, szStoichio, &iLexType);
   } else
-    sprintf(szStoichio, "1");
-  printf("%s stoichio: %s\n", szSName, szStoichio);
+    snprintf(szStoichio, MAX_LEX, "1");
+  Rprintf("%s stoichio: %s\n", szSName, szStoichio);
 
   /* reactions are supposed to happen in the one compartment defined:
      pad species name with that compartment name */
   if (!GetVarPTR(pinfo->pvmGloVars, szSName)) {
     int len = strlen(szSName) + strlen(pinfo->pvmLocalCpts->szName) + 1 + 1 + 1;
     if (len > MAX_LEX) {
-      printf("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n",
-             szSName, pinfo->pvmLocalCpts->szName);
-      printf("Exiting...\n\n");
+      Rprintf("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n",
+              szSName, pinfo->pvmLocalCpts->szName);
+      Rprintf("Exiting...\n\n");
       exit(0);
     }
     if (snprintf(szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName) <
@@ -371,7 +375,7 @@ void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
         (hType == (ID_LOCALSCALE | ID_SPACEFLAG))) {
       AddEquation(&pinfo->pvmGloVars, szName, szVal, hType);
       if (hType == ID_PARM)
-        printf("param.   %s = %s\n", szName, szVal);
+        Rprintf("param.   %s = %s\n", szName, szVal);
     } else {
       DeclareModelVar(pibIn, szName, iKWCode);
 
@@ -380,13 +384,13 @@ void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
       DefineGlobalVar(pibIn, pvm, szName, szVal, hType);
 
       if (hType == ID_STATE)
-        printf("species  %s = %s\n", szName, szVal);
+        Rprintf("species  %s = %s\n", szName, szVal);
 
       if (hType == ID_INPUT)
-        printf("input    %s = %s\n", szName, szVal);
+        Rprintf("input    %s = %s\n", szName, szVal);
 
       if (hType == ID_OUTPUT)
-        printf("output   %s = %s\n", szName, szVal);
+        Rprintf("output   %s = %s\n", szName, szVal);
     }
   }
 
@@ -406,7 +410,7 @@ int Create1Var(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
-    sprintf(szTmp, "%s%s", pV->szName, pvm->szName);
+    snprintf(szTmp, MAX_LEX, "%s%s", pV->szName, pvm->szName);
     if (pvm->hType == (ID_LOCALDYN | ID_SPACEFLAG))
       SetVar(pV->pibIn, szTmp, pvm->szEqn, pvm->hType);
     else
@@ -441,9 +445,9 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
-    sprintf(szTmpName, "%s%s", pV->szName, pvm->szName);
+    snprintf(szTmpName, MAX_LEX, "%s%s", pV->szName, pvm->szName);
   } else
-    sprintf(szTmpName, "%s", pvm->szName); /* simple copy */
+    snprintf(szTmpName, MAX_LEX, "%s", pvm->szName); /* simple copy */
 
   /* deal with the equation */
   MakeStringBuffer(NULL, &ibDummy, pvm->szEqn);
@@ -455,20 +459,20 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
       int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
       if (len > MAX_EQN) {
-        printf("\n***Error: max string length MAX_EQN exceeded in "
-               "Transcribe1AlgEqn: %s%s%s\n",
-               szTmpEq, pV->szName, szLex);
-        printf("Exiting...\n\n");
+        Rprintf("\n***Error: max string length MAX_EQN exceeded in "
+                "Transcribe1AlgEqn: %s%s%s\n",
+                szTmpEq, pV->szName, szLex);
+        Rprintf("Exiting...\n\n");
         exit(0);
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
-        printf("\n***Error: max string length MAX_EQN exceeded in "
-               "Transcribe1AlgEqn: %s%s\n",
-               szTmpEq, szLex);
-        printf("Exiting...\n\n");
+        Rprintf("\n***Error: max string length MAX_EQN exceeded in "
+                "Transcribe1AlgEqn: %s%s\n",
+                szTmpEq, szLex);
+        Rprintf("Exiting...\n\n");
         exit(0);
       }
       if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
@@ -482,11 +486,11 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
     if (pvm->hType < ID_DERIV) {
       DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_NULL);
-      printf("local v. %s = %s\n", szTmpName, szTmpEq);
+      Rprintf("local v. %s = %s\n", szTmpName, szTmpEq);
     } else {
       if (pvm->hType == ID_INLINE) {
         DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_INLINE);
-        printf("inline   %s\n", szTmpEq);
+        Rprintf("inline   %s\n", szTmpEq);
       }
     }
   }
@@ -535,20 +539,20 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
       int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
       if (len > MAX_EQN) {
-        printf("\n***Error: max string length MAX_EQN exceeded in "
-               "Transcribe1DiffEqn: %s%s%s\n",
-               szTmpEq, pV->szName, szLex);
-        printf("Exiting...\n\n");
+        Rprintf("\n***Error: max string length MAX_EQN exceeded in "
+                "Transcribe1DiffEqn: %s%s%s\n",
+                szTmpEq, pV->szName, szLex);
+        Rprintf("Exiting...\n\n");
         exit(0);
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
-        printf("\n***Error: max string length MAX_EQN exceeded in "
-               "Transcribe1DiffEqn: %s%s\n",
-               szTmpEq, szLex);
-        printf("Exiting...\n\n");
+        Rprintf("\n***Error: max string length MAX_EQN exceeded in "
+                "Transcribe1DiffEqn: %s%s\n",
+                szTmpEq, szLex);
+        Rprintf("Exiting...\n\n");
         exit(0);
       }
       if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
@@ -561,7 +565,7 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
     DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_DXDT);
-    printf("template ODE term for %s = %s\n", szTmpName, szTmpEq);
+    Rprintf("template ODE term for %s = %s\n", szTmpName, szTmpEq);
   }
 
   return (1);
@@ -601,13 +605,13 @@ void ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
 
     GetNumber(pibIn, szEqn, &iLexType);
     if (!iLexType) /* no value, assign 0 by default */
-      sprintf(szEqn, "0.0");
+      snprintf(szEqn, MAX_EQN, "0.0");
 
     /* link value to symbol */
     AddEquation(&pinfo->pvmLocalCpts, szName, szEqn, ID_COMPARTMENT);
 
     if (bTell)
-      printf("compart. %s = %s\n", szName, szEqn);
+      Rprintf("compart. %s = %s\n", szName, szEqn);
 
   } /* end if */
 
@@ -662,7 +666,7 @@ void ReadFunction(PINPUTBUF pibIn) {
 
   ReadApply(pibIn, &bInited, szEqn);
 
-  printf("rate for %s = %s\n", szRName, szEqn);
+  Rprintf("rate for %s = %s\n", szRName, szEqn);
 
   /* define reaction name as Derivative spec in the Dynamics section */
   DefineVariable(pibIn, szRName, szEqn, KM_DXDT);
@@ -680,7 +684,7 @@ void ReadFunction(PINPUTBUF pibIn) {
 void ReadFunctions(PINPUTBUF pibIn, int iSBML_level) {
 
   if (iSBML_level == 1)
-    printf("mod: ignoring function definitions in level 1...\n");
+    Rprintf("mod: ignoring function definitions in level 1...\n");
   else
     while (GetSBMLLex(pibIn, KM_FUNCLIST, KM_FUNC))
       ReadFunction(pibIn);
@@ -758,19 +762,19 @@ void ReadParameter(PINPUTBUF pibIn) {
 
     GetNumber(pibIn, szEqn, &iLexType);
     if (!iLexType) { /* no value, assign 0 by default */
-      sprintf(szEqn, "0.0");
+      snprintf(szEqn, MAX_EQN, "0.0");
     }
 
     /* link value to symbol */
     DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
 
-    printf("param.   %s = %s\n", szName, szEqn);
+    Rprintf("param.   %s = %s\n", szName, szEqn);
 
   } /* end if */
 
   else { /* the parameter was already defined, this is confusing, exit */
-    printf("***Error: redeclaration of parameter %s\n", szName);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: redeclaration of parameter %s\n", szName);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -823,7 +827,7 @@ void ReadReaction_L1(PINPUTBUF pibIn) {
 
   GetaString(pibIn, szEqn);
 
-  printf("reaction %s = %s\n", szRName, szEqn);
+  Rprintf("reaction %s = %s\n", szRName, szEqn);
 
   /* define reaction name as a local variable in the Dynamics section */
   DefineVariable(pibIn, szRName, szEqn, 0);
@@ -842,27 +846,27 @@ void TranscribeOpSymbol(PSTR szOp) {
   switch (GetSBMLKeywordCode(szOp)) {
 
   case KM_PLUS:
-    sprintf(szOp, "%s", "+");
+    snprintf(szOp, 2, "%s", "+");
     break;
 
   case KM_MINUS:
-    sprintf(szOp, "%s", "-");
+    snprintf(szOp, 2, "%s", "-");
     break;
 
   case KM_TIMES:
-    sprintf(szOp, "%s", "*");
+    snprintf(szOp, 2, "%s", "*");
     break;
 
   case KM_DIVIDE:
-    sprintf(szOp, "%s", "/");
+    snprintf(szOp, 2, "%s", "/");
     break;
 
   case KM_POWER:
-    sprintf(szOp, "%s", "pow");
+    snprintf(szOp, 4, "%s", "pow");
     break;
 
   default:
-    printf("***Error: unknown mathXML operation '%s' - exiting...\n\n", szOp);
+    Rprintf("***Error: unknown mathXML operation '%s' - exiting...\n\n", szOp);
     exit(0);
   }
 
@@ -887,9 +891,9 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
 
   /* write an opening '(' to szEqn */
   if (*bInited) /* we are somewhere in an "apply" section: concatenate */
-    sprintf(szEqn, "%s(", szEqn);
+    snprintf(szEqn, MAX_EQN, "%s(", szEqn);
   else {
-    sprintf(szEqn, "("); /* initiate */
+    snprintf(szEqn, MAX_EQN, "("); /* initiate */
     *bInited = TRUE;
   }
 
@@ -914,7 +918,7 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
       GetIdentifier(pibIn, szLex);
       iKw = GetSBMLKeywordCode(szLex);
       if ((iKw == KM_APPLY) || (iKw == KM_MATH)) {
-        sprintf(szEqn, "%s)", szEqn);
+        snprintf(szEqn, MAX_EQN, "%s)", szEqn);
         return;
       }
     } else /* 'c' is not '/', read item */
@@ -925,12 +929,12 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
 
       if (!strcmp(szOp, "pow")) {
         if (ithTerm > 1)
-          sprintf(szEqn, "%s)", szEqn);
+          snprintf(szEqn, MAX_EQN, "%s)", szEqn);
         else
-          sprintf(szEqn, "%s%s(,", szEqn, szOp);
+          snprintf(szEqn, MAX_EQN, "%s%s(,", szEqn, szOp);
       } else {
         if (ithTerm > 1)
-          sprintf(szEqn, "%s%s", szEqn, szOp);
+          snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szOp);
       }
       ReadApply(pibIn, bInited, szEqn); /* found "apply", get lower level */
     } else { /* szLex == "ci" (hopefully!), get the atoms of the expression */
@@ -946,10 +950,10 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
           int len =
               strlen(szLex) + 1 + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
           if (len > MAX_LEX) {
-            printf("\n***Error: max string length MAX_LEN exceeded in "
-                   "ReadApply: %s_%s\n",
-                   szLex, pinfo->pvmLocalCpts->szName);
-            printf("Exiting...\n\n");
+            Rprintf("\n***Error: max string length MAX_LEX exceeded in "
+                    "ReadApply: %s_%s\n",
+                    szLex, pinfo->pvmLocalCpts->szName);
+            Rprintf("Exiting...\n\n");
             exit(0);
           }
           if (snprintf(szLex, len, "%s_%s", szLex,
@@ -963,17 +967,17 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
 
         if (!strcmp(szOp, "pow")) {
           if (ithTerm > 1)
-            sprintf(szEqn, "%s%s)", szEqn, szLex);
+            snprintf(szEqn, MAX_EQN, "%s%s)", szEqn, szLex);
           else
-            sprintf(szEqn, "%s%s(%s,", szEqn, szOp, szLex);
+            snprintf(szEqn, MAX_EQN, "%s%s(%s,", szEqn, szOp, szLex);
         } else {
           if (ithTerm > 1)
-            sprintf(szEqn, "%s%s%s", szEqn, szOp, szLex);
+            snprintf(szEqn, MAX_EQN, "%s%s%s", szEqn, szOp, szLex);
           else
-            sprintf(szEqn, "%s%s", szEqn, szLex);
+            snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szLex);
         }
       } while (GetSBMLLex(pibIn, KM_APPLY, KM_CI));
-      sprintf(szEqn, "%s)", szEqn);
+      snprintf(szEqn, MAX_EQN, "%s)", szEqn);
       return;
     } /* end else */
   }   /* end do */
@@ -1008,7 +1012,7 @@ void ReadReaction_L2(PINPUTBUF pibIn) {
 
   ReadApply(pibIn, &bInited, szEqn);
 
-  printf("reaction %s = %s\n", szRName, szEqn);
+  Rprintf("reaction %s = %s\n", szRName, szEqn);
 
   /* define reaction name as a local variable in the Dynamics section */
   DefineVariable(pibIn, szRName, szEqn, 0);
@@ -1060,7 +1064,7 @@ void ReadRule(PINPUTBUF pibIn) {
 
   ReadApply(pibIn, &bInited, szEqn);
 
-  printf("rate for %s = %s\n", szRName, szEqn);
+  Rprintf("rate for %s = %s\n", szRName, szEqn);
 
   /* define reaction name as Derivative spec in the Dynamics section */
   DefineVariable(pibIn, szRName, szEqn, KM_DXDT);
@@ -1078,7 +1082,7 @@ void ReadRule(PINPUTBUF pibIn) {
 void ReadRules(PINPUTBUF pibIn, int iSBML_level) {
 
   if (iSBML_level == 1)
-    printf("mod: ignoring rate rules definitions in level 1...\n");
+    Rprintf("mod: ignoring rate rules definitions in level 1...\n");
   else
     while (GetSBMLLex(pibIn, KM_RULESLIST, KM_RATERULE))
       ReadRule(pibIn);
@@ -1105,7 +1109,7 @@ int ReadSBMLLevel(PINPUTBUF pibIn) {
   GetNumber(pibIn, szEqn, &iLexType);
 
   if (!iLexType) { /* no value, assign 0 by default */
-    printf("***Error: cannot read the sbml level - exiting...\n\n");
+    Rprintf("***Error: cannot read the sbml level - exiting...\n\n");
     exit(0);
   }
 
@@ -1115,15 +1119,15 @@ int ReadSBMLLevel(PINPUTBUF pibIn) {
   switch (szEqn[0]) {
 
   case '1':
-    printf("sbml level 1\n");
+    Rprintf("sbml level 1\n");
     return (1);
 
   case '2':
-    printf("sbml level 2\n");
+    Rprintf("sbml level 2\n");
     return (2);
 
   default:
-    printf("***Error: unknown sbml level %s - exiting...\n\n", szEqn);
+    Rprintf("***Error: unknown sbml level %s - exiting...\n\n", szEqn);
     exit(0);
   }
 
@@ -1172,7 +1176,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
 
   if (pinfo->bTemplateInUse) {
     /* reset the species' value, to avoid confusion in case of redefinition */
-    sprintf(szEqn, "0");
+    snprintf(szEqn, MAX_EQN, "0");
     /* get the species compartment */
     pibIn->pbufCur = pibIn->pbufCur + 1; /* pass closing '"' of value */
     while (*pibIn->pbufCur++ != '"')
@@ -1182,16 +1186,16 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
     if (strcmp(szCpt, "compartment")) { /* species is in a meaningful cpt */
       if (!(GetVarPTR(ptempinfo->pvmCpts, szCpt))) {
         /* compartment not defined by the template: error */
-        printf("***Error: template did not defined");
-        printf(" compartment '%s' - exiting...\n\n", szCpt);
+        Rprintf("***Error: template did not defined");
+        Rprintf(" compartment '%s' - exiting...\n\n", szCpt);
         exit(0);
       } else { /* extend the variable name with the compartment name */
         int len = strlen(szName) + 1 + 1 + strlen(szCpt) + 1;
         if (len > MAX_LEX) {
-          printf("\n***Error: max string length MAX_LEN exceeded in "
-                 "Read1Species: %s_%s\n",
-                 szName, szCpt);
-          printf("Exiting...\n\n");
+          Rprintf("\n***Error: max string length MAX_LEX exceeded in "
+                  "Read1Species: %s_%s\n",
+                  szName, szCpt);
+          Rprintf("Exiting...\n\n");
           exit(0);
         }
         if (snprintf(szName, len, "%s_%s", szName, szCpt) <
@@ -1205,7 +1209,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
         if (!(hType = GetVarType(pinfo->pvmGloVars, szName))) { /* New id */
           /* link value to symbol */
           DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
-          printf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
+          Rprintf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
         }  /* end if */
       }    /* end if bBoundary */
       else /* not boundary, create a state variable */
@@ -1216,9 +1220,9 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
          not allowed to circulate. If found outside of a meaningful
          compartment: exit with error message */
       if (bBoundary) {
-        printf("***Error: Species %s is set to boundary;\n", szName);
-        printf("          It has to be inside a meaningful compartment -");
-        printf("exiting.\n\n");
+        Rprintf("***Error: Species %s is set to boundary;\n", szName);
+        Rprintf("          It has to be inside a meaningful compartment -");
+        Rprintf("exiting.\n\n");
         exit(0);
       }
 
@@ -1267,13 +1271,13 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
 
   else { /* no PK template, process the variable, ignoring compartments */
     if (!iLexType)
-      sprintf(szEqn, "0.0"); /* no value, assign 0 by default */
+      snprintf(szEqn, MAX_EQN, "0.0"); /* no value, assign 0 by default */
     if (bBoundary) {
       /* species assigned boundary conditions are defined as parameters */
       if (!(hType = GetVarType(pinfo->pvmGloVars, szName))) { /* New id */
         /* link value to symbol */
         DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
-        printf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
+        Rprintf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
       }  /* end if */
     }    /* end if bBoundary */
     else /* not boundary, create a state variable */
@@ -1362,7 +1366,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
      rate rules  or reactions (to be set up as local variables) */
   for (i = 0; i < nFiles; i++) {
 
-    printf("\nreading model %s\n", pszFileNames[i]);
+    Rprintf("\nreading model %s\n", pszFileNames[i]);
 
     /* init buffer and read in the input file. */
     /* buffer size -1 will create a buffer of the size of the input file */
@@ -1379,8 +1383,8 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
     /* PK template requires level 2 SBML, issue an error otherwise */
     if ((pinfo->bTemplateInUse) && (iSBML_level < 2)) {
-      printf("***Error: use of a PK template requires ");
-      printf("SBML level 2 - exiting.\n\n");
+      Rprintf("***Error: use of a PK template requires ");
+      Rprintf("SBML level 2 - exiting.\n\n");
       exit(0);
     }
 
@@ -1390,7 +1394,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
       if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST))
         ReadCpts(&ibInLocal, TRUE); /* TRUE -> print the cpt name etc. */
     } else { /* ignore the compartments of SBML models if no template */
-      printf("no PK template given: ignoring SBML compartments\n");
+      Rprintf("no PK template given: ignoring SBML compartments\n");
     }
 
     /* read function definitions, reset buffer */
@@ -1437,7 +1441,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
         ReadCpts(&ibInLocal, FALSE);
     }
 
-    printf("\nmod: reading differentials in model %s\n", pszFileNames[i]);
+    Rprintf("\nmod: reading differentials in model %s\n", pszFileNames[i]);
 
     /* re-read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
@@ -1448,7 +1452,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
   } /* for model index i*/
 
-  printf("\n");
+  Rprintf("\n");
 
   /* cleanup */
   for (i = 0; i < nFiles; i++)
@@ -1487,10 +1491,10 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
   ReadFileNames(pibIn, &nFiles, &pszFileNames);
 
   if (nFiles > 1)
-    printf("mod: cannot use more that one template - using only the 1st\n\n");
+    Rprintf("mod: cannot use more that one template - using only the 1st\n\n");
 
   /* give the template name used */
-  printf("%s\n", pszFileNames[0]);
+  Rprintf("%s\n", pszFileNames[0]);
 
   if (!InitBuffer(&ibInLocal, BUFFER_SIZE, pszFileNames[0]))
     ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL);

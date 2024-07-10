@@ -123,7 +123,7 @@ void GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode) {
       if (GetPunct(pibIn, szPunct, '[')) { /* array */
         GetArrayBounds(pibIn, &iLB, &iUB);
         for (i = iLB; i < iUB; i++) {
-          sprintf(szTmp, "%s_%ld", szLex, i); /* create names */
+          snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
           DeclareModelVar(pibIn, szTmp, iKWCode);
         }
       } else { /* simple var */
@@ -177,10 +177,10 @@ void ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
     /* read assignment */
     GetStatement(pibIn, szEqn, iKWCode);
     for (i = iLB; i < iUB; i++) {
-      sprintf(szTmp, "%s_%ld", szLex, i); /* create names */
+      snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
       /* check this is a declared state */
       if (GetVarType(pinfo->pvmGloVars, szTmp) != ID_STATE) {
-        sprintf(szTmp, "%s[%ld]", szLex, i); /* recreate name */
+        snprintf(szTmp, MAX_LEX, "%s[%ld]", szLex, i); /* recreate name */
         ReportError(pibIn, RE_BADSTATE | RE_FATAL, szTmp, NULL);
       }
       UnrollEquation(pibIn, i, szEqn, szEqnU);
@@ -231,7 +231,7 @@ void ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
     if (GetPunct(pibIn, szPunct, '=')) { /* read assignment */
       GetStatement(pibIn, szEqn, iKWCode);
       for (i = iLB; i < iUB; i++) {
-        sprintf(szTmp, "%s_%ld", szLex, i); /* create names */
+        snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
         UnrollEquation(pibIn, i, szEqn, szEqnU);
         DefineVariable(pibIn, szTmp, szEqnU, iKWCode);
       }
@@ -240,7 +240,7 @@ void ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
     } else if (szPunct[0] == CH_STMTTERM) { /* found a terminator */
       if (pinfo->wContext == CN_GLOBAL) {   /* in global section assign 0 */
         for (i = iLB; i < iUB; i++) {
-          sprintf(szTmp, "%s_%ld", szLex, i); /* create names */
+          snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
           DefineVariable(pibIn, szTmp, "0\0", iKWCode);
         }
       } else
@@ -409,7 +409,7 @@ void ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
     case KM_PKTEMPLATE:
       if (GetPunct(pibIn, szPunct, '=')) {
         if (GetPunct(pibIn, szPunct, CH_LBRACE)) {
-          printf("\nreading pharmacokinetic template ");
+          Rprintf("\nreading pharmacokinetic template ");
           ReadPKTemplate(pibIn);
         } else
           ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL);

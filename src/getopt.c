@@ -164,7 +164,7 @@ static void exchange(char **argv) {
   char **temp;
 
   if (nonopts_size == 0) {
-    printf("Error: zero length array allocation in exchange - Exiting\n");
+    Rprintf("Error: zero length array allocation in exchange - Exiting\n");
     exit(0);
   }
 
@@ -374,7 +374,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
 
     if (ambig && !exact) {
       if (opterr)
-        printf("%s: option `%s' is ambiguous\n", argv[0], argv[optind]);
+        Rprintf("%s: option `%s' is ambiguous\n", argv[0], argv[optind]);
       nextchar += strlen(nextchar);
       optind++;
       return '?';
@@ -392,12 +392,12 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
           if (opterr) {
             if (argv[optind - 1][1] == '-')
               /* --option */
-              printf("%s: option `--%s' doesn't allow an argument\n", argv[0],
-                     pfound->name);
+              Rprintf("%s: option `--%s' doesn't allow an argument\n", argv[0],
+                      pfound->name);
             else
               /* +option or -option */
-              printf("%s: option `%c%s' doesn't allow an argument\n", argv[0],
-                     argv[optind - 1][0], pfound->name);
+              Rprintf("%s: option `%c%s' doesn't allow an argument\n", argv[0],
+                      argv[optind - 1][0], pfound->name);
           }
           nextchar += strlen(nextchar);
           return '?';
@@ -407,8 +407,8 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
           optarg = argv[optind++];
         else {
           if (opterr)
-            printf("%s: option `%s' requires an argument\n", argv[0],
-                   argv[optind - 1]);
+            Rprintf("%s: option `%s' requires an argument\n", argv[0],
+                    argv[optind - 1]);
           nextchar += strlen(nextchar);
           return '?';
         }
@@ -435,11 +435,11 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
       if (opterr) {
         if (argv[optind][1] == '-')
           /* --option */
-          printf("%s: unrecognized option `--%s'\n", argv[0], nextchar);
+          Rprintf("%s: unrecognized option `--%s'\n", argv[0], nextchar);
         else
           /* +option or -option */
-          printf("%s: unrecognized option `%c%s'\n", argv[0], argv[optind][0],
-                 nextchar);
+          Rprintf("%s: unrecognized option `%c%s'\n", argv[0], argv[optind][0],
+                  nextchar);
       }
       nextchar += strlen(nextchar);
       optind++;
@@ -460,9 +460,9 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
     if (temp == NULL || c == ':') {
       if (opterr) {
         if (c < 040 || c >= 0177)
-          printf("%s: unrecognized option, character code 0%o\n", argv[0], c);
+          Rprintf("%s: unrecognized option, character code 0%o\n", argv[0], c);
         else
-          printf("%s: unrecognized option `-%c'\n", argv[0], c);
+          Rprintf("%s: unrecognized option `-%c'\n", argv[0], c);
       }
       return '?';
     }
@@ -485,7 +485,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring,
           optind++;
         } else if (optind == argc) {
           if (opterr)
-            printf("%s: option `-%c' requires an argument\n", argv[0], c);
+            Rprintf("%s: option `-%c' requires an argument\n", argv[0], c);
           c = '?';
         } else
           /* We already incremented `optind' once;
@@ -536,36 +536,36 @@ char **argv;
     case '8':
     case '9':
       if (digit_optind != 0 && digit_optind != this_option_optind)
-        printf("digits occur in two different argv-elements.\n");
+        Rprintf("digits occur in two different argv-elements.\n");
       digit_optind = this_option_optind;
-      printf("option %c\n", c);
+      Rprintf("option %c\n", c);
       break;
 
     case 'a':
-      printf("option a\n");
+      Rprintf("option a\n");
       break;
 
     case 'b':
-      printf("option b\n");
+      Rprintf("option b\n");
       break;
 
     case 'c':
-      printf("option c with value `%s'\n", optarg);
+      Rprintf("option c with value `%s'\n", optarg);
       break;
 
     case '?':
       break;
 
     default:
-      printf("?? _getopt returned character code 0%o ??\n", c);
+      Rprintf("?? _getopt returned character code 0%o ??\n", c);
     }
   }
 
   if (optind < argc) {
-    printf("non-option ARGV-elements: ");
+    Rprintf("non-option ARGV-elements: ");
     while (optind < argc)
-      printf("%s ", argv[optind++]);
-    printf("\n");
+      Rprintf("%s ", argv[optind++]);
+    Rprintf("\n");
   }
 
   exit(0);

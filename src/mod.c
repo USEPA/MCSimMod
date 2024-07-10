@@ -68,15 +68,15 @@ char szFileWithExt[MAX_FILENAMESIZE];
    AnnounceProgram
 */
 void AnnounceProgram(void) {
-  printf("\n________________________________________\n");
-  printf("\nMod " VSZ_VERSION " - Model Generator for MCSim\n\n");
+  Rprintf("\n________________________________________\n");
+  Rprintf("\nMod " VSZ_VERSION " - Model Generator for MCSim\n\n");
 
-  printf("MCSim and associated software comes with ABSOLUTELY NO WARRANTY;\n"
-         "This is free software, and you are welcome to redistribute it\n"
-         "under certain conditions; see the GNU General Public License.\n\n");
+  Rprintf("MCSim and associated software comes with ABSOLUTELY NO WARRANTY;\n"
+          "This is free software, and you are welcome to redistribute it\n"
+          "under certain conditions; see the GNU General Public License.\n\n");
 
 #ifdef HAVE_LIBSBML
-  printf("Using LibSBML.\n\n");
+  Rprintf("Using LibSBML.\n\n");
 #endif
 
 } /* AnnounceProgram */
@@ -94,17 +94,17 @@ void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
   if (!(*pszFileOut = (PSTR)calloc(1, MAX_FILENAMESIZE)))
     ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
 
-  printf("Input filename? ");
+  Rprintf("Input filename? ");
 
   if (fgets(*pszFileIn, MAX_FILENAMESIZE, stdin)) {
     *pszFileIn = strtok(*pszFileIn, " \t\n");
   } else { /* Nothing entered, quit */
-    printf("input file not specified\n");
+    Rprintf("input file not specified\n");
     return;
   }
 
   if ((*pszFileIn)[0]) { /* Input file specified */
-    printf("Output filename? ");
+    Rprintf("Output filename? ");
 
     if (fgets(*pszFileOut, MAX_FILENAMESIZE, stdin)) {
       *pszFileOut = strtok(*pszFileOut, " \t\n");
@@ -127,16 +127,16 @@ void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
    ShowHelp
 */
 void ShowHelp() {
-  printf("Help:\n");
-  printf("Usage: mod [options] [input-file [output-file]]\n");
-  printf("Options:\n");
-  printf("  -h  Display this information\n");
-  printf("  -H  Display this information\n");
-  printf("  -D  Debug mode\n");
-  printf("  -R  Generate an R deSolve compatible C file\n");
+  Rprintf("Help:\n");
+  Rprintf("Usage: mod [options] [input-file [output-file]]\n");
+  Rprintf("Options:\n");
+  Rprintf("  -h  Display this information\n");
+  Rprintf("  -H  Display this information\n");
+  Rprintf("  -D  Debug mode\n");
+  Rprintf("  -R  Generate an R deSolve compatible C file\n");
 
-  printf("Creates file 'output-file' (or 'model.c', by default)\n");
-  printf("according to the input-file specifications.\n\n");
+  Rprintf("Creates file 'output-file' (or 'model.c', by default)\n");
+  Rprintf("according to the input-file specifications.\n\n");
 
 } /* ShowHelp */
 
@@ -187,9 +187,9 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
     switch (c) {
     case 'D':
       /* Could setup to run with certain debug flags, not used  */
-      printf(">> Debug mode using option '%s': "
-             "Not implemented, ignored.\n\n",
-             optarg);
+      Rprintf(">> Debug mode using option '%s': "
+              "Not implemented, ignored.\n\n",
+              optarg);
       break;
 
     case 'H':
@@ -199,7 +199,7 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
       break;
 
     case 'R':
-      printf(">> Generating code for linking with R deSolve package.\n\n");
+      Rprintf(">> Generating code for linking with R deSolve package.\n\n");
       pinfo->bforR = TRUE;
       break;
 
@@ -228,7 +228,7 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
     break;
 
   default:
-    printf("mod: too many parameters on command line\n");
+    Rprintf("mod: too many parameters on command line\n");
     ShowHelp();
     exit(-1);
     break;
@@ -238,12 +238,12 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
   while (*pszFileIn && (*pszFileIn)[0] &&      /* Files specified   */
          !MyStrcmp(*pszFileIn, *pszFileOut)) { /* and not different */
 
-    printf("\n** Input and output filename must be different.\n");
+    Rprintf("\n** Input and output filename must be different.\n");
     PromptFilenames(pszFileIn, pszFileOut);
   } /* while */
 
   if (!(*pszFileIn && (*pszFileIn)[0])) { /* no input name given is an error */
-    printf("Error: an input file name must be specified - Exiting\n\n");
+    Rprintf("Error: an input file name must be specified - Exiting\n\n");
     exit(-1);
   }
 

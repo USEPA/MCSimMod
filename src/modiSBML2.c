@@ -137,16 +137,16 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, SpeciesReference_t *species,
 
   if (!MyStrcmp(szStoichio, "0")) {
     sprintf(szStoichio, "1");
-    printf(" %s stoichio was 0, now set to %s\n", szSName, szStoichio);
+    Rprintf(" %s stoichio was 0, now set to %s\n", szSName, szStoichio);
   } else
-    printf(" '%s' (stoichio: %s) ", szSName, szStoichio);
+    Rprintf(" '%s' (stoichio: %s) ", szSName, szStoichio);
 
   /* reactions are supposed to happen in a defined compartment:
      pad species name with that compartment name */
   if (!GetVarPTR(pinfo->pvmGloVars, szSName))
     sprintf(szSName, "%s_%s", szSName, pinfo->pvmLocalCpts->szName);
 
-  printf("processed as '%s'\n", szSName);
+  Rprintf("processed as '%s'\n", szSName);
 
   /* padded species should have been declared State variables, or
      parameters if they were set to boundary conditions */
@@ -193,7 +193,7 @@ void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
         (hType == (ID_LOCALSCALE | ID_SPACEFLAG))) {
       AddEquation(&pinfo->pvmGloVars, szName, szVal, hType);
       if (hType == ID_PARM)
-        printf(" param.   '%s' = %s\n", szName, szVal);
+        Rprintf(" param.   '%s' = %s\n", szName, szVal);
     } else {
       DeclareModelVar(pibIn, szName, iKWCode);
 
@@ -202,13 +202,13 @@ void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
       DefineGlobalVar(pibIn, pvm, szName, szVal, hType);
 
       if (hType == ID_STATE)
-        printf(" species  '%s' = %s\n", szName, szVal);
+        Rprintf(" species  '%s' = %s\n", szName, szVal);
 
       if (hType == ID_INPUT)
-        printf(" input    '%s' = %s\n", szName, szVal);
+        Rprintf(" input    '%s' = %s\n", szName, szVal);
 
       if (hType == ID_OUTPUT)
-        printf(" output   '%s' = %s\n", szName, szVal);
+        Rprintf(" output   '%s' = %s\n", szName, szVal);
     }
   }
 
@@ -270,7 +270,7 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   if (pvm->hType == ID_INLINE) {
     if (!(GetVarPTR(pV->pTarget, pvm->szName))) { /* New id */
       DefineVariable(pV->pibIn, pvm->szName, pvm->szEqn, KM_INLINE);
-      printf(" inline   '%s'\n", pvm->szEqn);
+      Rprintf(" inline   '%s'\n", pvm->szEqn);
     }
     return (1);
   }
@@ -298,7 +298,7 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
     if (pvm->hType < ID_DERIV) {
       DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_NULL);
-      printf(" local v. '%s' = %s\n", szTmpName, szTmpEq);
+      Rprintf(" local v. '%s' = %s\n", szTmpName, szTmpEq);
     }
   }
 
@@ -352,7 +352,7 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
     DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_DXDT);
-    printf(" template ODE term for %s = %s\n", szTmpName, szTmpEq);
+    Rprintf(" template ODE term for %s = %s\n", szTmpName, szTmpEq);
   }
 
   return (1);
@@ -385,8 +385,8 @@ void ReadCpt(PINPUTBUF pibIn, ListOf_t *cpt_list, BOOL bTell, long index) {
 
   /* exit if compartment has no name */
   if (!strcmp(szID, "(null)")) {
-    printf("***Error: ID field not set for compartment %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for compartment %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -395,7 +395,7 @@ void ReadCpt(PINPUTBUF pibIn, ListOf_t *cpt_list, BOOL bTell, long index) {
      SBMLModels section */
   if (!strcmp(szID, szDefault_Cpt)) {
     if (bTell)
-      printf(" compart. '%s' = %s (external, ignored)\n", szID, szEqn);
+      Rprintf(" compart. '%s' = %s (external, ignored)\n", szID, szEqn);
     return;
   }
 
@@ -409,11 +409,11 @@ void ReadCpt(PINPUTBUF pibIn, ListOf_t *cpt_list, BOOL bTell, long index) {
          use of a template model... */
       if (!(hType = GetVarType(pinfo->pvmGloVars, szID))) {
         DefineGlobalVar(pibIn, pvm, szID, szEqn, hType);
-        printf(" compart. '%s' = %s\n", szID, szEqn);
+        Rprintf(" compart. '%s' = %s\n", szID, szEqn);
       } else { /* the name was already defined: warning.
                   We could also use pinfo->bTemplateInUse to trap the template
                   case... */
-        printf(" compart. '%s' = %s, redefined, ignored\n", szID, szEqn);
+        Rprintf(" compart. '%s' = %s, redefined, ignored\n", szID, szEqn);
       }
     }
 
@@ -438,7 +438,7 @@ void ReadCpts(PINPUTBUF pibIn, Model_t *model, BOOL bTell) {
   n = ListOf_size(cpt_list);
 
   if (bTell)
-    printf("\n number of compartments: %ld\n", n);
+    Rprintf("\n number of compartments: %ld\n", n);
 
   for (i = 0; i < n; i++)
     ReadCpt(pibIn, cpt_list, bTell, i);
@@ -465,8 +465,8 @@ void ReadFunction(PINPUTBUF pibIn, ListOf_t *functions_list, long index) {
   sprintf(szFName, "%s", FunctionDefinition_getId(FunctionX));
 
   if (!strcmp(szFName, "(null)")) {
-    printf("***Error: ID field not set for function %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for function %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -486,7 +486,7 @@ void ReadFunction(PINPUTBUF pibIn, ListOf_t *functions_list, long index) {
   sprintf(szEqn, "%s",
           SBML_formulaToString(FunctionDefinition_getBody(FunctionX)));
 
-  printf(" function %s = %s\n", szMacro, szEqn);
+  Rprintf(" function %s = %s\n", szMacro, szEqn);
 
   /* finish writing the macro */
   sprintf(szMacro, "%s (%s)", szMacro, szEqn);
@@ -511,7 +511,7 @@ void ReadFunctions(PINPUTBUF pibIn, int iSBML_level, Model_t *model) {
   nF = ListOf_size(functions_list);
 
   if (nF != 0) {
-    printf("\n number of functions: %ld\n", nF);
+    Rprintf("\n number of functions: %ld\n", nF);
 
     for (i = 0; i < nF; i++)
       ReadFunction(pibIn, functions_list, i);
@@ -542,7 +542,7 @@ void ReadDifferentials(PINPUTBUF pibIn, Model_t *model) {
   reaction_list = Model_getListOfReactions(model);
   r = ListOf_size(reaction_list);
 
-  printf("\n number of reactions: %ld\n", r);
+  Rprintf("\n number of reactions: %ld\n", r);
 
   for (i = 0; i < r; i++) { /* for each reaction in the model */
 
@@ -550,13 +550,13 @@ void ReadDifferentials(PINPUTBUF pibIn, Model_t *model) {
     reaction = (Reaction_t *)ListOf_get(reaction_list, i);
     sprintf(szRName, "%s", Reaction_getId(reaction));
 
-    printf("\n reaction ID: %s\n", szRName);
+    Rprintf("\n reaction ID: %s\n", szRName);
 
     /* get the reactants' list */
     reactant_list = Reaction_getListOfReactants(reaction);
     r2 = ListOf_size(reactant_list);
 
-    printf(" number of reactants: %ld\n", r2);
+    Rprintf(" number of reactants: %ld\n", r2);
 
     for (j = 0; j < r2; j++) { /* for each reactant */
 
@@ -571,7 +571,7 @@ void ReadDifferentials(PINPUTBUF pibIn, Model_t *model) {
     product_list = Reaction_getListOfProducts(reaction);
     r2 = ListOf_size(product_list);
 
-    printf(" number of products: %ld\n", r2);
+    Rprintf(" number of products: %ld\n", r2);
 
     /* for each product */
     for (j = 0; j < r2; j++) { /* for each product */
@@ -587,7 +587,7 @@ void ReadDifferentials(PINPUTBUF pibIn, Model_t *model) {
     modifier_list = Reaction_getListOfModifiers(reaction);
     r2 = ListOf_size(modifier_list);
 
-    printf(" number of modifiers: %ld\n", r2);
+    Rprintf(" number of modifiers: %ld\n", r2);
 
     /* for each modifier */
     for (j = 0; j < r2; j++) { /* for each product */
@@ -621,8 +621,8 @@ void ReadParameter(PINPUTBUF pibIn, ListOf_t *param_list, long index) {
   sprintf(szID, "%s", Parameter_getId(param));
 
   if (!strcmp(szID, "(null)")) {
-    printf("***Error: ID field not set for parameter %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for parameter %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -633,13 +633,13 @@ void ReadParameter(PINPUTBUF pibIn, ListOf_t *param_list, long index) {
     /* link value to symbol */
     DefineGlobalVar(pibIn, pvm, szID, szEqn, hType);
 
-    printf(" param.   '%s' = %s\n", szID, szEqn);
+    Rprintf(" param.   '%s' = %s\n", szID, szEqn);
 
   } /* end if */
 
   else { /* the parameter was already defined, this is confusing, exit */
-    printf("***Error: redeclaration of parameter %s\n", szID);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: redeclaration of parameter %s\n", szID);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -657,7 +657,7 @@ void ReadParameters(PINPUTBUF pibIn, Model_t *model) {
   param_list = Model_getListOfParameters(model);
   p = ListOf_size(param_list);
 
-  printf("\n number of parameters: %ld\n", p);
+  Rprintf("\n number of parameters: %ld\n", p);
 
   for (i = 0; i < p; i++) {
     ReadParameter(pibIn, param_list, i);
@@ -685,8 +685,8 @@ void ReadReaction_L1(PINPUTBUF pibIn, ListOf_t *reaction_list, long index) {
   sprintf(szRName, "%s", Reaction_getId(reaction));
 
   if (!strcmp(szRName, "(null)")) {
-    printf("***Error: ID field not set for reaction %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for reaction %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -723,13 +723,13 @@ void ReadReaction_L2(PINPUTBUF pibIn, ListOf_t *reaction_list, long index) {
 
   /* check if reaction name is valid */
   if (!strcmp(szRName, "(null)")) {
-    printf("***Error: ID field not set for reaction %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for reaction %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
   /* print reaction name to the screen */
-  printf("\n reaction ID: %s\n", szRName);
+  Rprintf("\n reaction ID: %s\n", szRName);
 
   kl = Reaction_getKineticLaw(reaction);
 
@@ -737,7 +737,7 @@ void ReadReaction_L2(PINPUTBUF pibIn, ListOf_t *reaction_list, long index) {
   param_list = KineticLaw_getListOfParameters(kl);
   p = ListOf_size(param_list);
 
-  printf(" number of local parameters (made global by MCSim): %ld\n", p);
+  Rprintf(" number of local parameters (made global by MCSim): %ld\n", p);
 
   for (i = 0; i < p; i++)
     ReadParameter(pibIn, param_list, i); /* side effect!
@@ -746,7 +746,7 @@ void ReadReaction_L2(PINPUTBUF pibIn, ListOf_t *reaction_list, long index) {
   /* get kinetic law section */
   sprintf(szEqn, "%s", KineticLaw_getFormula(kl));
 
-  printf(" '%s' = %s\n", szRName, szEqn);
+  Rprintf(" '%s' = %s\n", szRName, szEqn);
 
   /* if a PK template is used, reactions are supposed to happen in the
      compartment in which they are defined: scan szEqn and
@@ -768,8 +768,8 @@ void ReadReaction_L2(PINPUTBUF pibIn, ListOf_t *reaction_list, long index) {
 
     } /* while */
 
-    printf(" after template processing:\n");
-    printf(" '%s' = %s\n", szRName, szEqn_expanded);
+    Rprintf(" after template processing:\n");
+    Rprintf(" '%s' = %s\n", szRName, szEqn_expanded);
 
   } /* if PK template */
 
@@ -794,7 +794,7 @@ void ReadReactions(PINPUTBUF pibIn, int iSBML_level, Model_t *model) {
   reaction_list = Model_getListOfReactions(model);
   r = ListOf_size(reaction_list);
 
-  printf("\n number of reactions: %ld\n", r);
+  Rprintf("\n number of reactions: %ld\n", r);
 
   for (i = 0; i < r; i++) {
 
@@ -821,7 +821,7 @@ void ReadRule(PINPUTBUF pibIn, ListOf_t *rules_list, long index) {
   rule = (Rule_t *)ListOf_get(rules_list, index);
 
   if (Rule_isAlgebraic(rule))
-    printf("*** Warning: algebraic rule is ignored. ***\n");
+    Rprintf("*** Warning: algebraic rule is ignored. ***\n");
   else {
     if (Rule_isAssignment(rule)) {
 
@@ -848,7 +848,7 @@ void ReadRule(PINPUTBUF pibIn, ListOf_t *rules_list, long index) {
         DefineVariable(pibIn, szRName, szEqn, KM_DXDT);
       }
     }
-    printf(" rule %s = %s\n", szRName, szEqn);
+    Rprintf(" rule %s = %s\n", szRName, szEqn);
   }
 
 } /* ReadRule */
@@ -866,11 +866,11 @@ void ReadRules(PINPUTBUF pibIn, int iSBML_level, Model_t *model) {
   rules_list = Model_getListOfRules(model);
   ru = ListOf_size(rules_list);
 
-  printf("\n number of rules: %ld\n", ru);
+  Rprintf("\n number of rules: %ld\n", ru);
 
   for (i = 0; i < ru; i++) {
     if (iSBML_level == 1)
-      printf("mod: ignoring rate rules definitions in level 1...\n");
+      Rprintf("mod: ignoring rate rules definitions in level 1...\n");
     else
       ReadRule(pibIn, rules_list, i);
   }
@@ -887,7 +887,7 @@ int ReadSBMLLevel(SBMLDocument_t *d) {
 
   level = SBMLDocument_getLevel(d);
 
-  printf("sbml level %d\n", level);
+  Rprintf("sbml level %d\n", level);
 
   return (level);
 
@@ -935,9 +935,9 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
     if (Species_isSetInitialAmount(species))
       sprintf(szEqn, "%g", Species_getInitialAmount(species));
     else {
-      printf("***Error: Species has only substance units but "
-             "InitialAmount is not set.\n"
-             "Exiting.\n\n");
+      Rprintf("***Error: Species has only substance units but "
+              "InitialAmount is not set.\n"
+              "Exiting.\n\n");
       exit(0);
     }
   } else {
@@ -945,8 +945,8 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
       sprintf(szEqn, "%g", Species_getInitialConcentration(species));
     else {
       sprintf(szEqn, "%g", Species_getInitialAmount(species));
-      printf("\nWarning: Species should be concentration but "
-             "InitialConcentration is not set.\n\n");
+      Rprintf("\nWarning: Species should be concentration but "
+              "InitialConcentration is not set.\n\n");
     }
   }
 
@@ -954,14 +954,14 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
   bBoundary = (BOOL)Species_getBoundaryCondition(species);
 
   if (!strcmp(szID, "(null)")) {
-    printf("***Error: ID field not set for species %ld\n", index + 1);
-    printf("Exiting...\n\n");
+    Rprintf("***Error: ID field not set for species %ld\n", index + 1);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
   if (pinfo->bTemplateInUse) {
 
-    printf("\n template processing for species '%s':\n", szID);
+    Rprintf("\n template processing for species '%s':\n", szID);
 
     /* reset the species' value, to avoid confusion in case of redefinition */
     sprintf(szEqn, "0");
@@ -969,13 +969,13 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
     /* check if the compartment is the external default or not */
     if (strcmp(szCpt, szDefault_Cpt)) {
 
-      printf(" (species local to compartment '%s')\n", szCpt);
+      Rprintf(" (species local to compartment '%s')\n", szCpt);
 
       /* species is in a template-defined cpt */
       if (!(GetVarPTR(ptempinfo->pvmCpts, szCpt))) {
         /* compartment not defined by the template: error */
-        printf("***Error: template did not defined");
-        printf(" compartment '%s' - exiting...\n\n", szCpt);
+        Rprintf("***Error: template did not defined");
+        Rprintf(" compartment '%s' - exiting...\n\n", szCpt);
         exit(0);
       } else /* extend the variable name with the compartment name */
         sprintf(szID, "%s_%s", szID, szCpt);
@@ -985,7 +985,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
         if (!(hType = GetVarType(pinfo->pvmGloVars, szID))) { /* New id */
           /* link value to symbol */
           DefineGlobalVar(pibIn, pvm, szID, szEqn, hType);
-          printf(" param.   '%s' = %s  (was boundary species)\n", szID, szEqn);
+          Rprintf(" param.   '%s' = %s  (was boundary species)\n", szID, szEqn);
         }  /* end if */
       }    /* end if bBoundary */
       else /* not boundary, create a state variable */
@@ -994,15 +994,15 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
 
     else { /* species is outside of a template-defined compartment */
 
-      printf(" (circulating species)\n");
+      Rprintf(" (circulating species)\n");
 
       /* first: species set to boundary conditions (i.e. invariant) are
          not allowed to circulate. If found outside of a meaningful
          compartment: exit with error message */
       if (bBoundary) {
-        printf("***Error: Species %s is set to boundary;\n", szID);
-        printf("          It has to be inside a meaningful compartment -");
-        printf("exiting.\n\n");
+        Rprintf("***Error: Species %s is set to boundary;\n", szID);
+        Rprintf("          It has to be inside a meaningful compartment -");
+        Rprintf("exiting.\n\n");
         exit(0);
       }
 
@@ -1055,7 +1055,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs, ListOf_t *species_list,
       if (!(hType = GetVarType(pinfo->pvmGloVars, szID))) { /* New id */
         /* link value to symbol */
         DefineGlobalVar(pibIn, pvm, szID, szEqn, hType);
-        printf(" param.   '%s' = %s  (was boundary species)\n", szID, szEqn);
+        Rprintf(" param.   '%s' = %s  (was boundary species)\n", szID, szEqn);
       }  /* end if */
     }    /* end if bBoundary */
     else /* not boundary, create a state variable */
@@ -1077,7 +1077,7 @@ void ReadSpecies(PINPUTBUF pibIn, int iSBML_level, BOOL bProcessPK_ODEs,
   species_list = Model_getListOfSpecies(model);
   p = ListOf_size(species_list);
 
-  printf("\n number of original SBML species: %ld\n", p);
+  Rprintf("\n number of original SBML species: %ld\n", p);
 
   for (i = 0; i < p; i++) {
     Read1Species(pibIn, bProcessPK_ODEs, species_list, i);
@@ -1167,9 +1167,9 @@ void ReadOptions(PINPUTBUF pibIn) {
       iIDtype = metaID; /* goto Done; */
     }
     /* if we arrive here there is a problem */
-    printf("***Error: SBMLModel 1st option must be 'UseID'."
-           "'UseName' or 'UseMetaID' are disabled for now.\n"
-           "Exiting.\n\n");
+    Rprintf("***Error: SBMLModel 1st option must be 'UseID'."
+            "'UseName' or 'UseMetaID' are disabled for now.\n"
+            "Exiting.\n\n");
     exit(0);
 
   Done:
@@ -1213,7 +1213,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
      rate rules  or reactions (to be set up as local variables) */
   for (i = 0; i < nFiles; i++) {
 
-    printf("\nreading model '%s'\n", pszFileNames[i]);
+    Rprintf("\nreading model '%s'\n", pszFileNames[i]);
 
     /* init buffer and read in the input file. */
     /* buffer size -1 will create a buffer of the size of the input file */
@@ -1230,7 +1230,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
     model = SBMLDocument_getModel(document);
     if (model == NULL) {
-      printf("***Error: No model present. Exiting.\n\n");
+      Rprintf("***Error: No model present. Exiting.\n\n");
       exit(0);
     }
 
@@ -1239,8 +1239,8 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
     /* PK template requires level 2 SBML, issue an error otherwise */
     if ((pinfo->bTemplateInUse) && (iSBML_level < 2)) {
-      printf("***Error: use of a PK template requires ");
-      printf("SBML level 2 - exiting.\n\n");
+      Rprintf("***Error: use of a PK template requires ");
+      Rprintf("SBML level 2 - exiting.\n\n");
       exit(0);
     }
 
@@ -1288,7 +1288,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
     /* re-read compartments, no printing, no redeclaration */
     ReadCpts(&ibInLocal, model, FALSE);
 
-    printf("\nreading differentials in model %s\n", pszFileNames[i]);
+    Rprintf("\nreading differentials in model %s\n", pszFileNames[i]);
 
     /* re-read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
@@ -1299,7 +1299,7 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
   } /* for model index i*/
 
-  printf("\n");
+  Rprintf("\n");
 
   /* cleanup */
   for (i = 0; i < nFiles; i++)
@@ -1338,10 +1338,10 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
   ReadFileNames(pibIn, &nFiles, &pszFileNames);
 
   if (nFiles > 1)
-    printf("mod: cannot use more that one template - using only the 1st\n\n");
+    Rprintf("mod: cannot use more that one template - using only the 1st\n\n");
 
   /* give the template name used */
-  printf("%s\n", pszFileNames[0]);
+  Rprintf("%s\n", pszFileNames[0]);
 
   if (!InitBuffer(&ibInLocal, BUFFER_SIZE, pszFileNames[0]))
     ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL);

@@ -323,46 +323,46 @@ PSTR GetName(PVMMAPSTRCT pvm, PSTR szModelVarName, PSTR szDerivName,
 
   case ID_INPUT:
     if (bForR)
-      sprintf(vszVarName, "%s", pvm->szName);
+      snprintf(vszVarName, MAX_LEX, "%s", pvm->szName);
     else
-      sprintf(vszVarName, "vrgInputs[ID_%s]", pvm->szName);
+      snprintf(vszVarName, MAX_LEX, "vrgInputs[ID_%s]", pvm->szName);
     break;
 
   case ID_STATE:
     if (bForR) {
       if (bForInits)
-        sprintf(vszVarName, "%s", pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "%s", pvm->szName);
       else
-        sprintf(vszVarName, "y[ID_%s]", pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "y[ID_%s]", pvm->szName);
     } else {
       if (szModelVarName)
-        sprintf(vszVarName, "%s[ID_%s]", szModelVarName, pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "%s[ID_%s]", szModelVarName, pvm->szName);
       else
-        sprintf(vszVarName, "vrgModelVars[ID_%s]", pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "vrgModelVars[ID_%s]", pvm->szName);
     }
     break;
 
   case ID_OUTPUT:
     if (bForR)
-      sprintf(vszVarName, "yout[ID_%s]", pvm->szName);
+      snprintf(vszVarName, MAX_LEX, "yout[ID_%s]", pvm->szName);
     else {
       if (szModelVarName)
-        sprintf(vszVarName, "%s[ID_%s]", szModelVarName, pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "%s[ID_%s]", szModelVarName, pvm->szName);
       else
-        sprintf(vszVarName, "vrgModelVars[ID_%s]", pvm->szName);
+        snprintf(vszVarName, MAX_LEX, "vrgModelVars[ID_%s]", pvm->szName);
     }
     break;
 
   case ID_DERIV:
     assert(szDerivName);
     if (bForR)
-      sprintf(vszVarName, "ydot[ID_%s]", pvm->szName);
+      snprintf(vszVarName, MAX_LEX, "ydot[ID_%s]", pvm->szName);
     else
-      sprintf(vszVarName, "%s[ID_%s]", szDerivName, pvm->szName);
+      snprintf(vszVarName, MAX_LEX, "%s[ID_%s]", szDerivName, pvm->szName);
     break;
 
   default: /* Parms and local variables */
-    sprintf(vszVarName, "%s", pvm->szName);
+    snprintf(vszVarName, MAX_LEX, "%s", pvm->szName);
     break;
   } /* switch */
 
@@ -647,7 +647,7 @@ int WriteOneEquation(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
     /* Inputs not allowed anymore in Scale section - FB 7/12/96 */
     if (TYPE(pvm) == ID_INPUT) {
-      printf("Error: input '%s' used in Scale context.\n", pvm->szName);
+      Rprintf("Error: input '%s' used in Scale context.\n", pvm->szName);
       exit(0);
     }
 
@@ -689,7 +689,7 @@ int WriteOneEquation(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
 void WriteCalcDeriv(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmDyn) {
   if (!pvmDyn)
-    printf("No Dynamics{} equations.\n\n");
+    Rprintf("No Dynamics{} equations.\n\n");
 
   fprintf(pfile, "/*----- Dynamics section */\n\n");
   fprintf(pfile, "void CalcDeriv (double  rgModelVars[], ");
@@ -710,7 +710,7 @@ void WriteCalcDeriv(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmDyn) {
 */
 void WriteScale(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmScale) {
   if (!pvmScale)
-    printf("No Scale{} equations. Null function defined.\n\n");
+    Rprintf("No Scale{} equations. Null function defined.\n\n");
 
   fprintf(pfile, "/*----- Model scaling */\n\n");
   fprintf(pfile, "void ScaleModel (PDOUBLE pdTime)\n");
@@ -740,7 +740,7 @@ void WriteCalcJacob(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmJacob) {
 */
 void WriteCalcOutputs(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmCalcOut) {
   if (!pvmCalcOut)
-    printf("No CalcOutputs{} equations. Null function defined.\n\n");
+    Rprintf("No CalcOutputs{} equations. Null function defined.\n\n");
 
   fprintf(pfile, "/*----- Outputs calculations */\n\n");
   fprintf(pfile, "void CalcOutputs (double  rgModelVars[], ");
@@ -1009,7 +1009,7 @@ void WriteModel(PINPUTINFO pinfo, PSTR szFileOut) {
   PFILE pfile;
 
   if (!pinfo->pvmGloVars || (!pinfo->pvmDynEqns && !pinfo->pvmCalcOutEqns)) {
-    printf("Error: No Dynamics, no outputs or no global variables defined\n");
+    Rprintf("Error: No Dynamics, no outputs or no global variables defined\n");
     return;
   }
 
@@ -1048,7 +1048,7 @@ void WriteModel(PINPUTINFO pinfo, PSTR szFileOut) {
 
     fclose(pfile);
 
-    printf("\n* Created model file '%s'.\n\n", szFileOut);
+    Rprintf("\n* Created model file '%s'.\n\n", szFileOut);
 
   } /* if */
   else
@@ -1132,7 +1132,7 @@ void Write_R_State_Scale(PFILE pfile, PVMMAPSTRCT pvmScale) {
 void Write_R_CalcDeriv(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmDyn,
                        PVMMAPSTRCT pvmCalcOut) {
   if (!pvmDyn)
-    printf("No Dynamics{} equations.\n\n");
+    Rprintf("No Dynamics{} equations.\n\n");
 
   fprintf(pfile, "/*----- Dynamics section */\n\n");
   fprintf(pfile, "void derivs (int *neq, double *pdTime, double *y, ");
@@ -1627,7 +1627,7 @@ void Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
   bForR = TRUE;
 
   if (!pinfo->pvmGloVars || (!pinfo->pvmDynEqns && !pinfo->pvmCalcOutEqns)) {
-    printf("Error: No Dynamics, outputs or global variables defined\n");
+    Rprintf("Error: No Dynamics, outputs or global variables defined\n");
     return;
   }
 
@@ -1653,7 +1653,8 @@ void Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
     vszModelFilename = pinfo->szInputFilename;
     vszModGenName = pinfo->szModGenName;
 
-    sprintf(vszModified_Title, "%s %s", szFileOut, "for R deSolve package");
+    snprintf(vszModified_Title, MAX_LEX, "%s %s", szFileOut,
+             "for R deSolve package");
     WriteHeader(pfile, vszModified_Title, pinfo->pvmGloVars);
 
     Write_R_Includes(pfile);
@@ -1669,7 +1670,7 @@ void Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
 
     fclose(pfile);
 
-    printf("\n* Created C model file '%s'.\n\n", szFileOut);
+    Rprintf("\n* Created C model file '%s'.\n\n", szFileOut);
 
   } /* if */
   else
@@ -1695,7 +1696,7 @@ void Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
   if (pfile) {
     Write_R_InitPOS(pfile, pinfo->pvmGloVars, pinfo->pvmScaleEqns);
     fclose(pfile);
-    printf("\n* Created R parameter initialization file '%s'.\n\n", Rfile);
+    Rprintf("\n* Created R parameter initialization file '%s'.\n\n", Rfile);
   } else
     ReportError(NULL, RE_CANNOTOPEN | RE_FATAL, Rfile, "in Write_R_Model ()");
 

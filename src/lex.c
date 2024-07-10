@@ -428,8 +428,8 @@ void FlushBuffer(PINPUTBUF pibIn) {
   PBUF pbuf = pibIn->pbufOrg;
 
   while (*pbuf)
-    printf("%c", *pbuf++);
-  printf("");
+    Rprintf("%c", *pbuf++);
+  Rprintf("");
 
 } /* FlushBuffer */
 
@@ -498,8 +498,8 @@ void GetaString(PINPUTBUF pibIn, PSTR szLex) {
   } /* if */
 
   if (i == MAX_LEX - 1) {
-    printf("\n***Error: max string length MAX_LEX exceeded in: %s\n", szLex);
-    printf("Exiting...\n\n");
+    Rprintf("\n***Error: max string length MAX_LEX exceeded in: %s\n", szLex);
+    Rprintf("Exiting...\n\n");
     exit(0);
   }
 
@@ -1022,7 +1022,7 @@ void GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
           *pibIn->pbufCur++;
           if (*pibIn->pbufCur != CH_COMMENT) {
             char szTmp[3]; // 2 chars + '\0' for terminating the string
-            sprintf(szTmp, "\\%c", *pibIn->pbufCur);
+            snprintf(szTmp, 3, "\\%c", *pibIn->pbufCur);
             ReportError(pibIn, RE_UNEXPESCAPE | RE_FATAL, szTmp, NULL);
           }
           bEscaped = TRUE;
@@ -1185,8 +1185,8 @@ void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
       szExpression[m] = '\0'; /* terminate szExpression */
 
       /* compute expression and put back the result in szExpression */
-      sprintf(szExpression, "%ld",
-              EvaluateExpression(pibIn, index, szExpression));
+      snprintf(szExpression, MAX_LEX, "%ld",
+               EvaluateExpression(pibIn, index, szExpression));
 
       /* copy szExpression into szEqnU */
       m = 0;
