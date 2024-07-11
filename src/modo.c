@@ -744,7 +744,7 @@ int WriteCalcJacob(PFILE pfile, PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmJacob) {
   PROPAGATE_EXIT(ForAllVar(pfile, pvmGlo, &WriteOneDecl, ID_LOCALJACOB, NULL));
   PROPAGATE_EXIT(ForAllVar(pfile, pvmJacob, &WriteOneEquation, ALL_VARS, (PVOID)KM_JACOB));
   fprintf(pfile, "\n} /* CalcJacob */\n\n\n");
-
+  return 0;
 } /* WriteCalcJacob */
 
 /* ----------------------------------------------------------------------------
@@ -973,7 +973,7 @@ int VerifyEqns(PVMMAPSTRCT pvmGlo, PVMMAPSTRCT pvmDyn) {
   if (!bStatesOK) {
     PROPAGATE_EXIT(ReportError(NULL, RE_FATAL, NULL, "State equations missing.\n"));
   }
-
+  return 0;
 } /* VerifyEqns */
 
 /* ----------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ __attribute__((warn_unused_result)) int VerifyOutputEqns(PINPUTINFO pInfo) {
   if (!bOutputsOK) {
     PROPAGATE_EXIT(ReportError(NULL, RE_FATAL, NULL, "Output equations missing.\n"));
   }
-
+  return 0;
 } /* VerifyOutputEqns */
 
 /* ----------------------------------------------------------------------------
@@ -1720,7 +1720,7 @@ int Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
   /* Length of buffer for new file name: includes terminating null */
   nRout = nbase + strlen(Rappend) + 1;
   Rfile = (PSTR)malloc(nRout);
-  Rfile = strncpy(Rfile, szFileOut, nbase);
+  Rfile = strncpy(Rfile, szFileOut, nbase+1);
   Rfile[nbase] = '\0';
   Rfile = strcat(Rfile, Rappend);
   pfile = fopen(Rfile, "w");
@@ -1733,5 +1733,5 @@ int Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
   }
 
   free(Rfile);
-
+  return 0;
 } /* Write_R_Model */

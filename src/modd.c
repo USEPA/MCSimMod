@@ -111,7 +111,6 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
   MakeStringBuffer(pibIn, &ibDummy, szEqn);
 
   while (!EOB(&ibDummy)) { /* bOK not checked here... */
-
     PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     switch (iType) {
@@ -166,9 +165,7 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
     } /* switch */
 
     bReturn = (bReturn && bOK);
-
   } /* while */
-
   return (bReturn);
 
 } /* VerifyEqn */
