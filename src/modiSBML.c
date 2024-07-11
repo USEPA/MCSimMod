@@ -168,7 +168,7 @@ __attribute__((warn_unused_result)) int AugmentEquation(PVMMAPSTRCT pvm, PSTR sz
   }
 
   int buf_len = strlen(pvm->szEqn) + strlen(szSymbol) + strlen(szStoi) + strlen(szEqn) + 5;
-  if (szBuf = (PSTR)malloc(buf_len)) {
+  if ((szBuf = (PSTR)malloc(buf_len))) {
     if (!strcmp(szStoi, "1")) {
       snprintf(szBuf, buf_len, "%s%s%s", pvm->szEqn, szSymbol, szEqn);
     } else {
@@ -183,7 +183,7 @@ __attribute__((warn_unused_result)) int AugmentEquation(PVMMAPSTRCT pvm, PSTR sz
   }
 
   pvm->szEqn = szBuf;
-
+  return 0;
 } /* AugmentEquation */
 
 /* ----------------------------------------------------------------------------
@@ -198,6 +198,7 @@ __attribute__((warn_unused_result)) int ConstructEqn(PINPUTBUF pibIn, PSTR szRNa
   int iLexType;
   HANDLE hType;
   PSTRLEX szSName;
+  PSTRLEX szSNameSwap;
   PSTRLEX szStoichio;
   PVMMAPSTRCT pvm;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
@@ -229,10 +230,11 @@ __attribute__((warn_unused_result)) int ConstructEqn(PINPUTBUF pibIn, PSTR szRNa
       Rprintf("Exiting...\n\n");
       return EXIT_ERROR;
     }
-    if (snprintf(szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName) <
+    if (snprintf(szSNameSwap, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName) <
         0) { // truncated--should never happen with the above check.
       return EXIT_ERROR;
     }
+    strncpy(szSName, szSNameSwap, len);
   }
 
   /* padded species should have been declared State variables or
@@ -253,6 +255,7 @@ __attribute__((warn_unused_result)) int ConstructEqn(PINPUTBUF pibIn, PSTR szRNa
       PROPAGATE_EXIT(ReportError(NULL, RE_BADSTATE | RE_FATAL, szSName, NULL));
     }
   }
+  return 0;
 } /* ConstructEqn */
 
 /* ----------------------------------------------------------------------------
@@ -447,6 +450,7 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
   PFORSV pV = (PFORSV)pInfo;
   PSTRLEX szTmpName = "";
   PSTREQN szTmpEq = "";
+  PSTREQN szTmpEqSwap = "";
   INPUTBUF ibDummy;
   InitINPUTBUF(&ibDummy);
   PSTRLEX szLex;
@@ -475,7 +479,8 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+      snprintf(szTmpEqSwap, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+      strncpy(szTmpEq, szTmpEqSwap, len);
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
@@ -485,9 +490,10 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
         return EXIT_ERROR;
       }
+      strncpy(szTmpEq, szTmpEqSwap, len);
     }
 
   } /* while */
@@ -525,6 +531,7 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
   PFORSV pV = (PFORSV)pInfo;
   PSTRLEX szTmpName = "";
   PSTREQN szTmpEq = "";
+  PSTREQN szTmpEqSwap = "";
   INPUTBUF ibDummy;
   InitINPUTBUF(&ibDummy);
   PSTRLEX szLex;
@@ -557,7 +564,8 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+      snprintf(szTmpEqSwap, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
+      strncpy(szTmpEq, szTmpEqSwap, len);
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
@@ -567,9 +575,10 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
         return EXIT_ERROR;
       }
+      strncpy(szTmpEq, szTmpEqSwap, len);
     }
 
   } /* while */
@@ -750,7 +759,7 @@ __attribute__((warn_unused_result)) int ReadDifferentials(PINPUTBUF pibIn) {
     }
 
   } /* end while */
-
+  return 0;
 } /* ReadDifferentials */
 
 /* ----------------------------------------------------------------------------
@@ -905,15 +914,20 @@ __attribute__((warn_unused_result)) int TranscribeOpSymbol(PSTR szOp) {
 int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
   PSTRLEX szOp;
   PSTRLEX szLex;
+  PSTRLEX szLexSwap;
+  PSTREQN szEqnSwap;
   int iKw;
   int ithTerm = 0;
   BOOL bDone = FALSE;
   char c;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
+  
+
   /* write an opening '(' to szEqn */
   if (*bInited) { /* we are somewhere in an "apply" section: concatenate */
-    snprintf(szEqn, MAX_EQN, "%s(", szEqn);
+    snprintf(szEqnSwap, MAX_EQN, "%s(", szEqn);
+    strncpy(szEqn, szEqnSwap, MAX_EQN);
   } else {
     snprintf(szEqn, MAX_EQN, "("); /* initiate */
     *bInited = TRUE;
@@ -941,7 +955,8 @@ int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
       GetIdentifier(pibIn, szLex);
       iKw = GetSBMLKeywordCode(szLex);
       if ((iKw == KM_APPLY) || (iKw == KM_MATH)) {
-        snprintf(szEqn, MAX_EQN, "%s)", szEqn);
+        snprintf(szEqnSwap, MAX_EQN, "%s)", szEqn);
+        strncpy(szEqn, szEqnSwap, MAX_EQN);
         return 0;
       }
     } else { /* 'c' is not '/', read item */
@@ -953,13 +968,16 @@ int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
 
       if (!strcmp(szOp, "pow")) {
         if (ithTerm > 1) {
-          snprintf(szEqn, MAX_EQN, "%s)", szEqn);
+          snprintf(szEqnSwap, MAX_EQN, "%s)", szEqn);
+          strncpy(szEqn, szEqnSwap, MAX_EQN);
         } else {
-          snprintf(szEqn, MAX_EQN, "%s%s(,", szEqn, szOp);
+          snprintf(szEqnSwap, MAX_EQN, "%s%s(,", szEqn, szOp);
+          strncpy(szEqn, szEqnSwap, MAX_EQN);
         }
       } else {
         if (ithTerm > 1) {
-          snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szOp);
+          snprintf(szEqnSwap, MAX_EQN, "%s%s", szEqn, szOp);
+          strncpy(szEqn, szEqnSwap, MAX_EQN);
         }
       }
       PROPAGATE_EXIT(ReadApply(pibIn, bInited, szEqn)); /* found "apply", get lower level */
@@ -981,29 +999,35 @@ int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
             Rprintf("Exiting...\n\n");
             return EXIT_ERROR;
           }
-          if (snprintf(szLex, len, "%s_%s", szLex,
+          if (snprintf(szLexSwap, len, "%s_%s", szLex,
                        pinfo->pvmLocalCpts->szName) < 0) { // truncated--should never happen with the above check.
             return EXIT_ERROR;
           }
+          strncpy(szLex, szLexSwap, len);
         }
 
         ithTerm++;
 
         if (!strcmp(szOp, "pow")) {
           if (ithTerm > 1) {
-            snprintf(szEqn, MAX_EQN, "%s%s)", szEqn, szLex);
+            snprintf(szEqnSwap, MAX_EQN, "%s%s)", szEqn, szLex);
+            strncpy(szEqn, szEqnSwap, MAX_EQN);
           } else {
-            snprintf(szEqn, MAX_EQN, "%s%s(%s,", szEqn, szOp, szLex);
+            snprintf(szEqnSwap, MAX_EQN, "%s%s(%s,", szEqn, szOp, szLex);
+            strncpy(szEqn, szEqnSwap, MAX_EQN);
           }
         } else {
           if (ithTerm > 1) {
-            snprintf(szEqn, MAX_EQN, "%s%s%s", szEqn, szOp, szLex);
+            snprintf(szEqnSwap, MAX_EQN, "%s%s%s", szEqn, szOp, szLex);
+            strncpy(szEqn, szEqnSwap, MAX_EQN);
           } else {
-            snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szLex);
+            snprintf(szEqnSwap, MAX_EQN, "%s%s", szEqn, szLex);
+            strncpy(szEqn, szEqnSwap, MAX_EQN);
           }
         }
       } while (GetSBMLLex(pibIn, KM_APPLY, KM_CI));
-      snprintf(szEqn, MAX_EQN, "%s)", szEqn);
+      snprintf(szEqnSwap, MAX_EQN, "%s)", szEqn);
+      strncpy(szEqn, szEqnSwap, MAX_EQN);
       return 0;
     } /* end else */
   } /* end do */
@@ -1118,6 +1142,7 @@ __attribute__((warn_unused_result)) int ReadRules(PINPUTBUF pibIn, int iSBML_lev
     }
   }
 
+  return 0;
 } /* ReadRules */
 
 /* ----------------------------------------------------------------------------
@@ -1175,6 +1200,7 @@ __attribute__((warn_unused_result)) int ReadSBMLLevel(PINPUTBUF pibIn) {
 */
 __attribute__((warn_unused_result)) int Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
   PSTRLEX szName;
+  PSTRLEX szNameSwap;
   PSTRLEX szBoundary;
   PSTRLEX szCpt;
   PSTREQN szEqn;
@@ -1229,9 +1255,10 @@ __attribute__((warn_unused_result)) int Read1Species(PINPUTBUF pibIn, BOOL bProc
           Rprintf("Exiting...\n\n");
           return EXIT_ERROR;
         }
-        if (snprintf(szName, len, "%s_%s", szName, szCpt) < 0) { // truncated--should never happen with the above check.
+        if (snprintf(szNameSwap, len, "%s_%s", szName, szCpt) < 0) { // truncated--should never happen with the above check.
           return EXIT_ERROR;
         }
+        strncpy(szName, szNameSwap,len);
       }
 
       if (bBoundary) {
