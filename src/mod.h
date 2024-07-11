@@ -165,7 +165,7 @@ typedef struct tagINPUTINFO {
    Public Prototypes */
 
 void InitInfo(PINPUTINFO pinfo, PSTR szModGenName);
-int c_mod(char **modelNamePtr, char **outputNamePtr);
+extern int c_mod(char **modelNamePtr, char **outputNamePtr);
 
 #define MOD_DEFINED
 #endif
