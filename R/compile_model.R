@@ -14,7 +14,7 @@
 #' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
 #' @param dll_file Possible previously compiled dll
 #'
-#' @useDynLib MCSimMod
+#' @useDynLib MCSimMod, .registration=TRUE
 #' @export
 compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # Unload DLL if it has been loaded.
