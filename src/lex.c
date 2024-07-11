@@ -378,7 +378,7 @@ void GetToken(PSTR *szExp, PSTR szToken, PINT piType) {
 */
 // TODO the problem is this code returns 0 on error, but we return  a negative number
 BOOL InitBuffer(PINPUTBUF pibIn, long lSize, PSTR szFileIn) {
-  Rprintf(" init buffer, file = %s\n", szFileIn);
+  // Rprintf(" init buffer, file = %s\n", szFileIn);
   BOOL bReturn = 0;
 
   if (!pibIn) {
@@ -415,10 +415,10 @@ BOOL InitBuffer(PINPUTBUF pibIn, long lSize, PSTR szFileIn) {
 
   /* close input file eventually */
   if (lSize < 0) {
-    Rprintf(" closing file %s\n", szFileIn);
+    // Rprintf(" closing file %s\n", szFileIn);
     fclose(pibIn->pfileIn);
   }
-  Rprintf(" init buffer done returning bReturn = %d\n", bReturn);
+  // Rprintf(" init buffer done returning bReturn = %d\n", bReturn);
   return (bReturn);
 
 } /* InitBuffer */

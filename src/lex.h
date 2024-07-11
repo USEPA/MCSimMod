@@ -178,7 +178,7 @@ typedef char PSTREQN[MAX_EQN]; /* String of an equation */
 /* ---------------------------------------------------------------------------
    Public Macros */
 
-#define EOB(pib) ((!(pib)) || ((!(pib)->pbufCur || !*(pib)->pbufCur) && (!(pib)->pfileIn || feof((pib)->pfileIn))))
+#define EOB(pib) (((uintptr_t)NULL==(uintptr_t)pib) || ((!(pib)->pbufCur || !*(pib)->pbufCur) && (!(pib)->pfileIn || feof((pib)->pfileIn))))
 
 #define IsUnderscore(c) ((c) == '_')
 #define IsSign(c) ((c) == '+' || (c) == '-')

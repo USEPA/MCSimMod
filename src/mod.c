@@ -462,7 +462,7 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
   optarg = 0;
   optind = 0;
 
-  Rprintf("c_mod %s %s\n", *modelNamePtr, *outputNamePtr);
+  // Rprintf("c_mod %s %s\n", *modelNamePtr, *outputNamePtr);
 
   int nArg = 4;
   PSTR rgszArg[] = {"RMCSIM", "-R", *modelNamePtr, *outputNamePtr};
@@ -477,7 +477,7 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
   InitInfo(&tempinfo, rgszArg[0]);
 
   int ret = GetCmdLineArgs(nArg, rgszArg, &szFileIn, &szFileOut, &info);
-  Rprintf("c_mod %s %s\n", szFileIn, szFileOut);
+  // Rprintf("c_mod %s %s\n", szFileIn, szFileOut);
   if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
     free(szFileIn);
     free(szFileOut);
