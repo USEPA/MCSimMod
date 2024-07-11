@@ -4,8 +4,8 @@
 \name{Model-class}
 \alias{Model-class}
 \alias{Model}
-\title{RMCSim class to run a model}
+\title{MCSimMod class to run a model}
 \description{
-A class for managing RMCSim models
+A class for managing MCSimMod models
 }
 

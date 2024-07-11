@@ -1,7 +1,7 @@
-# RMCSim package
+# MCSimMod package
 <Insert intro>
 
-`deSolve` needed for `RMCSim`:
+`deSolve` needed for `MCSimMod`:
 
 `library.packages("deSolve")`
 

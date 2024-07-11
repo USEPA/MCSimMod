@@ -2,7 +2,7 @@
 % Please edit documentation in R/MCSim_model.R
 \name{fromString}
 \alias{fromString}
-\title{Return an RMCSim instance from a string-based model}
+\title{Return an MCSimMod instance from a string-based model}
 \usage{
 fromString(string)
 }

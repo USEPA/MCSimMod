@@ -35,10 +35,6 @@ compile_model <- function(model_file, c_file, dll_name, dll_file) {
   }
   # .C ("c_mod")
 
-  # Not needed for compiled executable
-  # .Call("mod", model_file, c_file, PACKAGE = "RMCSim")
-  # .C("mod", model_file, c_file, 'RMCSim.so')
-
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   r_path <- file.path(R.home("bin"), "R")
   system(paste(r_path, " CMD SHLIB ", c_file, sep = ""))

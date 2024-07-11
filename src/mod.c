@@ -465,7 +465,7 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
   // Rprintf("c_mod %s %s\n", *modelNamePtr, *outputNamePtr);
 
   int nArg = 4;
-  PSTR rgszArg[] = {"RMCSIM", "-R", *modelNamePtr, *outputNamePtr};
+  PSTR rgszArg[] = {"MCSIMOD", "-R", *modelNamePtr, *outputNamePtr};
 
   INPUTINFO info;
   INPUTINFO tempinfo;
