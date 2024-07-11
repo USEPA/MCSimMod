@@ -501,6 +501,12 @@ int FindEnd(PBUF pBuf, long N) {
    the syntax described above and in the documentation.
 */
 
+void ReadModelCleanup(PINPUTBUF pibIn) {
+  if (pibIn->pbufOrg) {
+    free(pibIn->pbufOrg);
+  }
+}
+
 int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
   INPUTBUF ibIn;
   InitINPUTBUF(&ibIn);
@@ -522,18 +528,18 @@ int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
 
   /* immediately check whether a valid End is found */
   if (FindEnd(ibIn.pbufOrg, ibIn.lBufSize) == 0) {
-    PROPAGATE_EXIT(ReportError(NULL, RE_NOEND | RE_FATAL, szFileIn, NULL));
+    CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), ReportError(NULL, RE_NOEND | RE_FATAL, szFileIn, NULL));
   }
 
   do { /* State machine for parsing syntax */
-    PROPAGATE_EXIT(NextLex(&ibIn, szLex, &iLexType));
+    CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), NextLex(&ibIn, szLex, &iLexType));
     switch (iLexType) {
     case LX_NULL:
       pinfo->wContext = CN_END;
       break;
 
     case LX_IDENTIFIER:
-      PROPAGATE_EXIT(ProcessWord(&ibIn, szLex, szEqn));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), ProcessWord(&ibIn, szLex, szEqn));
       break;
 
     case LX_PUNCT:
@@ -546,7 +552,7 @@ int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
           break;
         } else {
           if (szLex[0] == CH_COMMENT) {
-            PROPAGATE_EXIT(SkipComment(&ibIn));
+            CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), SkipComment(&ibIn));
             break;
           }
           /* else: fall through! */
@@ -554,12 +560,12 @@ int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
       }
 
     default:
-      PROPAGATE_EXIT(ReportError(&ibIn, RE_UNEXPECTED, szLex, "* Ignoring"));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), ReportError(&ibIn, RE_UNEXPECTED, szLex, "* Ignoring"));
       break;
 
     case LX_INTEGER:
     case LX_FLOAT:
-      PROPAGATE_EXIT(ReportError(&ibIn, RE_UNEXPNUMBER, szLex, "* Ignoring"));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadModelCleanup(&ibIn), ReportError(&ibIn, RE_UNEXPNUMBER, szLex, "* Ignoring"));
       break;
 
     } /* switch */

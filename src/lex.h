@@ -129,6 +129,27 @@
     ret;                                                                                                               \
   })
 
+#define CLEANUP_AND_PROPAGATE_EXIT(cleanup, func)                                                                      \
+  {                                                                                                                    \
+    int ret = (func);                                                                                                  \
+    if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
+      (cleanup);                                                                                                       \
+      Rprintf("PROPAGATE_EXIT at line %d in file %s\n", __LINE__, __FILE__);                                           \
+      return ret;                                                                                                      \
+    }                                                                                                                  \
+  }
+
+#define CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(cleanup, func)                                                     \
+  ({                                                                                                                   \
+    int ret = (func);                                                                                                  \
+    if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
+      (cleanup);                                                                                                       \
+      Rprintf("PROPAGATE_EXIT_OR_RETURN_RESULT at line %d in file %s\n", __LINE__, __FILE__);                          \
+      return ret;                                                                                                      \
+    }                                                                                                                  \
+    ret;                                                                                                               \
+  })
+
 /* ---------------------------------------------------------------------------
    Public Typedefs */
 

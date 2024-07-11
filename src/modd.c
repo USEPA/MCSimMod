@@ -173,6 +173,19 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
 
 } /* VerifyEqn */
 
+void AddEquationCleanup(PVMMAPSTRCT pvm) {
+  if (pvm) {
+    {
+      if (pvm->szName) {
+        free(pvm->szName);
+      }
+      if (pvm->szEqn) {
+        free(pvm->szEqn);
+      }
+      free(pvm);
+    }
+  }
+}
 /* ----------------------------------------------------------------------------
 PROPAGATE_EXIT(AddEquation
 
@@ -195,11 +208,8 @@ int AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType) {
   }
 
   if ((pvmNew = (PVMMAPSTRCT)malloc(sizeof(VMMAPSTRCT)))) {
-    PSTR szNameBuf, szEqnBuf;
-    PROPAGATE_EXIT(CopyString(szName, &szNameBuf));
-    pvmNew->szName = szNameBuf;
-    PROPAGATE_EXIT(CopyString(szEqn, &szEqnBuf));
-    pvmNew->szEqn = szEqnBuf;
+    CLEANUP_AND_PROPAGATE_EXIT(AddEquationCleanup(pvmNew), CopyString(szName, &pvmNew->szName));
+    CLEANUP_AND_PROPAGATE_EXIT(AddEquationCleanup(pvmNew), CopyString(szEqn, &pvmNew->szEqn));
     pvmNew->hType = hType;
     pvmNew->pvmNextVar = *ppvm;
 
@@ -372,14 +382,23 @@ int DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn, H
       if (!pvm->szEqn) {         /* This is the first definition */
         if (hType == ID_INPUT) { /* Inputs use decl space for definition */
           PIFN pifn = (PIFN)malloc(sizeof(IFN));
-
+          if (!pifn) {
+            PROPAGATE_EXIT(ReportError(pibIn, RE_OUTOFMEM, szName, NULL));
+          }
           if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetInputFn(pibIn, szEqn, pifn))) {
+            if (pvm->szEqn && pvm->szEqn != vszHasInitializer) {
+              free(pvm->szEqn);
+            }
             pvm->szEqn = (PSTR)pifn; /* THIS MAY CAUSE PROBS ON 68000 */
           } else {
+            free(pifn);
             pvm->szEqn = NULL;
           }
         } /* if */
         else {
+          if (pvm->szEqn && pvm->szEqn != vszHasInitializer) {
+            free(pvm->szEqn);
+          }
           pvm->szEqn = vszHasInitializer; /* Flag this variable */
           /* Add a new entry at end of list so
              that dependencies are handled. */
@@ -475,7 +494,9 @@ int DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   }
 
   if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+
     PROPAGATE_EXIT(AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, ID_INLINE));
+    pinfo->scale_eqns_cnt++;
   }
 
   else {
@@ -487,6 +508,7 @@ int DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
     if ((hType & ID_LOCALSCALE) ||                 /* Many per local */
         !GetVarPTR(pinfo->pvmScaleEqns, szName)) { /* 1 eqn per parm */
       PROPAGATE_EXIT(AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, hNewType));
+      pinfo->scale_eqns_cnt++;
     }
 
     else {

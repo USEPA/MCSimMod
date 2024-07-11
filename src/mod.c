@@ -220,12 +220,19 @@ __attribute__((warn_unused_result)) int GetCmdLineArgs(int nArg, char *const *rg
   switch (nArg - optind) { /* Remaining args should be filenames */
 
   case 2: /* Output and input file specified */
-    *pszFileOut = rgszArg[optind + 1];
+    *pszFileOut = strdup(rgszArg[optind + 1]);
+    if (*pszFileOut == NULL) {
+      return EXIT_ERROR;
+    }
 
     /* Fall through! */
 
   case 1: /* Input file specified */
-    *pszFileIn = rgszArg[optind];
+    *pszFileIn = strdup(rgszArg[optind]);
+    if (*pszFileIn == NULL) {
+      free(*pszFileOut);
+      return EXIT_ERROR;
+    }
     break;
 
   case 0: /* No file names specified */
@@ -292,6 +299,8 @@ void InitInfo(PINPUTINFO pinfo, PSTR szModGenName) {
     pStr = strchr(pStr + 1, '\\');
   }
 #endif /* _WIN32 */
+
+  pinfo->scale_eqns_cnt = 0;
 
   pinfo->pvmGloVars = NULL;
   pinfo->pvmDynEqns = NULL;
@@ -470,6 +479,8 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
   int ret = GetCmdLineArgs(nArg, rgszArg, &szFileIn, &szFileOut, &info);
   Rprintf("c_mod %s %s\n", szFileIn, szFileOut);
   if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
+    free(szFileIn);
+    free(szFileOut);
     Cleanup(&info);
     return -1;
   }
@@ -477,6 +488,8 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
   ret = ReadModel(&info, &tempinfo, szFileIn);
   if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
     Rprintf("Error reading model %s\n", szFileIn);
+    free(szFileIn);
+    free(szFileOut);
     Cleanup(&info);
     return -1;
   }
@@ -491,9 +504,13 @@ int c_mod(char **modelNamePtr, char **outputNamePtr) {
     ret = WriteModel(&info, szFileOut);
   }
   if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
+    free(szFileIn);
+    free(szFileOut);
     Cleanup(&info);
     return -1;
   }
+  free(szFileIn);
+  free(szFileOut);
   Cleanup(&info);
 
   return 0;

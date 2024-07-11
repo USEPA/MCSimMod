@@ -186,6 +186,9 @@ __attribute__((warn_unused_result)) static int exchange(char **argv) {
 
   first_nonopt += (optind - last_nonopt);
   last_nonopt = optind;
+
+  free(temp);
+  return 0;
 }
 
 /* Scan elements of ARGV (whose length is ARGC) for option characters

@@ -98,7 +98,7 @@ long CountChars(PFILE pFileIn) {
 
   rewind(pFileIn);
 
-  /* printf ("mod:countchars: nChars = %ld\n",nChars); */
+  /* Rprintf ("mod:countchars: nChars = %ld\n",nChars); */
 
   return (nChars);
 

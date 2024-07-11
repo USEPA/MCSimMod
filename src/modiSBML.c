@@ -174,9 +174,7 @@ __attribute__((warn_unused_result)) int AugmentEquation(PVMMAPSTRCT pvm, PSTR sz
     } else {
       snprintf(szBuf, buf_len, "%s%s %s * %s", pvm->szEqn, szSymbol, szStoi, szEqn);
     }
-  }
-
-  else {
+  } else {
     PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szEqn, "* .. defining equation in AugmentEquation"));
   }
 
@@ -1378,7 +1376,7 @@ __attribute__((warn_unused_result)) int ReadFileNames(PINPUTBUF pibIn, PLONG nFi
   return 0;
 } /* ReadFileNames */
 
-void cleanup_filenames(long nFiles, PSTR *pszFileNames) {
+void ReadSBMLModelsCleanup(PINPUTBUF pibIn, long nFiles, PSTR *pszFileNames) {
   for (int i = 0; i < nFiles; i++) {
     if (pszFileNames[i]) {
       free(pszFileNames[i]);
@@ -1387,6 +1385,10 @@ void cleanup_filenames(long nFiles, PSTR *pszFileNames) {
   }
 
   free(pszFileNames);
+
+  if (pibIn->pbufOrg) {
+    free(pibIn->pbufOrg);
+  }
 }
 /* ----------------------------------------------------------------------------
    ReadSBMLModels
@@ -1413,8 +1415,8 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     /* init buffer and read in the input file. */
     /* buffer size -1 will create a buffer of the size of the input file */
     if (InitBuffer(&ibInLocal, -1, pszFileNames[i]) <= 0) {
-      cleanup_filenames(nFiles, pszFileNames);
-      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
     }
 
     /* attach info records to input buffer */
@@ -1430,7 +1432,8 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     if ((pinfo->bTemplateInUse) && (iSBML_level < 2)) {
       Rprintf("***Error: use of a PK template requires ");
       Rprintf("SBML level 2 - exiting.\n\n");
-      cleanup_filenames(nFiles, pszFileNames);
+      ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames);
+
       return EXIT_ERROR;
     }
 
@@ -1438,10 +1441,8 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     if (pinfo->bTemplateInUse) {
       ibInLocal.pbufCur = ibInLocal.pbufOrg;
       if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST)) {
-        if (ReadCpts(&ibInLocal, TRUE) == EXIT_ERROR) { /* TRUE -> print the cpt name etc. */
-          cleanup_filenames(nFiles, pszFileNames);
-          return EXIT_ERROR;
-        }
+        CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                   ReadCpts(&ibInLocal, TRUE)); /* TRUE -> print the cpt name etc. */
       }
     } else { /* ignore the compartments of SBML models if no template */
       Rprintf("no PK template given: ignoring SBML compartments\n");
@@ -1450,46 +1451,40 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     /* read function definitions, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     if (GetSBMLLex(&ibInLocal, KM_SBML, KM_FUNCLIST)) {
-      if (ReadFunctions(&ibInLocal, iSBML_level) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReadFunctions(&ibInLocal, iSBML_level));
     }
 
     /* read SBML parameters, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     while (GetSBMLLex(&ibInLocal, KM_SBML, KM_PARAMS)) {
-      if (ReadParameters(&ibInLocal) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames), ReadParameters(&ibInLocal));
     }
 
     /* read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST)) {
-      if (ReadSpecies(&ibInLocal, iSBML_level, FALSE) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      } /* don't bProcessPK_ODEs */
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReadSpecies(&ibInLocal, iSBML_level, FALSE)); /* don't bProcessPK_ODEs */
     }
 
     /* read SBML rate rules, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     if (GetSBMLLex(&ibInLocal, KM_SBML, KM_RULESLIST)) {
-      if (ReadRules(&ibInLocal, iSBML_level) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReadRules(&ibInLocal, iSBML_level));
     }
 
     /* read SBML reactions, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     if (GetSBMLLex(&ibInLocal, KM_SBML, KM_REACTIONS)) {
-      if (ReadReactions(&ibInLocal, iSBML_level) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReadReactions(&ibInLocal, iSBML_level));
+    }
+
+    if (ibInLocal.pbufOrg != NULL) {
+      free(ibInLocal.pbufOrg);
+      ibInLocal.pbufOrg = NULL;
     }
 
   } /* for model index i*/
@@ -1500,8 +1495,8 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     /* init buffer and read in the input file. */
     if (InitBuffer(&ibInLocal, -1, pszFileNames[i]) <= 0) {
       /* cleanup */
-      cleanup_filenames(nFiles, pszFileNames);
-      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
     }
 
     ibInLocal.pInfo = pibIn->pInfo;
@@ -1511,10 +1506,8 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     /* ignore the compartments of SBML models if no template */
     if (pinfo->bTemplateInUse) {
       if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST)) {
-        if (ReadCpts(&ibInLocal, FALSE) == EXIT_ERROR) {
-          cleanup_filenames(nFiles, pszFileNames);
-          return EXIT_ERROR;
-        }
+        CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                   ReadCpts(&ibInLocal, FALSE));
       }
     }
 
@@ -1523,15 +1516,15 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
     /* re-read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
     if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST)) {
-      if (ReadSpecies(&ibInLocal, iSBML_level, TRUE) == EXIT_ERROR) { /* TRUE: bProcessPK_ODEs */
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReadSpecies(&ibInLocal, iSBML_level, TRUE));
     }
 
-    if (ReadDifferentials(&ibInLocal) == EXIT_ERROR) {
-      cleanup_filenames(nFiles, pszFileNames);
-      return EXIT_ERROR;
+    CLEANUP_AND_PROPAGATE_EXIT(ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames), ReadDifferentials(&ibInLocal));
+
+    if (ibInLocal.pbufOrg != NULL) {
+      free(ibInLocal.pbufOrg);
+      ibInLocal.pbufOrg = NULL;
     }
 
   } /* for model index i*/
@@ -1539,7 +1532,7 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
   Rprintf("\n");
 
   /* cleanup */
-  cleanup_filenames(nFiles, pszFileNames);
+  ReadSBMLModelsCleanup(&ibInLocal, nFiles, pszFileNames);
 
   pinfo->wContext = CN_END;
 
@@ -1547,6 +1540,20 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
 
 } /* ReadSBMLModels */
 
+void ReadPKTemplateCleanup(PINPUTBUF pibIn, long nFiles, PSTR *pszFileNames) {
+  for (int i = 0; i < nFiles; i++) {
+    if (pszFileNames[i]) {
+      free(pszFileNames[i]);
+      pszFileNames[i] = NULL;
+    }
+  }
+
+  free(pszFileNames);
+
+  if (pibIn->pbufOrg) {
+    free(pibIn->pbufOrg);
+  }
+}
 /* ----------------------------------------------------------------------------
    ReadPKTemplate
 
@@ -1582,27 +1589,23 @@ int ReadPKTemplate(PINPUTBUF pibIn) {
   Rprintf("%s\n", pszFileNames[0]);
 
   if (InitBuffer(&ibInLocal, BUFFER_SIZE, pszFileNames[0]) <= 0) {
-    cleanup_filenames(nFiles, pszFileNames);
-    PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL));
+    CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                               ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL));
   }
 
   ibInLocal.pInfo = (PVOID)pinfo; /* Attach info to local input buffer */
   int ret;
   do { /* State machine for parsing syntax */
-    if (NextLex(&ibInLocal, szLex, &iLexType) == EXIT_ERROR) {
-      cleanup_filenames(nFiles, pszFileNames);
-      return EXIT_ERROR;
-    }
+    CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                               NextLex(&ibInLocal, szLex, &iLexType));
     switch (iLexType) {
     case LX_NULL:
       pinfo->wContext = CN_END;
       break;
 
     case LX_IDENTIFIER:
-      if (ProcessWord(&ibInLocal, szLex, szEqn) == EXIT_ERROR) {
-        cleanup_filenames(nFiles, pszFileNames);
-        return EXIT_ERROR;
-      }
+      CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ProcessWord(&ibInLocal, szLex, szEqn));
       break;
 
     case LX_PUNCT:
@@ -1615,10 +1618,8 @@ int ReadPKTemplate(PINPUTBUF pibIn) {
           break;
         } else {
           if (szLex[0] == CH_COMMENT) {
-            if (SkipComment(&ibInLocal) == EXIT_ERROR) {
-              cleanup_filenames(nFiles, pszFileNames);
-              return EXIT_ERROR;
-            }
+            CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                                       SkipComment(&ibInLocal));
             break;
           }
           /* else: fall through! */
@@ -1626,23 +1627,21 @@ int ReadPKTemplate(PINPUTBUF pibIn) {
       }
 
     default:
-      cleanup_filenames(nFiles, pszFileNames);
-      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_UNEXPECTED, szLex, "* Ignoring"));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReportError(&ibInLocal, RE_UNEXPECTED, szLex, "* Ignoring"));
       break;
 
     case LX_INTEGER:
     case LX_FLOAT:
-      cleanup_filenames(nFiles, pszFileNames);
-      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_UNEXPNUMBER, szLex, "* Ignoring"));
+      CLEANUP_AND_PROPAGATE_EXIT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                                 ReportError(&ibInLocal, RE_UNEXPNUMBER, szLex, "* Ignoring"));
       break;
 
     } /* switch */
 
-    ret = FillBuffer(&ibInLocal, BUFFER_SIZE);
-    if (ret == EXIT_ERROR) {
-      cleanup_filenames(nFiles, pszFileNames);
-      return EXIT_ERROR;
-    }
+    ret = CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames),
+                                                      FillBuffer(&ibInLocal, BUFFER_SIZE));
+
   } while (pinfo->wContext != CN_END && (*ibInLocal.pbufCur || ret != EOF));
 
   fclose(ibInLocal.pfileIn);
@@ -1660,7 +1659,7 @@ int ReadPKTemplate(PINPUTBUF pibIn) {
   pinfo->wContext = CN_TEMPLATE_DEFINED;
   pinfo->bTemplateInUse = TRUE;
 
-  cleanup_filenames(nFiles, pszFileNames);
+  ReadPKTemplateCleanup(&ibInLocal, nFiles, pszFileNames);
   return 0;
 } /* ReadPKTemplate */
 

@@ -223,6 +223,21 @@ BOOL GetNNumbers(PINPUTBUF pibIn, PSTR szLex, int nNumbers, PDOUBLE rgd) {
 
 } /* GetNNumbers */
 
+void GetNDosesCleanUp(PIFN pifn) {
+  if (pifn->rgT0s) {
+    free(pifn->rgT0s);
+    pifn->rgT0s = NULL;
+  }
+  if (pifn->rgTexps) {
+    free(pifn->rgTexps);
+    pifn->rgTexps = NULL;
+  }
+  if (pifn->rgMags) {
+    free(pifn->rgMags);
+    pifn->rgMags = NULL;
+  }
+}
+
 /* ----------------------------------------------------------------------------
    GetNDoses
 
@@ -251,25 +266,27 @@ BOOL GetNDoses(PINPUTBUF pibIn, PSTR szLex, PIFN pifn) {
   if (!(pifn->rgT0s = (PDOUBLE)malloc(pifn->nDoses * sizeof(double))) ||
       !(pifn->rgTexps = (PDOUBLE)malloc(pifn->nDoses * sizeof(double))) ||
       !(pifn->rgMags = (PDOUBLE)malloc(pifn->nDoses * sizeof(double)))) {
-    PROPAGATE_EXIT(ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "GetNDoses", NULL));
+    CLEANUP_AND_PROPAGATE_EXIT(GetNDosesCleanUp(pifn), ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "GetNDoses", NULL));
   }
 
   /* Try to get doses list: n Mag's, n T0's, n Texp's */
-  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+  CLEANUP_AND_PROPAGATE_EXIT(GetNDosesCleanUp(pifn), GetOptPunct(pibIn, szLex, ','));
   bErr = GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgMags);
 
-  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+  CLEANUP_AND_PROPAGATE_EXIT(GetNDosesCleanUp(pifn), GetOptPunct(pibIn, szLex, ','));
   if (!bErr) {
-    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgT0s));
+    bErr = CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(GetNDosesCleanUp(pifn),
+                                                       GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgT0s));
   }
 
-  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+  CLEANUP_AND_PROPAGATE_EXIT(GetNDosesCleanUp(pifn), GetOptPunct(pibIn, szLex, ','));
   if (!bErr) {
-    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgTexps));
+    bErr = CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(GetNDosesCleanUp(pifn),
+                                                       GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgTexps));
   }
 
   if (!bErr) {
-    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(EGetPunct(pibIn, szLex, CH_RPAREN));
+    bErr = CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(GetNDosesCleanUp(pifn), EGetPunct(pibIn, szLex, CH_RPAREN));
   }
 
 Exit_GetNDoses:
@@ -277,6 +294,7 @@ Exit_GetNDoses:
   if (bErr) {
     REprintf("Syntax: GetNDoses (nDoses, <n Magnitudes>, "
              "<n T0's>, <n Texposure's>)\n");
+    GetNDosesCleanUp(pifn);
   }
 
   return (!bErr);
