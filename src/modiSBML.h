@@ -50,9 +50,9 @@
    Prototypes */
 
 int GetSBMLKeywordCode(PSTR szKeyword);
-void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR toto);
-void ReadSBMLModels(PINPUTBUF pibIn);
-void ReadPKTemplate(PINPUTBUF pibIn);
+__attribute__((warn_unused_result)) int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR toto);
+__attribute__((warn_unused_result)) int ReadSBMLModels(PINPUTBUF pibIn);
+__attribute__((warn_unused_result)) int ReadPKTemplate(PINPUTBUF pibIn);
 
 #define MODISBML_H_DEFINED
 #endif

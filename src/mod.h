@@ -150,13 +150,13 @@ typedef struct tagINPUTINFO {
 #define TYPE(pvm) (pvm ? (pvm)->hType & ID_TYPEMASK : ID_NULL)
 #define INDEX(pvm) (pvm ? (pvm)->hType & ID_INDEXMASK : ID_NULL)
 
-#define KM_TO_CN(kmCode)                                                       \
-  ((kmCode) == KM_CALCOUTPUTS ? CN_CALCOUTPUTS                                 \
-   : (kmCode) == KM_JACOB     ? CN_JACOB                                       \
-   : (kmCode) == KM_SCALE     ? CN_SCALE                                       \
-   : (kmCode) == KM_DYNAMICS  ? CN_DYNAMICS                                    \
-   : (kmCode) == KM_EVENTS    ? CN_EVENTS                                      \
-   : (kmCode) == KM_ROOTS     ? CN_ROOTS                                       \
+#define KM_TO_CN(kmCode)                                                                                               \
+  ((kmCode) == KM_CALCOUTPUTS ? CN_CALCOUTPUTS                                                                         \
+   : (kmCode) == KM_JACOB     ? CN_JACOB                                                                               \
+   : (kmCode) == KM_SCALE     ? CN_SCALE                                                                               \
+   : (kmCode) == KM_DYNAMICS  ? CN_DYNAMICS                                                                            \
+   : (kmCode) == KM_EVENTS    ? CN_EVENTS                                                                              \
+   : (kmCode) == KM_ROOTS     ? CN_ROOTS                                                                               \
                               : 0)
 
 /* ---------------------------------------------------------------------------

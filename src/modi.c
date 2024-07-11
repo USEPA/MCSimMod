@@ -78,8 +78,9 @@ KM vrgkmKeywordMap[] = {
 PSTR GetKeyword(int iCode) {
   PKM pkm = &vrgkmKeywordMap[0];
 
-  while (*pkm->szKeyword && pkm->iKWCode != iCode)
+  while (*pkm->szKeyword && pkm->iKWCode != iCode) {
     pkm++;
+  }
 
   return (pkm->szKeyword); /* Return Keyword Code or null str */
 
@@ -95,11 +96,13 @@ PSTR GetKeyword(int iCode) {
 int GetKeywordCode(PSTR szKeyword, PINT pfContext) {
   PKM pkm = &vrgkmKeywordMap[0];
 
-  while (*pkm->szKeyword && strcmp(szKeyword, pkm->szKeyword))
+  while (*pkm->szKeyword && strcmp(szKeyword, pkm->szKeyword)) {
     pkm++;
+  }
 
-  if (pfContext)
+  if (pfContext) {
     *pfContext = pkm->fContext; /* Set iContext flag */
+  }
 
   return (pkm->iKWCode); /* Return Keyword Code or 0 */
 
@@ -111,35 +114,35 @@ int GetKeywordCode(PSTR szKeyword, PINT pfContext) {
    Processes a list of variables (or arrays). Exit if an error is found.
 */
 
-void GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode) {
+int GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode) {
   int iLexType, iErr = 0;
   long i, iLB, iUB;
   PSTRLEX szPunct, szTmp;
 
   do { /* Read model var-list */
-    NextLex(pibIn, szLex, &iLexType);
+    PROPAGATE_EXIT(NextLex(pibIn, szLex, &iLexType));
 
-    if (iLexType & LX_IDENTIFIER) {        /* identifier found */
-      if (GetPunct(pibIn, szPunct, '[')) { /* array */
-        GetArrayBounds(pibIn, &iLB, &iUB);
+    if (iLexType & LX_IDENTIFIER) {                                         /* identifier found */
+      if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '['))) { /* array */
+        PROPAGATE_EXIT(GetArrayBounds(pibIn, &iLB, &iUB));
         for (i = iLB; i < iUB; i++) {
           snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
-          DeclareModelVar(pibIn, szTmp, iKWCode);
+          PROPAGATE_EXIT(DeclareModelVar(pibIn, szTmp, iKWCode));
         }
       } else { /* simple var */
         /* push back szPunct */
         *pibIn->pbufCur--;
-        DeclareModelVar(pibIn, szLex, iKWCode);
+        PROPAGATE_EXIT(DeclareModelVar(pibIn, szLex, iKWCode));
       }
     } else { /* not an identifier, should be ',' or '}' */
       if ((szLex[0] != ',') && (szLex[0] != CH_RBRACE)) {
         iErr = szPunct[1] = CH_RBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* List must be comma-delimited and end with }.");
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* List must be comma-delimited and end with }."));
       }
     }
   } while ((szLex[0] != CH_RBRACE) && (!iErr));
-
+  return 0;
 } /* GetVarList */
 
 /* ----------------------------------------------------------------------------
@@ -148,7 +151,7 @@ void GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode) {
    process a differential equation definition
 */
 
-void ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
+int ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
   PSTRLEX szPunct, szTmp;
   PSTREQN szEqnU;
   PINPUTINFO pinfo;
@@ -157,39 +160,43 @@ void ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
 
   pinfo = (PINPUTINFO)pibIn->pInfo;
 
-  if (!GetFuncArgs(pibIn, 1, &iArgType, szLex, &iLB, &iUB))
-    ReportError(pibIn, RE_BADSTATE | RE_FATAL, szLex, NULL);
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetFuncArgs(pibIn, 1, &iArgType, szLex, &iLB, &iUB))) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_BADSTATE | RE_FATAL, szLex, NULL));
+  }
 
-  if (!GetPunct(pibIn, szPunct, '=')) { /* no assignment */
-    ReportError(pibIn, RE_LEXEXPECTED, "=", NULL);
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '='))) { /* no assignment */
+    PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, "=", NULL));
   }
 
   if (iUB == -1) { /* scalar */
     /* check this is a declared state */
-    if (GetVarType(pinfo->pvmGloVars, szLex) != ID_STATE)
-      ReportError(pibIn, RE_BADSTATE | RE_FATAL, szLex, NULL);
+    if (GetVarType(pinfo->pvmGloVars, szLex) != ID_STATE) {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_BADSTATE | RE_FATAL, szLex, NULL));
+    }
 
     /* read assignment */
-    GetStatement(pibIn, szEqn, iKWCode);
-    UnrollEquation(pibIn, 0, szEqn, szEqnU);
-    DefineVariable(pibIn, szLex, szEqnU, iKWCode);
+    PROPAGATE_EXIT(GetStatement(pibIn, szEqn, iKWCode));
+    PROPAGATE_EXIT(UnrollEquation(pibIn, 0, szEqn, szEqnU));
+    PROPAGATE_EXIT(DefineVariable(pibIn, szLex, szEqnU, iKWCode));
   } else { /* array */
     /* read assignment */
-    GetStatement(pibIn, szEqn, iKWCode);
+    PROPAGATE_EXIT(GetStatement(pibIn, szEqn, iKWCode));
     for (i = iLB; i < iUB; i++) {
       snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
       /* check this is a declared state */
       if (GetVarType(pinfo->pvmGloVars, szTmp) != ID_STATE) {
         snprintf(szTmp, MAX_LEX, "%s[%ld]", szLex, i); /* recreate name */
-        ReportError(pibIn, RE_BADSTATE | RE_FATAL, szTmp, NULL);
+        PROPAGATE_EXIT(ReportError(pibIn, RE_BADSTATE | RE_FATAL, szTmp, NULL));
       }
-      UnrollEquation(pibIn, i, szEqn, szEqnU);
-      DefineVariable(pibIn, szTmp, szEqnU, iKWCode);
+      PROPAGATE_EXIT(UnrollEquation(pibIn, i, szEqn, szEqnU));
+      PROPAGATE_EXIT(DefineVariable(pibIn, szTmp, szEqnU, iKWCode));
     }
   }
 
-  if (!GetPunct(pibIn, szLex, CH_STMTTERM))
-    ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL);
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szLex, CH_STMTTERM))) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL));
+  }
+  return 0;
 
 } /* ProcessDTStatement */
 
@@ -197,7 +204,7 @@ void ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
    ProcessIdentifier
 */
 
-void ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
+int ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
   PSTRLEX szPunct, szTmp;
   PSTREQN szEqnU;
   PINPUTINFO pinfo;
@@ -206,67 +213,74 @@ void ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
   pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* check that szLex is less than MAX_NAME characters */
-  if ((i = strlen(szLex)) > MAX_NAME)
-    ReportError(pibIn, RE_NAMETOOLONG | RE_FATAL, szLex, NULL);
+  if ((i = strlen(szLex)) > MAX_NAME) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_NAMETOOLONG | RE_FATAL, szLex, NULL));
+  }
 
-  if (!GetPunct(pibIn, szPunct, '[')) { /* scalar */
-    if (szPunct[0] == '=') {            /* read assignment */
-      GetStatement(pibIn, szEqn, iKWCode);
-      UnrollEquation(pibIn, 0, szEqn, szEqnU);
-      DefineVariable(pibIn, szLex, szEqnU, iKWCode);
-      if (!GetPunct(pibIn, szLex, CH_STMTTERM))
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL);
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '['))) { /* scalar */
+    if (szPunct[0] == '=') {                                             /* read assignment */
+      PROPAGATE_EXIT(GetStatement(pibIn, szEqn, iKWCode));
+      PROPAGATE_EXIT(UnrollEquation(pibIn, 0, szEqn, szEqnU));
+      PROPAGATE_EXIT(DefineVariable(pibIn, szLex, szEqnU, iKWCode));
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szLex, CH_STMTTERM))) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL));
+      }
     } else if (szPunct[0] == CH_STMTTERM) { /* found a terminator */
       if (pinfo->wContext == CN_GLOBAL) {
         /* in the global section: assign 0; FB 13/6/99 */
-        DefineVariable(pibIn, szLex, "0\0", iKWCode);
-      } else
-        ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or [", NULL);
-    } else /* nothing recognized: error */
-      ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "=, [ or ;", NULL);
+        PROPAGATE_EXIT(DefineVariable(pibIn, szLex, "0\0", iKWCode));
+      } else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or [", NULL));
+      }
+    } else { /* nothing recognized: error */
+      PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "=, [ or ;", NULL));
+    }
   } /* end scalar */
 
   else { /* array */
-    GetArrayBounds(pibIn, &iLB, &iUB);
-    if (GetPunct(pibIn, szPunct, '=')) { /* read assignment */
-      GetStatement(pibIn, szEqn, iKWCode);
+    PROPAGATE_EXIT(GetArrayBounds(pibIn, &iLB, &iUB));
+    if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '='))) { /* read assignment */
+      PROPAGATE_EXIT(GetStatement(pibIn, szEqn, iKWCode));
       for (i = iLB; i < iUB; i++) {
         snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
-        UnrollEquation(pibIn, i, szEqn, szEqnU);
-        DefineVariable(pibIn, szTmp, szEqnU, iKWCode);
+        PROPAGATE_EXIT(UnrollEquation(pibIn, i, szEqn, szEqnU));
+        PROPAGATE_EXIT(DefineVariable(pibIn, szTmp, szEqnU, iKWCode));
       }
-      if (!GetPunct(pibIn, szLex, CH_STMTTERM))
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL);
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szLex, CH_STMTTERM))) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL));
+      }
     } else if (szPunct[0] == CH_STMTTERM) { /* found a terminator */
       if (pinfo->wContext == CN_GLOBAL) {   /* in global section assign 0 */
         for (i = iLB; i < iUB; i++) {
           snprintf(szTmp, MAX_LEX, "%s_%ld", szLex, i); /* create names */
-          DefineVariable(pibIn, szTmp, "0\0", iKWCode);
+          PROPAGATE_EXIT(DefineVariable(pibIn, szTmp, "0\0", iKWCode));
         }
-      } else
-        ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or [", NULL);
-    } else /* nothing recognized: error */
-      ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or ;", NULL);
+      } else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or [", NULL));
+      }
+    } else { /* nothing recognized: error */
+      PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "= or ;", NULL));
+    }
   } /* end array */
-
+  return 0;
 } /* ProcessIdentifier */
 
 /* ----------------------------------------------------------------------------
    ProcessInlineStatement
 */
 
-void ProcessInlineStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn,
-                            int iKWCode) {
-  GetStatement(pibIn, szEqn, iKWCode);
+int ProcessInlineStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode) {
+  PROPAGATE_EXIT(GetStatement(pibIn, szEqn, iKWCode));
   /* remove leading parenthesis */
   szEqn = szEqn + 1;
   /* remove ending parenthesis */
   szEqn[strlen(szEqn) - 1] = '\0';
-  DefineVariable(pibIn, szLex, szEqn, iKWCode);
+  PROPAGATE_EXIT(DefineVariable(pibIn, szLex, szEqn, iKWCode));
 
-  if (!GetPunct(pibIn, szLex, CH_STMTTERM))
-    ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL);
-
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szLex, CH_STMTTERM))) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, ";", NULL));
+  }
+  return 0;
 } /* ProcessInlineStatement */
 
 /* ----------------------------------------------------------------------------
@@ -275,7 +289,7 @@ void ProcessInlineStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn,
    Processes the word szLex.
 */
 
-void ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
+int ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
   int iErr = 0;
   int iKWCode, fContext;
   PSTRLEX szPunct;
@@ -293,11 +307,12 @@ void ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
     bDynamicsDefined = FALSE;
     bInitializeDefined = FALSE;
     bJacobianDefined = FALSE;
-    return;
+    return 0;
   }
 
-  if (!pibIn || !szLex || !szLex[0] || !szEqn)
-    return;
+  if (!pibIn || !szLex || !szLex[0] || !szEqn) {
+    return 0;
+  }
 
   pinfo = (PINPUTINFO)pibIn->pInfo;
 
@@ -305,10 +320,11 @@ void ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
 
   assert(pinfo->wContext != CN_END);
 
-  if ((pinfo->wContext == CN_END) ||   /* Beyond valid input ! */
-      (iKWCode &&                      /* Is a keyword */
-       !(fContext & pinfo->wContext))) /* not in a valid context */
-    ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL);
+  if ((pinfo->wContext == CN_END) ||     /* Beyond valid input ! */
+      (iKWCode &&                        /* Is a keyword */
+       !(fContext & pinfo->wContext))) { /* not in a valid context */
+    PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL));
+  }
 
   else {
     switch (iKWCode) {
@@ -320,114 +336,130 @@ void ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn) {
     case KM_INPUTS:
     case KM_OUTPUTS:
     case KM_COMPARTMENTS:
-      if (GetPunct(pibIn, szPunct, '=')) {
-        if (GetPunct(pibIn, szPunct, CH_LBRACE))
-          GetVarList(pibIn, szLex, iKWCode);
-        else
-          ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL);
-      } else
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL);
+      if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '='))) {
+        if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
+          PROPAGATE_EXIT(GetVarList(pibIn, szLex, iKWCode));
+        } else {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL));
+        }
+      } else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL));
+      }
       break;
 
     case KM_CALCOUTPUTS:
-      if (bCalcOutputsDefined)
-        ReportError(pibIn, RE_DUPSECT | RE_FATAL, "CalcOutputs", NULL);
+      if (bCalcOutputsDefined) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_DUPSECT | RE_FATAL, "CalcOutputs", NULL));
+      }
       bCalcOutputsDefined = TRUE;
-      if (!GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
         szPunct[1] = CH_LBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* Section must be delimited by curly braces.");
-      } else
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* Section must be delimited by curly braces."));
+      } else {
         pinfo->wContext = KM_TO_CN(iKWCode);
+      }
       break;
 
     case KM_JACOB:
-      if (bJacobianDefined)
-        ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Jacobian", NULL);
+      if (bJacobianDefined) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Jacobian", NULL));
+      }
       bJacobianDefined = TRUE;
-      if (!GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
         szPunct[1] = CH_LBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* Section must be delimited by curly braces.");
-      } else
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* Section must be delimited by curly braces."));
+      } else {
         pinfo->wContext = KM_TO_CN(iKWCode);
+      }
       break;
 
     case KM_SCALE:
-      if (bInitializeDefined)
-        ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Initialize", NULL);
+      if (bInitializeDefined) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Initialize", NULL));
+      }
       bInitializeDefined = TRUE;
-      if (!GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
         szPunct[1] = CH_LBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* Section must be delimited by curly braces.");
-      } else
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* Section must be delimited by curly braces."));
+      } else {
         pinfo->wContext = KM_TO_CN(iKWCode);
+      }
       break;
 
     case KM_EVENTS:
     case KM_ROOTS:
-      if (!GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
         szPunct[1] = CH_LBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* Section must be delimited by curly braces.");
-      } else
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* Section must be delimited by curly braces."));
+      } else {
         pinfo->wContext = KM_TO_CN(iKWCode);
+      }
       break;
 
     case KM_DYNAMICS:
-      if (bDynamicsDefined)
-        ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Dynamics", NULL);
+      if (bDynamicsDefined) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_DUPSECT | RE_FATAL, "Dynamics", NULL));
+      }
       bDynamicsDefined = TRUE;
 
-      if (!GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
         szPunct[1] = CH_LBRACE;
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct,
-                    "* Section must be delimited by curly braces.");
-      } else
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_EXPECTED | RE_FATAL, szPunct, "* Section must be delimited by curly braces."));
+      } else {
         pinfo->wContext = KM_TO_CN(iKWCode);
+      }
       break;
 
     case KM_DXDT: /* State equation definition */
-      ProcessDTStatement(pibIn, szLex, szEqn, iKWCode);
+      PROPAGATE_EXIT(ProcessDTStatement(pibIn, szLex, szEqn, iKWCode));
       break;
 
     case KM_INLINE: /* Inline statement definition */
-      ProcessInlineStatement(pibIn, szLex, szEqn, iKWCode);
+      PROPAGATE_EXIT(ProcessInlineStatement(pibIn, szLex, szEqn, iKWCode));
       break;
 
     case KM_SBMLMODELS:
-      if (GetPunct(pibIn, szPunct, '=')) {
-        if (GetPunct(pibIn, szPunct, CH_LBRACE)) {
-          ReadSBMLModels(pibIn);
-        } else
-          ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL);
-      } else
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL);
+      if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '='))) {
+        if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
+          PROPAGATE_EXIT(ReadSBMLModels(pibIn));
+        } else {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL));
+        }
+      } else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL));
+      }
       break;
 
     case KM_PKTEMPLATE:
-      if (GetPunct(pibIn, szPunct, '=')) {
-        if (GetPunct(pibIn, szPunct, CH_LBRACE)) {
+      if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '='))) {
+        if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LBRACE))) {
           Rprintf("\nreading pharmacokinetic template ");
-          ReadPKTemplate(pibIn);
-        } else
-          ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL);
-      } else
-        ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL);
+          PROPAGATE_EXIT(ReadPKTemplate(pibIn));
+        } else {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "{", NULL));
+        }
+      } else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED | RE_FATAL, "=", NULL));
+      }
       break;
 
     default: /* Not a keyword, process identifier */
-      ProcessIdentifier(pibIn, szLex, szEqn, iKWCode);
+      PROPAGATE_EXIT(ProcessIdentifier(pibIn, szLex, szEqn, iKWCode));
       break;
 
     } /* switch */
 
-    if (iErr)
-      EatStatement(pibIn); /* Err in statement, eat to terminator */
+    if (iErr) {
+      PROPAGATE_EXIT(EatStatement(pibIn)); /* Err in statement, eat to terminator */
+    }
 
   } /* else */
-
+  return 0;
 } /* ProcessWord */
 
 /* ----------------------------------------------------------------------------
@@ -445,12 +477,13 @@ int FindEnd(PBUF pBuf, long N) {
   while (c < end) {
     if (*c == CH_EOLN) { /* eat up leading white space */
       c++;
-      while ((c < end) && (isspace(*c)))
+      while ((c < end) && (isspace(*c))) {
         c++;
+      }
       if (c < end) {
-        if (((c + 2) < end) && (*c == 'E') && (*(c + 1) == 'n') &&
-            (*(c + 2) == 'd'))
+        if (((c + 2) < end) && (*c == 'E') && (*(c + 1) == 'n') && (*(c + 2) == 'd')) {
           return (1);
+        }
       }
     }
     c++;
@@ -468,36 +501,39 @@ int FindEnd(PBUF pBuf, long N) {
    the syntax described above and in the documentation.
 */
 
-void ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
+int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
   INPUTBUF ibIn;
+  InitINPUTBUF(&ibIn);
   PSTRLEX szLex; /* Lex elem of MAX_LEX length */
   PSTREQN szEqn; /* Equation buffer of MAX_EQN length */
   int iLexType;
 
   // need to clear state when we are handling a new model in ".so" mode
   // as the 'static' variables are not reset from model to model
-  ProcessWord(NULL, 0, 0);
+  PROPAGATE_EXIT(ProcessWord(NULL, 0, 0));
 
-  if (!InitBuffer(&ibIn, -1, szFileIn))
-    ReportError(&ibIn, RE_INIT | RE_FATAL, "ReadModel", NULL);
+  if (!PROPAGATE_EXIT_OR_RETURN_RESULT(InitBuffer(&ibIn, -1, szFileIn))) {
+    PROPAGATE_EXIT(ReportError(&ibIn, RE_INIT | RE_FATAL, "ReadModel", NULL));
+  }
 
   /* Attach info records to input buffer */
   ibIn.pInfo = (PVOID)pinfo;
   ibIn.pTempInfo = (PVOID)ptempinfo;
 
   /* immediately check whether a valid End is found */
-  if (FindEnd(ibIn.pbufOrg, ibIn.lBufSize) == 0)
-    ReportError(NULL, RE_NOEND | RE_FATAL, szFileIn, NULL);
+  if (FindEnd(ibIn.pbufOrg, ibIn.lBufSize) == 0) {
+    PROPAGATE_EXIT(ReportError(NULL, RE_NOEND | RE_FATAL, szFileIn, NULL));
+  }
 
   do { /* State machine for parsing syntax */
-    NextLex(&ibIn, szLex, &iLexType);
+    PROPAGATE_EXIT(NextLex(&ibIn, szLex, &iLexType));
     switch (iLexType) {
     case LX_NULL:
       pinfo->wContext = CN_END;
       break;
 
     case LX_IDENTIFIER:
-      ProcessWord(&ibIn, szLex, szEqn);
+      PROPAGATE_EXIT(ProcessWord(&ibIn, szLex, szEqn));
       break;
 
     case LX_PUNCT:
@@ -505,13 +541,12 @@ void ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
       if (szLex[0] == CH_STMTTERM) {
         break;
       } else {
-        if (szLex[0] == CH_RBRACE &&
-            (pinfo->wContext & (CN_DYNAMICS | CN_JACOB | CN_SCALE))) {
+        if (szLex[0] == CH_RBRACE && (pinfo->wContext & (CN_DYNAMICS | CN_JACOB | CN_SCALE))) {
           pinfo->wContext = CN_GLOBAL;
           break;
         } else {
           if (szLex[0] == CH_COMMENT) {
-            SkipComment(&ibIn);
+            PROPAGATE_EXIT(SkipComment(&ibIn));
             break;
           }
           /* else: fall through! */
@@ -519,12 +554,12 @@ void ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
       }
 
     default:
-      ReportError(&ibIn, RE_UNEXPECTED, szLex, "* Ignoring");
+      PROPAGATE_EXIT(ReportError(&ibIn, RE_UNEXPECTED, szLex, "* Ignoring"));
       break;
 
     case LX_INTEGER:
     case LX_FLOAT:
-      ReportError(&ibIn, RE_UNEXPNUMBER, szLex, "* Ignoring");
+      PROPAGATE_EXIT(ReportError(&ibIn, RE_UNEXPNUMBER, szLex, "* Ignoring"));
       break;
 
     } /* switch */
@@ -533,7 +568,9 @@ void ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn) {
 
   pinfo->wContext = CN_END;
 
-  if (ibIn.pbufOrg)
+  if (ibIn.pbufOrg) {
     free(ibIn.pbufOrg);
+  }
+  return 0;
 
 } /* ReadModel */

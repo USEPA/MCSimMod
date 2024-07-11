@@ -89,17 +89,17 @@ enum _argtype { no_argument, required_argument, optional_argument };
 
 /* ----------------------------------------------------------------------------
    Public prototypes */
-int _getopt(int argc, char *const *argv, const char *shortopts);
-extern int _getopt_long(int argc, char *const *argv, const char *shortopts,
-                        const struct option *longopts, int *longind);
-extern int _getopt_long_only(int argc, char *const *argv, const char *shortopts,
-                             const struct option *longopts, int *longind);
+__attribute__((warn_unused_result)) int _getopt(int argc, char *const *argv, const char *shortopts);
+extern int _getopt_long(int argc, char *const *argv, const char *shortopts, const struct option *longopts,
+                        int *longind);
+extern int _getopt_long_only(int argc, char *const *argv, const char *shortopts, const struct option *longopts,
+                             int *longind);
 
 /* ----------------------------------------------------------------------------
    Internal prototypes only. Users should not call this directly.  */
-extern int _getopt_internal(int argc, char *const *argv, const char *shortopts,
-                            const struct option *longopts, int *longind,
-                            int long_only);
+__attribute__((warn_unused_result)) extern int _getopt_internal(int argc, char *const *argv, const char *shortopts,
+                                                                const struct option *longopts, int *longind,
+                                                                int long_only);
 
 #define GETOPT_H_DEFINED
 #endif /* GETOPT_H_DEFINED */

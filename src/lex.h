@@ -107,6 +107,28 @@
 
 #define RE_SIMERROR 0x0200 /* Simulation error prefix */
 
+#define EXIT_NOERROR -0x10000
+#define EXIT_ERROR -0x10001
+
+#define PROPAGATE_EXIT(func)                                                                                           \
+  {                                                                                                                    \
+    int ret = (func);                                                                                                  \
+    if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
+      Rprintf("PROPAGATE_EXIT at line %d in file %s\n", __LINE__, __FILE__);                                           \
+      return ret;                                                                                                      \
+    }                                                                                                                  \
+  }
+
+#define PROPAGATE_EXIT_OR_RETURN_RESULT(func)                                                                          \
+  ({                                                                                                                   \
+    int ret = (func);                                                                                                  \
+    if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
+      Rprintf("PROPAGATE_EXIT_OR_RETURN_RESULT at line %d in file %s\n", __LINE__, __FILE__);                          \
+      return ret;                                                                                                      \
+    }                                                                                                                  \
+    ret;                                                                                                               \
+  })
+
 /* ---------------------------------------------------------------------------
    Public Typedefs */
 
@@ -127,15 +149,15 @@ typedef struct tagINPUTBUF {
 
 } INPUTBUF, *PINPUTBUF;
 
+void InitINPUTBUF(PINPUTBUF pibIn);
+
 typedef char PSTRLEX[MAX_LEX]; /* String of a lexical element */
 typedef char PSTREQN[MAX_EQN]; /* String of an equation */
 
 /* ---------------------------------------------------------------------------
    Public Macros */
 
-#define EOB(pib)                                                               \
-  ((!(pib)) || ((!(pib)->pbufCur || !*(pib)->pbufCur) &&                       \
-                (!(pib)->pfileIn || feof((pib)->pfileIn))))
+#define EOB(pib) ((!(pib)) || ((!(pib)->pbufCur || !*(pib)->pbufCur) && (!(pib)->pfileIn || feof((pib)->pfileIn))))
 
 #define IsUnderscore(c) ((c) == '_')
 #define IsSign(c) ((c) == '+' || (c) == '-')
@@ -148,50 +170,45 @@ typedef char PSTREQN[MAX_EQN]; /* String of an equation */
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-void EatStatement(PINPUTBUF pib);
-int EGetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct);
-int ENextLex(PINPUTBUF, PSTRLEX, int);
-long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-              PINT piType);
-long EvalParen(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-               PINT piType);
-long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-              PINT piType);
-long EvalSum(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-             PINT piType);
-long EvaluateExpression(PINPUTBUF pibIn, long index, PSTR szExpress);
-long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-               PINT piType);
+__attribute__((warn_unused_result)) int EatStatement(PINPUTBUF pib);
+__attribute__((warn_unused_result)) int EGetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct);
+__attribute__((warn_unused_result)) BOOL ENextLex(PINPUTBUF, PSTRLEX, int);
+__attribute__((warn_unused_result)) long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType);
+__attribute__((warn_unused_result)) long EvalParen(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType);
+__attribute__((warn_unused_result)) long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType);
+__attribute__((warn_unused_result)) long EvalSum(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType);
+__attribute__((warn_unused_result)) long EvaluateExpression(PINPUTBUF pibIn, long index, PSTR szExpress);
+__attribute__((warn_unused_result)) long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType);
 
-int FillBuffer(PINPUTBUF pibIn, long lBuffer_size);
+__attribute__((warn_unused_result)) int FillBuffer(PINPUTBUF pibIn, long lBuffer_size);
 void FlushBuffer(PINPUTBUF pibIn);
 
-void GetArrayBounds(PINPUTBUF pibIn, PLONG piLB, PLONG piUB);
-void GetaString(PINPUTBUF pibIn, PSTR szLex);
-BOOL GetFuncArgs(PINPUTBUF pibIn, int nArgs, int rgiArgTypes[], PSTR szArgs,
-                 long rgiLowerB[], long rgiUpperB[]);
+__attribute__((warn_unused_result)) int GetArrayBounds(PINPUTBUF pibIn, PLONG piLB, PLONG piUB);
+__attribute__((warn_unused_result)) int GetaString(PINPUTBUF pibIn, PSTR szLex);
+__attribute__((warn_unused_result)) BOOL GetFuncArgs(PINPUTBUF pibIn, int nArgs, int rgiArgTypes[], PSTR szArgs,
+                                                     long rgiLowerB[], long rgiUpperB[]);
 void GetIdentifier(PINPUTBUF pibIn, PSTR szLex);
 void GetInteger(PINPUTBUF pibIn, PSTR szLex, PINT piLexType);
 void GetNumber(PINPUTBUF pibIn, PSTR szLex, PINT piLexType);
-int GetOptPunct(PINPUTBUF, PSTR, char);
-int GetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct);
-void GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode);
+__attribute__((warn_unused_result)) int GetOptPunct(PINPUTBUF, PSTR, char);
+__attribute__((warn_unused_result)) int GetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct);
+__attribute__((warn_unused_result)) int GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode);
 void GetToken(PSTR *szExpress, PSTR szToken, PINT piType);
 
-BOOL InitBuffer(PINPUTBUF pibIn, long lBuffer_size, PSTR szFullPathname);
+__attribute__((warn_unused_result)) BOOL InitBuffer(PINPUTBUF pibIn, long lBuffer_size, PSTR szFullPathname);
 
 void MakeStringBuffer(PINPUTBUF pBuf, PINPUTBUF pStrBuf, PSTR sz);
 
-char NextChar(PINPUTBUF pibIn);
-void NextLex(PINPUTBUF, PSTRLEX, PINT);
-int NextListItem(PINPUTBUF, PSTR, int, int, char);
+__attribute__((warn_unused_result)) char NextChar(PINPUTBUF pibIn);
+__attribute__((warn_unused_result)) int NextLex(PINPUTBUF, PSTRLEX, PINT);
+__attribute__((warn_unused_result)) int NextListItem(PINPUTBUF, PSTR, int, int, char);
 
 void PreventLexSplit(PINPUTBUF pibIn, int iOffset);
 
-void SkipComment(PINPUTBUF);
-int SkipWhitespace(PINPUTBUF pibIn);
+__attribute__((warn_unused_result)) int SkipComment(PINPUTBUF);
+__attribute__((warn_unused_result)) int SkipWhitespace(PINPUTBUF pibIn);
 
-void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU);
+__attribute__((warn_unused_result)) int UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU);
 
 #define LEX_H_DEFINED
 #endif

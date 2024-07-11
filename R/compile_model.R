@@ -28,7 +28,11 @@ compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # code compatible with functions in the R deSolve package.
   # system(paste("mod -R ", model_file, " ", c_file, sep = ""))
 
-  .C("c_mod", model_file, c_file)
+  # success <- .C("c_mod", model_file, c_file)[[1]]
+  # print("C model compiled successfully? " + success)
+  if (.C("c_mod", model_file, c_file)[[1]] < 0) {
+    stop("c_mod failed")
+  }
   # .C ("c_mod")
 
   # Not needed for compiled executable

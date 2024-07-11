@@ -40,18 +40,20 @@
  */
 int MyStrcmp(const char *sz1, const char *sz2) {
   if (!sz1) {
-    if (sz2)
+    if (sz2) {
       return (-1); /* NULL comes before the -something- */
-    else
+    } else {
       return (0); /* Two NULL strings compare equal */
-  }               /* if */
+    }
+  } /* if */
 
   else { /* assert (sz1) */
-    if (sz2)
+    if (sz2) {
       return (strcmp(sz1, sz2)); /* Normal comparison */
-    else
+    } else {
       return (1); /* -Something- comes after the NULL */
-  }               /* else */
+    }
+  } /* else */
 
   /* Prevent compiler complaints */
   return 0; /* Never reached! */

@@ -1,3 +1,4 @@
 ^MCSimMod\.Rproj$
 ^\.Rproj\.user$
 .github
+.clang-format

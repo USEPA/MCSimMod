@@ -30,30 +30,31 @@
 #include "lexerr.h"
 
 /* ---------------------------------------------------------------------------
-   ReportError
+ReportError
 
    Reports error iCode to terminal (one of RE_) and optional
    szMessage. If iSeverity is set to RE_FATAL, exits program.
 */
 
-void ReportError(PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg) {
+int ReportError(PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg) {
   char cNull = '\0';
   BOOL bFatal = wCode & RE_FATAL;
   BOOL bWarning = wCode & RE_WARNING;
 
   wCode &= ~(RE_FATAL | RE_WARNING);
 
-  if (!szMsg)
+  if (!szMsg) {
     szMsg = &cNull;
+  }
 
   if (wCode) {
-    if (bWarning)
+    if (bWarning) {
       Rprintf("*** Warning: ");
-    else {
+    } else {
       Rprintf("*** Error: ");
       bFatal |= (pibIn && (pibIn->cErrors++ > MAX_ERRORS));
     } /* else */
-  }   /* if */
+  } /* if */
 
   if (pibIn) {
     if (pibIn->pfileIn || pibIn->iLNPrev) { /* Line number is valid */
@@ -105,8 +106,9 @@ void ReportError(PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg) {
 
   case RE_LEXEXPECTED:
     Rprintf("Expected <%s>", szMsg);
-    if (szAltMsg)
+    if (szAltMsg) {
       Rprintf(" before '%s'", szAltMsg);
+    }
     break;
 
     /* USER error handling -- Add user error reporting below */
@@ -180,12 +182,13 @@ void ReportError(PINPUTBUF pibIn, WORD wCode, PSTR szMsg, PSTR szAltMsg) {
   } /* switch */
 
   Rprintf("\n");
-  if (szAltMsg && wCode != RE_LEXEXPECTED)
+  if (szAltMsg && wCode != RE_LEXEXPECTED) {
     Rprintf("%s\n", szAltMsg);
+  }
 
   if (bFatal) {
     Rprintf("One or more fatal errors: Exiting...\n\n");
-    exit(wCode);
+    return EXIT_ERROR;
   } /* if */
-
+  return 0;
 } /* ReportError */

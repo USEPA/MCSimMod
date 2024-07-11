@@ -42,9 +42,8 @@
 
 PSTR vrgszMathFuncs[] = {
     /* standard math functions */
-    "acos", "asin", "atan", "atan2", "ceil", "cos", "cosh", "exp", "fabs",
-    "floor", "fmax", "fmin", "fmod", "log", "log10", "pow", "sin", "sinh",
-    "sqrt", "tan", "tanh",
+    "acos", "asin", "atan", "atan2", "ceil", "cos", "cosh", "exp", "fabs", "floor", "fmax", "fmin", "fmod", "log",
+    "log10", "pow", "sin", "sinh", "sqrt", "tan", "tanh",
 
     /* special functions defined in random.c */
     "CDFNormal", "erfc", "lnDFNormal", "lnGamma", "piecewise",
@@ -53,12 +52,10 @@ PSTR vrgszMathFuncs[] = {
     "and", "leq", "lt",
 
     /* random sampling related routines defined in random.c */
-    "BetaRandom", "BinomialBetaRandom", "BinomialRandom", "CauchyRandom",
-    "Chi2Random", "ExpRandom", "GammaRandom", "GetSeed", "GGammaRandom",
-    "InvGGammaRandom", "LogNormalRandom", "LogUniformRandom", "NormalRandom",
-    "PiecewiseRandom", "PoissonRandom", "SetSeed", "StudentTRandom",
-    "TruncInvGGammaRandom", "TruncLogNormalRandom", "TruncNormalRandom",
-    "UniformRandom",
+    "BetaRandom", "BinomialBetaRandom", "BinomialRandom", "CauchyRandom", "Chi2Random", "ExpRandom", "GammaRandom",
+    "GetSeed", "GGammaRandom", "InvGGammaRandom", "LogNormalRandom", "LogUniformRandom", "NormalRandom",
+    "PiecewiseRandom", "PoissonRandom", "SetSeed", "StudentTRandom", "TruncInvGGammaRandom", "TruncLogNormalRandom",
+    "TruncNormalRandom", "UniformRandom",
 
     /* End flag */
     ""};
@@ -73,8 +70,9 @@ char vszHasInitializer[] = "0.0; /* Redefined later */";
 BOOL IsMathFunc(PSTR sz) {
   int i = 0;
 
-  while (*vrgszMathFuncs[i] && strcmp(vrgszMathFuncs[i], sz))
+  while (*vrgszMathFuncs[i] && strcmp(vrgszMathFuncs[i], sz)) {
     i++;
+  }
 
   return (*vrgszMathFuncs[i]);
 
@@ -89,8 +87,9 @@ BOOL IsDelayFunc(BOOL *bDelays, PSTR sz) {
 
   bIsDelay = (!strcmp("CalcDelay", sz));
 
-  if (bIsDelay && !(*bDelays))
+  if (bIsDelay && !(*bDelays)) {
     *bDelays = TRUE;
+  }
 
   return (bIsDelay);
 
@@ -100,6 +99,7 @@ BOOL IsDelayFunc(BOOL *bDelays, PSTR sz) {
  */
 BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
   INPUTBUF ibDummy;
+  InitINPUTBUF(&ibDummy);
   PSTRLEX szLex;
   int iType, fContext;
   BOOL bReturn = TRUE;
@@ -112,46 +112,45 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
 
   while (!EOB(&ibDummy)) { /* bOK not checked here... */
 
-    NextLex(&ibDummy, szLex, &iType); /* ...all errors reported */
+    PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     switch (iType) {
 
     case LX_IDENTIFIER:
       if ((iType = GetKeywordCode(szLex, &fContext))) {
-        if (!(bOK = (iType == KM_DXDT && (fContext & pinfo->wContext))))
-          ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL);
+        if (!(bOK = (iType == KM_DXDT && (fContext & pinfo->wContext)))) {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL));
+        }
       } /* if GetKeywordCode */
       else {
         /* an input function cannot be assigned to something else than an
            input, so if szLex is recognized by GetFnType print an error
            message */
         if (GetFnType(szLex)) {
-          ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL);
+          PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szLex, NULL));
         }
         /* Allowable identifiers are declared variables, CalcDelay calls,
            C functions, and the time variable  */
         if (!(bOK =
-                  (GetVarType(pinfo->pvmGloVars, szLex) || IsMathFunc(szLex) ||
-                   IsDelayFunc(&(pinfo->bDelays), szLex) ||
-                   ((pinfo->wContext == CN_DYNAMICS ||
-                     pinfo->wContext == CN_SCALE ||
+                  (GetVarType(pinfo->pvmGloVars, szLex) || IsMathFunc(szLex) || IsDelayFunc(&(pinfo->bDelays), szLex) ||
+                   ((pinfo->wContext == CN_DYNAMICS || pinfo->wContext == CN_SCALE ||
                      pinfo->wContext == CN_CALCOUTPUTS) &&
-                    !(strcmp(szLex, VSZ_TIME) &&
-                      strcmp(szLex, VSZ_TIME_SBML))))))
-          ReportError(pibIn, RE_UNDEFINED | RE_FATAL, szLex, NULL);
+                    !(strcmp(szLex, VSZ_TIME) && strcmp(szLex, VSZ_TIME_SBML)))))) {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_UNDEFINED | RE_FATAL, szLex, NULL));
+        }
       }
 
       break;
 
     case LX_EQNPUNCT:
       if ((szLex[0] == '!' || szLex[0] == '=') && strlen(szLex) == 1) {
-        ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation");
+        PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation"));
         bOK = FALSE;
       }
       break;
 
     case LX_PUNCT:
-      ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation");
+      PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation"));
       bOK = FALSE;
       break;
 
@@ -160,7 +159,7 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
       break;
 
     default:
-      ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation");
+      PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED, szLex, ".. in equation"));
       bOK = FALSE;
       break;
 
@@ -175,7 +174,7 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
 } /* VerifyEqn */
 
 /* ----------------------------------------------------------------------------
-   AddEquation
+PROPAGATE_EXIT(AddEquation
 
    Adds an equation to the list given.  Note that this may be a
    variable table with initializer, or function defining equations.
@@ -188,25 +187,29 @@ BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn) {
    items is not a big deal considering the overall time savings will
    be minimal.
 */
-void AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType) {
+int AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType) {
   PVMMAPSTRCT pvmNew;
 
-  if (!ppvm || !szName)
-    return;
+  if (!ppvm || !szName) {
+    return 0;
+  }
 
   if ((pvmNew = (PVMMAPSTRCT)malloc(sizeof(VMMAPSTRCT)))) {
-    pvmNew->szName = CopyString(szName);
-    pvmNew->szEqn = CopyString(szEqn);
+    PSTR szNameBuf, szEqnBuf;
+    PROPAGATE_EXIT(CopyString(szName, &szNameBuf));
+    pvmNew->szName = szNameBuf;
+    PROPAGATE_EXIT(CopyString(szEqn, &szEqnBuf));
+    pvmNew->szEqn = szEqnBuf;
     pvmNew->hType = hType;
     pvmNew->pvmNextVar = *ppvm;
 
     *ppvm = pvmNew; /* Redefine Head */
-  }                 /* if */
+  } /* if */
 
-  else
-    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szName,
-                "* .. creating new equation in AddEquation");
-
+  else {
+    PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szName, "* .. creating new equation in AddEquation"));
+  }
+  return 0;
 } /* AddEquation */
 
 /* ----------------------------------------------------------------------------
@@ -217,18 +220,20 @@ void AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType) {
 
    Reports memory errors.
 */
-PSTR CopyString(PSTR szOrg) {
-  PSTR szBuf;
+int CopyString(PSTR szOrg, PSTR *szBuf) {
+  // PSTR szBuf;
 
   if (szOrg) {
-    if ((szBuf = (PSTR)malloc(strlen(szOrg) + 1)))
-      return (strcpy((PSTR)szBuf, szOrg));
-    else
-      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szOrg,
-                  "* .. defining equation in CopyString");
+    if ((*szBuf = (PSTR)malloc(strlen(szOrg) + 1))) {
+      strcpy((PSTR)*szBuf, szOrg);
+      return 0;
+    } else {
+      PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szOrg, "* .. defining equation in CopyString"));
+    }
   } /* if */
 
-  return (NULL); /* else */
+  *szBuf = NULL;
+  return 0; /* else */
 
 } /* CopyString */
 
@@ -237,14 +242,19 @@ PSTR CopyString(PSTR szOrg) {
 
    Sets the equation field of PVMMAPSTRCT given to the equation szEqn.
 */
-void SetEquation(PVMMAPSTRCT pvm, PSTR szEqn) {
-  if (!pvm || !szEqn)
-    return;
+int SetEquation(PVMMAPSTRCT pvm, PSTR szEqn) {
+  if (!pvm || !szEqn) {
+    return 0;
+  }
 
-  if (pvm->szEqn)
+  if (pvm->szEqn) {
     free(pvm->szEqn);
+  }
 
-  pvm->szEqn = CopyString(szEqn);
+  PSTR szEqnBuf;
+  PROPAGATE_EXIT(CopyString(szEqn, &szEqnBuf));
+  pvm->szEqn = szEqnBuf;
+  return 0;
 
 } /* SetEquation */
 
@@ -258,11 +268,13 @@ void SetEquation(PVMMAPSTRCT pvm, PSTR szEqn) {
    variable.
 */
 void SetVarType(PVMMAPSTRCT pvm, PSTR szName, HANDLE hType) {
-  while (pvm && strcmp(szName, pvm->szName))
+  while (pvm && strcmp(szName, pvm->szName)) {
     pvm = pvm->pvmNextVar;
+  }
 
-  if (pvm)
+  if (pvm) {
     pvm->hType = hType;
+  }
 
 } /* SetVarType */
 
@@ -273,8 +285,9 @@ void SetVarType(PVMMAPSTRCT pvm, PSTR szName, HANDLE hType) {
    by szName, or NULL if it does not exist.
 */
 PVMMAPSTRCT GetVarPTR(PVMMAPSTRCT pvm, PSTR szName) {
-  while (pvm && strcmp(szName, pvm->szName))
+  while (pvm && strcmp(szName, pvm->szName)) {
     pvm = pvm->pvmNextVar;
+  }
 
   return (pvm);
 
@@ -319,8 +332,9 @@ HANDLE CalculateVarHandle(PVMMAPSTRCT pvm, PSTR sz) {
 
   pvm = pvmVar = GetVarPTR(pvm, sz); /* Get PTR in map */
 
-  if (pvm) /* Don't count the variable */
+  if (pvm) { /* Don't count the variable */
     pvm = pvm->pvmNextVar;
+  }
 
   while (pvm && pvm->hType == pvmVar->hType) {
     cSameType++; /* Count vars defined before it */
@@ -332,23 +346,23 @@ HANDLE CalculateVarHandle(PVMMAPSTRCT pvm, PSTR sz) {
 } /* CalculateVarHandle */
 
 /* ----------------------------------------------------------------------------
-   DefineGlobalVar
+PROPAGATE_EXIT(DefineGlobalVar
 
    Defines a global variable in the pvmGloVars list.
    Redefinitions are reported, and ignored.
 */
-void DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
-                     HANDLE hType) {
+int DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn, HANDLE hType) {
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmGloVars, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, szEqn, ID_INLINE));
+  }
 
-  else
+  else {
     switch (hType) {
 
     case ID_NULL:
-      AddEquation(&pinfo->pvmGloVars, szName, szEqn, ID_PARM);
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, szEqn, ID_PARM));
       break;
 
     case ID_INPUT:
@@ -359,16 +373,17 @@ void DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
         if (hType == ID_INPUT) { /* Inputs use decl space for definition */
           PIFN pifn = (PIFN)malloc(sizeof(IFN));
 
-          if (GetInputFn(pibIn, szEqn, pifn))
+          if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetInputFn(pibIn, szEqn, pifn))) {
             pvm->szEqn = (PSTR)pifn; /* THIS MAY CAUSE PROBS ON 68000 */
-          else
+          } else {
             pvm->szEqn = NULL;
+          }
         } /* if */
         else {
           pvm->szEqn = vszHasInitializer; /* Flag this variable */
           /* Add a new entry at end of list so
              that dependencies are handled. */
-          AddEquation(&pinfo->pvmGloVars, szName, szEqn, hType);
+          PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, szEqn, hType));
         } /* else */
         break;
       } /* if */
@@ -376,14 +391,15 @@ void DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
       /* else Redefinition -- Fall through ! */
 
     case ID_PARM:
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName, NULL);
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName, NULL));
       break;
 
     default:
-      ReportError(pibIn, RE_BADCONTEXT, szName, NULL);
+      PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT, szName, NULL));
 
     } /* switch */
-
+  }
+  return 0;
 } /* DefineGlobalVar */
 
 /* ----------------------------------------------------------------------------
@@ -395,7 +411,7 @@ void DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
    Redefinitions are reported, and ignored.
 */
 
-void DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+int DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALDYN);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
@@ -403,41 +419,43 @@ void DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
      This is a terrible kludge so we can use PVMMAPSTRCT struct. */
   hNewType |= ID_SPACEFLAG;
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmDynEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmDynEqns, szName, szEqn, ID_INLINE));
+  }
 
-  else
+  else {
     switch (hType) {
 
     case ID_NULL:
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
 
       /* Fall through ! */
 
     case ID_LOCALDYN:
-      AddEquation(&pinfo->pvmDynEqns, szName, szEqn, hNewType);
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmDynEqns, szName, szEqn, hNewType));
       break;
 
     case ID_FUNCTION:
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
       break;
 
     case ID_DERIV: /* dt () assignment */
     case ID_STATE: /* Non-standard direct state assgn */
     case ID_OUTPUT:
-      AddEquation(&pinfo->pvmDynEqns, szName, szEqn, hNewType);
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmDynEqns, szName, szEqn, hNewType));
       break;
 
     case ID_INPUT:
     case ID_PARM:
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName,
-                  "  Inputs and parameters cannot be assigned in Dynamics\n");
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName,
+                                 "  Inputs and parameters cannot be assigned in Dynamics\n"));
       break;
 
     } /* switch */
+  }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineDynamicsEqn */
 
 /* ----------------------------------------------------------------------------
@@ -446,33 +464,38 @@ void DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
    Defines an equation in the pvmScaleEqn list.  All model variables
    except inputs can be redefined here.
 */
-void DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+int DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALSCALE);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* If there was more than one line since last equation, set ID_SPACEFLAG.
      This is kind of a kludge so I can use PVMMAPSTRCT struct. */
-  if (pibIn->iLineNum - pibIn->iLNPrev - 1)
+  if (pibIn->iLineNum - pibIn->iLNPrev - 1) {
     hNewType |= ID_SPACEFLAG;
+  }
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, ID_INLINE));
+  }
 
   else {
 
-    if (!hType) /* Original type is NULL */
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+    if (!hType) { /* Original type is NULL */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
+    }
 
-    if ((hType & ID_LOCALSCALE) ||               /* Many per local */
-        !GetVarPTR(pinfo->pvmScaleEqns, szName)) /* 1 eqn per parm */
-      AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, hNewType);
+    if ((hType & ID_LOCALSCALE) ||                 /* Many per local */
+        !GetVarPTR(pinfo->pvmScaleEqns, szName)) { /* 1 eqn per parm */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmScaleEqns, szName, szEqn, hNewType));
+    }
 
-    else
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring");
+    else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring"));
+    }
   }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineScaleEqn */
 
 /* ----------------------------------------------------------------------------
@@ -481,126 +504,144 @@ void DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
    Defines an equation in the pvmCalcOutEqn list. Only outputs
    can be redefined here.
 */
-void DefineCalcOutEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+int DefineCalcOutEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALCALCOUT);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* If there was more than one line since last equation, set ID_SPACEFLAG.
      This is kind of a kludge so I can use PVMMAPSTRCT struct. */
-  if (pibIn->iLineNum - pibIn->iLNPrev - 1)
+  if (pibIn->iLineNum - pibIn->iLNPrev - 1) {
     hNewType |= ID_SPACEFLAG;
+  }
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmCalcOutEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmCalcOutEqns, szName, szEqn, ID_INLINE));
+  }
 
   else {
 
-    if (!hType) /* Original type is NULL */
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+    if (!hType) { /* Original type is NULL */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
+    }
 
     /* FB 27 April 2013: allow redefition of output variables */
-    AddEquation(&pinfo->pvmCalcOutEqns, szName, szEqn, hNewType);
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmCalcOutEqns, szName, szEqn, hNewType));
   }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineCalcOutEqn */
 
 /* ----------------------------------------------------------------------------
  */
-void DefineJacobEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+int DefineJacobEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALJACOB);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* If there was more than one line since last equation, set ID_SPACEFLAG.
      This is kind of a kludge so I can use PVMMAPSTRCT struct. */
-  if (pibIn->iLineNum - pibIn->iLNPrev - 1)
+  if (pibIn->iLineNum - pibIn->iLNPrev - 1) {
     hNewType |= ID_SPACEFLAG;
+  }
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmJacobEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmJacobEqns, szName, szEqn, ID_INLINE));
+  }
 
   else {
 
-    if (!hType) /* Original type is NULL */
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+    if (!hType) { /* Original type is NULL */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
+    }
 
-    if ((hType & ID_LOCALJACOB) ||               /* Many per local */
-        !GetVarPTR(pinfo->pvmJacobEqns, szName)) /* 1 eqn per parm */
-      AddEquation(&pinfo->pvmJacobEqns, szName, szEqn, hNewType);
+    if ((hType & ID_LOCALJACOB) ||                 /* Many per local */
+        !GetVarPTR(pinfo->pvmJacobEqns, szName)) { /* 1 eqn per parm */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmJacobEqns, szName, szEqn, hNewType));
+    }
 
-    else
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring");
+    else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring"));
+    }
   }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineJacobEqn */
 
 /* ----------------------------------------------------------------------------
  */
-void DefineEventEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+__attribute__((warn_unused_result)) int DefineEventEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALJACOB);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* If there was more than one line since last equation, set ID_SPACEFLAG.
      This is kind of a kludge so I can use PVMMAPSTRCT struct. */
-  if (pibIn->iLineNum - pibIn->iLNPrev - 1)
+  if (pibIn->iLineNum - pibIn->iLNPrev - 1) {
     hNewType |= ID_SPACEFLAG;
+  }
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmEventEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmEventEqns, szName, szEqn, ID_INLINE));
+  }
 
   else {
 
-    if (!hType) /* Original type is NULL */
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+    if (!hType) { /* Original type is NULL */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
+    }
 
-    if ((hType & ID_LOCALJACOB) ||               /* Many per local */
-        !GetVarPTR(pinfo->pvmEventEqns, szName)) /* 1 eqn per parm */
-      AddEquation(&pinfo->pvmEventEqns, szName, szEqn, hNewType);
+    if ((hType & ID_LOCALJACOB) ||                 /* Many per local */
+        !GetVarPTR(pinfo->pvmEventEqns, szName)) { /* 1 eqn per parm */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmEventEqns, szName, szEqn, hNewType));
+    }
 
-    else
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring");
+    else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring"));
+    }
   }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineEventEqn */
 
 /* ----------------------------------------------------------------------------
  */
-void DefineRootEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
+__attribute__((warn_unused_result)) int DefineRootEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
   HANDLE hNewType = (hType ? hType : ID_LOCALJACOB);
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* If there was more than one line since last equation, set ID_SPACEFLAG.
      This is kind of a kludge so I can use PVMMAPSTRCT struct. */
-  if (pibIn->iLineNum - pibIn->iLNPrev - 1)
+  if (pibIn->iLineNum - pibIn->iLNPrev - 1) {
     hNewType |= ID_SPACEFLAG;
+  }
 
-  if (!strcmp(szName, "Inline")) /* Inline statements are accumulated */
-    AddEquation(&pinfo->pvmRootEqns, szName, szEqn, ID_INLINE);
+  if (!strcmp(szName, "Inline")) { /* Inline statements are accumulated */
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmRootEqns, szName, szEqn, ID_INLINE));
+  }
 
   else {
 
-    if (!hType) /* Original type is NULL */
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType);
+    if (!hType) { /* Original type is NULL */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, hNewType));
+    }
 
-    if ((hType & ID_LOCALJACOB) ||              /* Many per local */
-        !GetVarPTR(pinfo->pvmRootEqns, szName)) /* 1 eqn per parm */
-      AddEquation(&pinfo->pvmRootEqns, szName, szEqn, hNewType);
+    if ((hType & ID_LOCALJACOB) ||                /* Many per local */
+        !GetVarPTR(pinfo->pvmRootEqns, szName)) { /* 1 eqn per parm */
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmRootEqns, szName, szEqn, hNewType));
+    }
 
-    else
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring");
+    else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName, "* Ignoring"));
+    }
   }
 
   pibIn->iLNPrev = pibIn->iLineNum; /* Update prev eqn line num */
-
+  return 0;
 } /* DefineRootEqn */
 
 /* ----------------------------------------------------------------------------
-   DefineVariable
+PROPAGATE_EXIT(DefineVariable
 
    Define the variable szLex according to szEqn if the variable
    type is valid for the assignment in the given fContext.
@@ -616,7 +657,7 @@ void DefineRootEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType) {
    * In the global parameter declarations, a duplicate definition issues
      a warning and ignores the redefinitions
 */
-void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
+int DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
   PVMMAPSTRCT pvm;
   HANDLE hGloVarType;
   PINPUTINFO pinfo;
@@ -625,8 +666,9 @@ void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
 
   assert(pinfo->wContext != CN_END);
 
-  if (!szName || !szEqn)
-    return;
+  if (!szName || !szEqn) {
+    return 0;
+  }
 
   pvm = GetVarPTR(pinfo->pvmGloVars, szName);
   hGloVarType = TYPE(pvm);
@@ -635,77 +677,73 @@ void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
      another section that the current one, it need to be redefined
      as local, so we undo the above assignments */
   if (((pinfo->wContext == CN_DYNAMICS) &&
-       ((hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALJACOB) ||
-        (hGloVarType == ID_LOCALEVENT) || (hGloVarType == ID_LOCALROOT) ||
-        (hGloVarType == ID_LOCALCALCOUT))) ||
+       ((hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALJACOB) || (hGloVarType == ID_LOCALEVENT) ||
+        (hGloVarType == ID_LOCALROOT) || (hGloVarType == ID_LOCALCALCOUT))) ||
 
       ((pinfo->wContext == CN_SCALE) &&
-       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALJACOB) ||
-        (hGloVarType == ID_LOCALEVENT) || (hGloVarType == ID_LOCALROOT) ||
-        (hGloVarType == ID_LOCALCALCOUT))) ||
+       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALJACOB) || (hGloVarType == ID_LOCALEVENT) ||
+        (hGloVarType == ID_LOCALROOT) || (hGloVarType == ID_LOCALCALCOUT))) ||
 
       ((pinfo->wContext == CN_JACOB) &&
-       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) ||
-        (hGloVarType == ID_LOCALEVENT) || (hGloVarType == ID_LOCALROOT) ||
-        (hGloVarType == ID_LOCALCALCOUT))) ||
+       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALEVENT) ||
+        (hGloVarType == ID_LOCALROOT) || (hGloVarType == ID_LOCALCALCOUT))) ||
 
       ((pinfo->wContext == CN_EVENTS) &&
-       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) ||
-        (hGloVarType == ID_LOCALJACOB) || (hGloVarType == ID_LOCALROOT) ||
-        (hGloVarType == ID_LOCALCALCOUT))) ||
+       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALJACOB) ||
+        (hGloVarType == ID_LOCALROOT) || (hGloVarType == ID_LOCALCALCOUT))) ||
 
       ((pinfo->wContext == CN_ROOTS) &&
-       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) ||
-        (hGloVarType == ID_LOCALJACOB) || (hGloVarType == ID_LOCALEVENT) ||
-        (hGloVarType == ID_LOCALCALCOUT))) ||
+       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALJACOB) ||
+        (hGloVarType == ID_LOCALEVENT) || (hGloVarType == ID_LOCALCALCOUT))) ||
 
       ((pinfo->wContext == CN_CALCOUTPUTS) &&
-       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) ||
-        (hGloVarType == ID_LOCALEVENT) || (hGloVarType == ID_LOCALROOT) ||
-        (hGloVarType == ID_LOCALJACOB)))) {
+       ((hGloVarType == ID_LOCALDYN) || (hGloVarType == ID_LOCALSCALE) || (hGloVarType == ID_LOCALEVENT) ||
+        (hGloVarType == ID_LOCALROOT) || (hGloVarType == ID_LOCALJACOB)))) {
 
     pvm = NULL;
     hGloVarType = TYPE(pvm);
   }
 
-  if ((iKWCode != KM_INLINE) &&
-      (hGloVarType != ID_INPUT || pinfo->wContext != CN_GLOBAL) &&
-      !VerifyEqn(pibIn, szEqn))
-    return; /* Errors reported in Verify eqn */
+  if ((iKWCode != KM_INLINE) && (hGloVarType != ID_INPUT || pinfo->wContext != CN_GLOBAL) &&
+      !PROPAGATE_EXIT_OR_RETURN_RESULT(VerifyEqn(pibIn, szEqn))) {
+    return 0; /* Errors reported in Verify eqn */
+  }
 
   switch (pinfo->wContext) {
   case CN_GLOBAL:
-    DefineGlobalVar(pibIn, pvm, szName, szEqn, hGloVarType);
+    PROPAGATE_EXIT(DefineGlobalVar(pibIn, pvm, szName, szEqn, hGloVarType));
     break;
 
   case CN_DYNAMICS:
-    if (iKWCode == KM_DXDT)
-      DefineDynamicsEqn(pibIn, szName, szEqn, ID_DERIV);
-    else if (iKWCode == KM_FUNCTION)
-      DefineDynamicsEqn(pibIn, szName, szEqn, ID_FUNCTION);
-    else
-      DefineDynamicsEqn(pibIn, szName, szEqn, hGloVarType);
+    if (iKWCode == KM_DXDT) {
+      PROPAGATE_EXIT(DefineDynamicsEqn(pibIn, szName, szEqn, ID_DERIV));
+    } else if (iKWCode == KM_FUNCTION) {
+      PROPAGATE_EXIT(DefineDynamicsEqn(pibIn, szName, szEqn, ID_FUNCTION));
+    } else {
+      PROPAGATE_EXIT(DefineDynamicsEqn(pibIn, szName, szEqn, hGloVarType));
+    }
 
-    if (hGloVarType == ID_STATE && iKWCode != KM_DXDT)
-      ReportError(pibIn, RE_REDEF | RE_WARNING, szName,
-                  "Non-standard assignment in Dynamics section. "
-                  "Potential state discontinuity.\n");
+    if (hGloVarType == ID_STATE && iKWCode != KM_DXDT) {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_REDEF | RE_WARNING, szName,
+                                 "Non-standard assignment in Dynamics section. "
+                                 "Potential state discontinuity.\n"));
+    }
     break;
 
   case CN_JACOB:
-    DefineJacobEqn(pibIn, szName, szEqn, hGloVarType);
+    PROPAGATE_EXIT(DefineJacobEqn(pibIn, szName, szEqn, hGloVarType));
     break;
 
   case CN_EVENTS:
-    DefineEventEqn(pibIn, szName, szEqn, hGloVarType);
+    PROPAGATE_EXIT(DefineEventEqn(pibIn, szName, szEqn, hGloVarType));
     break;
 
   case CN_ROOTS:
-    DefineRootEqn(pibIn, szName, szEqn, hGloVarType);
+    PROPAGATE_EXIT(DefineRootEqn(pibIn, szName, szEqn, hGloVarType));
     break;
 
   case CN_SCALE:
-    DefineScaleEqn(pibIn, szName, szEqn, hGloVarType);
+    PROPAGATE_EXIT(DefineScaleEqn(pibIn, szName, szEqn, hGloVarType));
     break;
 
   case CN_CALCOUTPUTS: /* FB added ID_NULL and RE_FATAL, 1 mar 98 */
@@ -713,23 +751,24 @@ void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
        CalcOutputs */
     if ((hGloVarType == ID_OUTPUT) || (hGloVarType == ID_NULL) ||
         (hGloVarType == ID_LOCALCALCOUT) || /* added 7 mar 2008 */
-        (iKWCode == KM_INLINE))
-      DefineCalcOutEqn(pibIn, szName, szEqn, hGloVarType);
-    else
-      ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szName,
-                  "Only outputs and local variables can be "
-                  "defined in CalcOutputs{} section.");
+        (iKWCode == KM_INLINE)) {
+      PROPAGATE_EXIT(DefineCalcOutEqn(pibIn, szName, szEqn, hGloVarType));
+    } else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, szName,
+                                 "Only outputs and local variables can be "
+                                 "defined in CalcOutputs{} section."));
+    }
     break;
 
   default:
     break;
 
   } /* switch */
-
+  return 0;
 } /* DefineVariable */
 
 /* ----------------------------------------------------------------------------
-   DeclareModelVar
+PROPAGATE_EXIT(DeclareModelVar
 
    Declares szName to be a model variable of the type indicated
    by iKWCode. Since the declaration commands States, Inputs, Outputs
@@ -740,37 +779,37 @@ void DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode) {
    The number of States, Outputs, Inputs or Compartments is incremented,
    and nominal value and defining equations strings are initialized to NULL.
 */
-void DeclareModelVar(PINPUTBUF pibIn, PSTR szName, int iKWCode) {
+int DeclareModelVar(PINPUTBUF pibIn, PSTR szName, int iKWCode) {
   HANDLE hType;
   PINPUTINFO pinfo;
 
   pinfo = (PINPUTINFO)pibIn->pInfo;
 
-  assert(iKWCode == KM_STATES || iKWCode == KM_INPUTS ||
-         iKWCode == KM_OUTPUTS || iKWCode == KM_COMPARTMENTS);
+  assert(iKWCode == KM_STATES || iKWCode == KM_INPUTS || iKWCode == KM_OUTPUTS || iKWCode == KM_COMPARTMENTS);
 
-  iKWCode =
-      ((iKWCode == KM_STATES
-            ? ID_STATE /* Translate to ID_ */
-            : (iKWCode == KM_INPUTS
-                   ? ID_INPUT
-                   : (iKWCode == KM_OUTPUTS ? ID_OUTPUT : ID_COMPARTMENT))));
+  iKWCode = ((iKWCode == KM_STATES
+                  ? ID_STATE /* Translate to ID_ */
+                  : (iKWCode == KM_INPUTS ? ID_INPUT : (iKWCode == KM_OUTPUTS ? ID_OUTPUT : ID_COMPARTMENT))));
 
   if (!(hType = GetVarType(pinfo->pvmGloVars, szName))) { /* New id */
-    if (iKWCode == ID_COMPARTMENT)
-      AddEquation(&pinfo->pvmCpts, szName, NULL, (HANDLE)iKWCode);
-    else
-      AddEquation(&pinfo->pvmGloVars, szName, NULL, (HANDLE)iKWCode);
+    if (iKWCode == ID_COMPARTMENT) {
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmCpts, szName, NULL, (HANDLE)iKWCode));
+    } else {
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, NULL, (HANDLE)iKWCode));
+    }
   } else {
-    if (hType == iKWCode) /* Same type redecl */
-      ReportError(pibIn, RE_DUPDECL | RE_WARNING, szName, NULL);
-    else {
+    if (hType == iKWCode) { /* Same type redecl */
+      PROPAGATE_EXIT(ReportError(pibIn, RE_DUPDECL | RE_WARNING, szName, NULL));
+    } else {
       if (hType == ID_PARM) { /* Already init'd */
-        ReportError(pibIn, RE_DUPDECL | RE_WARNING, szName,
-                    "Model variable initialized before declaration");
+        PROPAGATE_EXIT(
+            ReportError(pibIn, RE_DUPDECL | RE_WARNING, szName, "Model variable initialized before declaration"));
         SetVarType(pinfo->pvmGloVars, szName, iKWCode);
-      } else /* Unresolvable conflict */
-        ReportError(pibIn, RE_DUPDECL | RE_FATAL, szName, NULL);
+      } else { /* Unresolvable conflict */
+        PROPAGATE_EXIT(ReportError(pibIn, RE_DUPDECL | RE_FATAL, szName, NULL));
+      }
     }
   }
+
+  return 0;
 } /* DeclareModelVar */

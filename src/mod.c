@@ -87,12 +87,14 @@ void AnnounceProgram(void) {
    prompts for both input and output file names. The space allocated
    for inputting the files is reallocated to their actual size.
 */
-void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
-  if (!(*pszFileIn = (PSTR)calloc(1, MAX_FILENAMESIZE)))
-    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+__attribute__((warn_unused_result)) int PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
+  if (!(*pszFileIn = (PSTR)calloc(1, MAX_FILENAMESIZE))) {
+    PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL));
+  }
 
-  if (!(*pszFileOut = (PSTR)calloc(1, MAX_FILENAMESIZE)))
-    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+  if (!(*pszFileOut = (PSTR)calloc(1, MAX_FILENAMESIZE))) {
+    PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL));
+  }
 
   Rprintf("Input filename? ");
 
@@ -100,7 +102,7 @@ void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
     *pszFileIn = strtok(*pszFileIn, " \t\n");
   } else { /* Nothing entered, quit */
     Rprintf("input file not specified\n");
-    return;
+    return EXIT_NOERROR;
   }
 
   if ((*pszFileIn)[0]) { /* Input file specified */
@@ -115,12 +117,14 @@ void PromptFilenames(PSTR *pszFileIn, PSTR *pszFileOut) {
     free(*pszFileOut);                       /* .. use default later */
     *pszFileOut = NULL;
   } else {
-    if (!(*pszFileIn = (PSTR)realloc(*pszFileIn, MyStrlen(*pszFileIn) + 1)))
-      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
-    if (!(*pszFileOut = (PSTR)realloc(*pszFileOut, MyStrlen(*pszFileOut) + 1)))
-      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL);
+    if (!(*pszFileIn = (PSTR)realloc(*pszFileIn, MyStrlen(*pszFileIn) + 1))) {
+      PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL));
+    }
+    if (!(*pszFileOut = (PSTR)realloc(*pszFileOut, MyStrlen(*pszFileOut) + 1))) {
+      PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "PromptFilenames", NULL));
+    }
   }
-
+  return 0;
 } /* PromptFilenames */
 
 /* ----------------------------------------------------------------------------
@@ -170,8 +174,8 @@ void ShowHelp() {
      int   opterr;    -- 0 value flags to inhibit GNU error messages
 
 */
-void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
-                    PSTR *pszFileOut, PINPUTINFO pinfo) {
+__attribute__((warn_unused_result)) int GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
+                                                       PSTR *pszFileOut, PINPUTINFO pinfo) {
   int c;
 
   opterr = 1; /* inhibit internal -getopt error messages */
@@ -180,9 +184,10 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
 
   while (1) {
 
-    c = _getopt(nArg, rgszArg, vszOptions);
-    if (c == EOF) /* Finish with option args */
+    c = PROPAGATE_EXIT_OR_RETURN_RESULT(_getopt(nArg, rgszArg, vszOptions));
+    if (c == EOF) { /* Finish with option args */
       break;
+    }
 
     switch (c) {
     case 'D':
@@ -195,7 +200,7 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
     case 'H':
     case 'h':
       ShowHelp();
-      exit(0);
+      return EXIT_NOERROR;
       break;
 
     case 'R':
@@ -206,7 +211,7 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
     case '?':
     default:
       ShowHelp();
-      exit(0);
+      return EXIT_NOERROR;
 
     } /* switch */
 
@@ -224,13 +229,13 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
     break;
 
   case 0: /* No file names specified */
-    PromptFilenames(pszFileIn, pszFileOut);
+    PROPAGATE_EXIT(PromptFilenames(pszFileIn, pszFileOut));
     break;
 
   default:
     Rprintf("mod: too many parameters on command line\n");
     ShowHelp();
-    exit(-1);
+    return EXIT_ERROR;
     break;
 
   } /* switch */
@@ -239,12 +244,12 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
          !MyStrcmp(*pszFileIn, *pszFileOut)) { /* and not different */
 
     Rprintf("\n** Input and output filename must be different.\n");
-    PromptFilenames(pszFileIn, pszFileOut);
+    PROPAGATE_EXIT(PromptFilenames(pszFileIn, pszFileOut));
   } /* while */
 
   if (!(*pszFileIn && (*pszFileIn)[0])) { /* no input name given is an error */
     Rprintf("Error: an input file name must be specified - Exiting\n\n");
-    exit(-1);
+    return EXIT_ERROR;
   }
 
   /* store input file name for use by modo.c */
@@ -261,9 +266,10 @@ void GetCmdLineArgs(int nArg, char *const *rgszArg, PSTR *pszFileIn,
 #endif /* _WIN32 */
 
   /* use default output file name if it is missing */
-  if (!*pszFileOut)
+  if (!*pszFileOut) {
     *pszFileOut = vszFilenameDefault;
-
+  }
+  return 0;
 } /* GetCmdLineArgs */
 
 /* ----------------------------------------------------------------------------
@@ -311,88 +317,143 @@ void Cleanup(PINPUTINFO pinfo) {
 
   while (pinfo->pvmGloVars) {
     next = pinfo->pvmGloVars->pvmNextVar;
-    free(pinfo->pvmGloVars->szName);
-    free(pinfo->pvmGloVars->szEqn);
-    free(pinfo->pvmGloVars);
+    if (pinfo->pvmGloVars->szName) {
+      free(pinfo->pvmGloVars->szName);
+    }
+    if (pinfo->pvmGloVars->szEqn) {
+      free(pinfo->pvmGloVars->szEqn);
+    }
+    if (pinfo->pvmGloVars) {
+      free(pinfo->pvmGloVars);
+    }
     pinfo->pvmGloVars = next;
   }
 
   while (pinfo->pvmDynEqns) {
     next = pinfo->pvmDynEqns->pvmNextVar;
-    free(pinfo->pvmDynEqns->szName);
-    free(pinfo->pvmDynEqns->szEqn);
-    free(pinfo->pvmDynEqns);
+    if (pinfo->pvmDynEqns->szName) {
+      free(pinfo->pvmDynEqns->szName);
+    }
+    if (pinfo->pvmDynEqns->szEqn) {
+      free(pinfo->pvmDynEqns->szEqn);
+    }
+    if (pinfo->pvmDynEqns) {
+      free(pinfo->pvmDynEqns);
+    }
     pinfo->pvmDynEqns = next;
   }
 
   while (pinfo->pvmScaleEqns) {
     next = pinfo->pvmScaleEqns->pvmNextVar;
-    free(pinfo->pvmScaleEqns->szName);
-    free(pinfo->pvmScaleEqns->szEqn);
-    free(pinfo->pvmScaleEqns);
+    if (pinfo->pvmScaleEqns->szName) {
+      free(pinfo->pvmScaleEqns->szName);
+    }
+    if (pinfo->pvmScaleEqns->szEqn) {
+      free(pinfo->pvmScaleEqns->szEqn);
+    }
+    if (pinfo->pvmScaleEqns) {
+      free(pinfo->pvmScaleEqns);
+    }
     pinfo->pvmScaleEqns = next;
   }
 
   while (pinfo->pvmJacobEqns) {
     next = pinfo->pvmJacobEqns->pvmNextVar;
-    free(pinfo->pvmJacobEqns->szName);
-    free(pinfo->pvmJacobEqns->szEqn);
-    free(pinfo->pvmJacobEqns);
+    if (pinfo->pvmJacobEqns->szName) {
+      free(pinfo->pvmJacobEqns->szName);
+    }
+    if (pinfo->pvmJacobEqns->szEqn) {
+      free(pinfo->pvmJacobEqns->szEqn);
+    }
+    if (pinfo->pvmJacobEqns) {
+      free(pinfo->pvmJacobEqns);
+    }
     pinfo->pvmJacobEqns = next;
   }
 
   while (pinfo->pvmCalcOutEqns) {
     next = pinfo->pvmCalcOutEqns->pvmNextVar;
-    free(pinfo->pvmCalcOutEqns->szName);
-    free(pinfo->pvmCalcOutEqns->szEqn);
-    free(pinfo->pvmCalcOutEqns);
+    if (pinfo->pvmCalcOutEqns->szName) {
+      free(pinfo->pvmCalcOutEqns->szName);
+    }
+    if (pinfo->pvmCalcOutEqns->szEqn) {
+      free(pinfo->pvmCalcOutEqns->szEqn);
+    }
+    if (pinfo->pvmCalcOutEqns) {
+      free(pinfo->pvmCalcOutEqns);
+    }
     pinfo->pvmCalcOutEqns = next;
   }
 
   while (pinfo->pvmEventEqns) {
     next = pinfo->pvmEventEqns->pvmNextVar;
-    free(pinfo->pvmEventEqns->szName);
-    free(pinfo->pvmEventEqns->szEqn);
-    free(pinfo->pvmEventEqns);
+    if (pinfo->pvmEventEqns->szName) {
+      free(pinfo->pvmEventEqns->szName);
+    }
+    if (pinfo->pvmEventEqns->szEqn) {
+      free(pinfo->pvmEventEqns->szEqn);
+    }
+    if (pinfo->pvmEventEqns) {
+      free(pinfo->pvmEventEqns);
+    }
     pinfo->pvmEventEqns = next;
   }
 
   while (pinfo->pvmRootEqns) {
     next = pinfo->pvmRootEqns->pvmNextVar;
-    free(pinfo->pvmRootEqns->szName);
-    free(pinfo->pvmRootEqns->szEqn);
-    free(pinfo->pvmRootEqns);
+    if (pinfo->pvmRootEqns->szName) {
+      free(pinfo->pvmRootEqns->szName);
+    }
+    if (pinfo->pvmRootEqns->szEqn) {
+      free(pinfo->pvmRootEqns->szEqn);
+    }
+    if (pinfo->pvmRootEqns) {
+      free(pinfo->pvmRootEqns);
+    }
     pinfo->pvmRootEqns = next;
   }
 
   while (pinfo->pvmCpts) {
     next = pinfo->pvmCpts->pvmNextVar;
-    free(pinfo->pvmCpts->szName);
-    free(pinfo->pvmCpts->szEqn);
-    free(pinfo->pvmCpts);
+    if (pinfo->pvmCpts->szName) {
+      free(pinfo->pvmCpts->szName);
+    }
+    if (pinfo->pvmCpts->szEqn) {
+      free(pinfo->pvmCpts->szEqn);
+    }
+    if (pinfo->pvmCpts) {
+      free(pinfo->pvmCpts);
+    }
     pinfo->pvmCpts = next;
   }
 
   while (pinfo->pvmLocalCpts) {
     next = pinfo->pvmJacobEqns->pvmNextVar;
-    free(pinfo->pvmJacobEqns->szName);
-    free(pinfo->pvmJacobEqns->szEqn);
-    free(pinfo->pvmJacobEqns);
-    pinfo->pvmJacobEqns = next;
+    if (pinfo->pvmLocalCpts->szName) {
+      free(pinfo->pvmLocalCpts->szName);
+    }
+    if (pinfo->pvmLocalCpts->szEqn) {
+      free(pinfo->pvmLocalCpts->szEqn);
+    }
+    if (pinfo->pvmLocalCpts) {
+      free(pinfo->pvmLocalCpts);
+    }
+    pinfo->pvmLocalCpts = next;
   }
-
 } /* Cleanup */
 
 /* ----------------------------------------------------------------------------
    main -- Entry point for the simulation model preprocessor
-
+  return -1 on error, 0 on success
 */
-void c_mod(char **modelNamePtr, char **outputNamePtr) {
+int c_mod(char **modelNamePtr, char **outputNamePtr) {
   // since we are now loading this a a library instead of calling an executable,
   // the following need to be reset for each call because they are global
   // variables (and thus stay modified in memory after returning from this call)
   optarg = 0;
   optind = 0;
+
+  Rprintf("c_mod %s %s\n", *modelNamePtr, *outputNamePtr);
 
   int nArg = 4;
   PSTR rgszArg[] = {"RMCSIM", "-R", *modelNamePtr, *outputNamePtr};
@@ -406,18 +467,34 @@ void c_mod(char **modelNamePtr, char **outputNamePtr) {
   InitInfo(&info, rgszArg[0]);
   InitInfo(&tempinfo, rgszArg[0]);
 
-  GetCmdLineArgs(nArg, rgszArg, &szFileIn, &szFileOut, &info);
+  int ret = GetCmdLineArgs(nArg, rgszArg, &szFileIn, &szFileOut, &info);
+  Rprintf("c_mod %s %s\n", szFileIn, szFileOut);
+  if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
+    Cleanup(&info);
+    return -1;
+  }
 
-  ReadModel(&info, &tempinfo, szFileIn);
+  ret = ReadModel(&info, &tempinfo, szFileIn);
+  if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
+    Rprintf("Error reading model %s\n", szFileIn);
+    Cleanup(&info);
+    return -1;
+  }
 
   /* I think that here we should manipulate info if a pure template has
      been read, assuming we care about that case, otherwise it should be
      an error to define a pure template without SBML to follow */
 
-  if (info.bforR == TRUE)
-    Write_R_Model(&info, szFileOut);
-  else
-    WriteModel(&info, szFileOut);
-
+  if (info.bforR == TRUE) {
+    ret = Write_R_Model(&info, szFileOut);
+  } else {
+    ret = WriteModel(&info, szFileOut);
+  }
+  if (ret == EXIT_ERROR || ret == EXIT_NOERROR) {
+    Cleanup(&info);
+    return -1;
+  }
   Cleanup(&info);
+
+  return 0;
 }

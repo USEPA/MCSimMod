@@ -87,11 +87,11 @@ typedef struct tagIFN { /* Input Function struct */
 
 int GetFnType(PSTR szName);
 void InitIFN(PIFN pifn);
-BOOL DefDepParm(PSTR szLex, PDOUBLE pdValue, HANDLE *phvar);
-BOOL GetInputArgs(PINPUTBUF pibIn, PIFN pifn);
-BOOL GetNNumbers(PINPUTBUF pibIn, PSTR szLex, int nNumbers, PDOUBLE rgd);
-BOOL GetNDoses(PINPUTBUF pibIn, PSTR szLex, PIFN pifn);
-BOOL GetInputFn(PINPUTBUF pibIn, PSTR sz, PIFN pifn);
+__attribute__((warn_unused_result)) BOOL DefDepParm(PSTR szLex, PDOUBLE pdValue, HANDLE *phvar);
+__attribute__((warn_unused_result)) BOOL GetInputArgs(PINPUTBUF pibIn, PIFN pifn);
+__attribute__((warn_unused_result)) BOOL GetNNumbers(PINPUTBUF pibIn, PSTR szLex, int nNumbers, PDOUBLE rgd);
+__attribute__((warn_unused_result)) BOOL GetNDoses(PINPUTBUF pibIn, PSTR szLex, PIFN pifn);
+__attribute__((warn_unused_result)) BOOL GetInputFn(PINPUTBUF pibIn, PSTR sz, PIFN pifn);
 
 #define LEXFN_DEFINED
 #endif

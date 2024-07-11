@@ -31,7 +31,7 @@
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-void ReportError(PINPUTBUF, WORD, PSTR, PSTR);
+__attribute__((warn_unused_result)) int ReportError(PINPUTBUF, WORD, PSTR, PSTR);
 
 #define LEXERR_H_DEFINED
 #endif

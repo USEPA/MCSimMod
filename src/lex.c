@@ -65,9 +65,21 @@ PSTR vrgszLexTypes[] = {
     "invalid lexical type", /* 0f */
     "quoted-string",        /* 10 */
     ""                      /* End flag */
-};                          /* vrgszLexTypes[] = */
+}; /* vrgszLexTypes[] = */
 
 /* routines */
+
+void InitINPUTBUF(PINPUTBUF pibIn) {
+  pibIn->pfileIn = NULL;
+  pibIn->pbufOrg = NULL;
+  pibIn->lBufSize = 0;
+  pibIn->pbufCur = NULL;
+  pibIn->iLineNum = 0;
+  pibIn->iLNPrev = 0;
+  pibIn->cErrors = 0;
+  pibIn->pInfo = NULL;
+  pibIn->pTempInfo = NULL;
+}
 
 /* ----------------------------------------------------------------------------
    CountChars
@@ -102,10 +114,11 @@ long CountChars(PFILE pFileIn) {
 BOOL ENextLex(PINPUTBUF pibIn, PSTRLEX szLex, int iType) {
   int iLex, iErr;
 
-  NextLex(pibIn, szLex, &iLex);
+  PROPAGATE_EXIT(NextLex(pibIn, szLex, &iLex));
 
-  if ((iErr = !(iType & iLex)))
-    ReportError(pibIn, RE_LEXEXPECTED, vrgszLexTypes[iType], szLex);
+  if ((iErr = !(iType & iLex))) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, vrgszLexTypes[iType], szLex));
+  }
 
   return (iErr);
 
@@ -117,8 +130,7 @@ BOOL ENextLex(PINPUTBUF pibIn, PSTRLEX szLex, int iType) {
    Evaluate an atomic expression.
 */
 
-long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-              PINT piType) {
+long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType) {
   long result = 0;
 
   switch (*piType) {
@@ -133,8 +145,7 @@ long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
     break;
 
   default:
-    ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp,
-                "(While parsing bracketed expression)");
+    PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp, "(While parsing bracketed expression)"));
   }
 
   return (result);
@@ -147,19 +158,19 @@ long EvalAtom(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
    Evaluate a parenthetized expression.
 */
 
-long EvalParen(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-               PINT piType) {
+long EvalParen(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType) {
   long result;
 
   if (*szToken == '(') {
     GetToken(szExp, szToken, piType);
-    result = EvalSum(pibIn, index, szExp, szToken, piType);
-    if (*szToken != ')')
-      ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp,
-                  "(While parsing bracketed expression)");
+    result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalSum(pibIn, index, szExp, szToken, piType));
+    if (*szToken != ')') {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp, "(While parsing bracketed expression)"));
+    }
     GetToken(szExp, szToken, piType);
-  } else
-    result = EvalAtom(pibIn, index, szExp, szToken, piType);
+  } else {
+    result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalAtom(pibIn, index, szExp, szToken, piType));
+  }
 
   return (result);
 
@@ -171,16 +182,15 @@ long EvalParen(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
    Multiply or divide two terms in an expression.
 */
 
-long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-              PINT piType) {
+long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType) {
   register char cOperator;
   long result, dTmp;
 
-  result = EvalUnary(pibIn, index, szExp, szToken, piType);
+  result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalUnary(pibIn, index, szExp, szToken, piType));
 
   while (((cOperator = *szToken) == '*') || (cOperator == '/')) {
     GetToken(szExp, szToken, piType);
-    dTmp = EvalUnary(pibIn, index, szExp, szToken, piType);
+    dTmp = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalUnary(pibIn, index, szExp, szToken, piType));
     switch (cOperator) {
     case '*':
       result = result * dTmp;
@@ -191,8 +201,7 @@ long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
       return (result);
 
     default:
-      ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp,
-                  "(While parsing bracketed expression)");
+      PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp, "(While parsing bracketed expression)"));
     }
   }
   return (result);
@@ -205,16 +214,15 @@ long EvalProd(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
    Add or subtract two terms in an expression.
 */
 
-long EvalSum(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-             PINT piType) {
+long EvalSum(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType) {
   register char cOperator;
   long result, dTmp;
 
-  result = EvalProd(pibIn, index, szExp, szToken, piType);
+  result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalProd(pibIn, index, szExp, szToken, piType));
 
   while (((cOperator = *szToken) == '+') || (cOperator == '-')) {
     GetToken(szExp, szToken, piType);
-    dTmp = EvalProd(pibIn, index, szExp, szToken, piType);
+    dTmp = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalProd(pibIn, index, szExp, szToken, piType));
     switch (cOperator) {
     case '-':
       result = result - dTmp;
@@ -225,8 +233,7 @@ long EvalSum(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
       break;
 
     default:
-      ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp,
-                  "(While parsing bracketed expression)");
+      PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, *szExp, "(While parsing bracketed expression)"));
     }
   }
   return (result);
@@ -246,11 +253,11 @@ long EvaluateExpression(PINPUTBUF pibIn, long index, PSTR szExpress) {
 
   GetToken(&szExpress, szToken, &iType);
   if (!*szToken) {
-    ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, szExpress,
-                "(While parsing bracketed expression)");
+    PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, szExpress, "(While parsing bracketed expression)"));
     return (0);
-  } else
-    return EvalSum(pibIn, index, &szExpress, szToken, &iType);
+  } else {
+    return PROPAGATE_EXIT_OR_RETURN_RESULT(EvalSum(pibIn, index, &szExpress, szToken, &iType));
+  }
 
 } /* EvaluateExpression */
 
@@ -260,8 +267,7 @@ long EvaluateExpression(PINPUTBUF pibIn, long index, PSTR szExpress) {
    Evaluate a unary + or - in an expression.
 */
 
-long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
-               PINT piType) {
+long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken, PINT piType) {
   register char cOperator;
   long result;
 
@@ -271,9 +277,11 @@ long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
     cOperator = *szToken;
     GetToken(szExp, szToken, piType);
   }
-  result = EvalParen(pibIn, index, szExp, szToken, piType);
-  if (cOperator == '-')
+  result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvalParen(pibIn, index, szExp, szToken, piType));
+
+  if (cOperator == '-') {
     result = -result;
+  }
 
   return (result);
 
@@ -284,7 +292,7 @@ long EvalUnary(PINPUTBUF pibIn, long index, PSTR *szExp, PSTR szToken,
 
    Fills the initialized input buffer and sets all buffer pointers.
 
-   Return 0 on error, non-zero on success or EOF if at end of file.
+   Return negative on error, positive non-zero on success or EOF if at end of file.
 */
 
 int FillBuffer(PINPUTBUF pibIn, long lBuffer_size) {
@@ -299,10 +307,11 @@ int FillBuffer(PINPUTBUF pibIn, long lBuffer_size) {
       pibIn->pbufCur = pibIn->pbufOrg;
     } /* if */
 
-    else if (feof(pibIn->pfileIn))
+    else if (feof(pibIn->pfileIn)) {
       iReturn = EOF;
-    else
-      ReportError(pibIn, RE_FATAL, NULL, "Unexpected end of file.");
+    } else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_FATAL, NULL, "Unexpected end of file."));
+    }
   } /* if */
 
   return (iReturn);
@@ -321,11 +330,13 @@ void GetToken(PSTR *szExp, PSTR szToken, PINT piType) {
   cTmp = szToken;
   *cTmp = '\0';
 
-  if (!(*szExp))
+  if (!(*szExp)) {
     return;
+  }
 
-  while (isspace(**szExp)) /* skip white space */
+  while (isspace(**szExp)) { /* skip white space */
     (*szExp)++;
+  }
 
   if (strchr("+-*/()", **szExp)) {
     *piType = LX_EQNPUNCT;
@@ -363,23 +374,27 @@ void GetToken(PSTR *szExp, PSTR szToken, PINT piType) {
    Close the input file if the given size is -1 (it has been all read in).
    Leave it open otherwise.
 
-   Returns 0 on error, non-zero on success.
+   Returns 0 on error, negative  on exit error, positive non-zero on success.
 */
-
+// TODO the problem is this code returns 0 on error, but we return  a negative number
 BOOL InitBuffer(PINPUTBUF pibIn, long lSize, PSTR szFileIn) {
+  Rprintf(" init buffer, file = %s\n", szFileIn);
   BOOL bReturn = 0;
 
-  if (!pibIn)
+  if (!pibIn) {
     return FALSE;
+  }
 
   if (lSize < 0) {
     if ((pibIn->pfileIn = fopen(szFileIn, "r"))) {
       pibIn->lBufSize = CountChars(pibIn->pfileIn);
       fclose(pibIn->pfileIn);
-    } else
-      ReportError(pibIn, RE_FILENOTFOUND | RE_FATAL, szFileIn, NULL);
-  } else
+    } else {
+      PROPAGATE_EXIT(ReportError(NULL, RE_FILENOTFOUND | RE_FATAL, szFileIn, NULL));
+    }
+  } else {
     pibIn->lBufSize = lSize;
+  }
 
   pibIn->iLineNum = 1;
   pibIn->iLNPrev = 0;
@@ -389,17 +404,21 @@ BOOL InitBuffer(PINPUTBUF pibIn, long lSize, PSTR szFileIn) {
   pibIn->pbufCur = NULL;
 
   if ((pibIn->pfileIn = fopen(szFileIn, "r"))) {
-    if ((pibIn->pbufOrg = (PBUF)malloc(pibIn->lBufSize)))
-      bReturn = FillBuffer(pibIn, pibIn->lBufSize);
-    else
-      ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "InitBuffer", NULL);
-  } else
-    ReportError(pibIn, RE_FILENOTFOUND | RE_FATAL, szFileIn, NULL);
+    if ((pibIn->pbufOrg = (PBUF)malloc(pibIn->lBufSize))) {
+      bReturn = PROPAGATE_EXIT_OR_RETURN_RESULT(FillBuffer(pibIn, pibIn->lBufSize));
+    } else {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "InitBuffer", NULL));
+    }
+  } else {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_FILENOTFOUND | RE_FATAL, szFileIn, NULL));
+  }
 
   /* close input file eventually */
-  if (lSize < 0)
+  if (lSize < 0) {
+    Rprintf(" closing file %s\n", szFileIn);
     fclose(pibIn->pfileIn);
-
+  }
+  Rprintf(" init buffer done returning bReturn = %d\n", bReturn);
   return (bReturn);
 
 } /* InitBuffer */
@@ -427,8 +446,9 @@ void MakeStringBuffer(PINPUTBUF pBuf, PINPUTBUF pbufStr, PSTR sz) {
 void FlushBuffer(PINPUTBUF pibIn) {
   PBUF pbuf = pibIn->pbufOrg;
 
-  while (*pbuf)
+  while (*pbuf) {
     Rprintf("%c", *pbuf++);
+  }
   Rprintf("");
 
 } /* FlushBuffer */
@@ -444,37 +464,39 @@ void FlushBuffer(PINPUTBUF pibIn) {
    where i and j are long integers
 */
 
-void GetArrayBounds(PINPUTBUF pibIn, PLONG piLB, PLONG piUB) {
+int GetArrayBounds(PINPUTBUF pibIn, PLONG piLB, PLONG piUB) {
   PSTRLEX szTmp;
 
   if (ENextLex(pibIn, szTmp, LX_INTEGER)) {
-    ReportError(pibIn, RE_INIT | RE_FATAL, NULL, NULL);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_INIT | RE_FATAL, NULL, NULL));
   } else {
     *piLB = atol(szTmp);
-    if (*piLB < 0)
-      ReportError(pibIn, RE_POSITIVE | RE_FATAL, szTmp, NULL);
+    if (*piLB < 0) {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_POSITIVE | RE_FATAL, szTmp, NULL));
+    }
 
-    if (NextChar(pibIn) == '-') { /* get eventual hyphen */
-      pibIn->pbufCur++;           /* advance */
+    if (PROPAGATE_EXIT_OR_RETURN_RESULT(NextChar(pibIn)) == '-') { /* get eventual hyphen */
+      pibIn->pbufCur++;                                            /* advance */
       if (ENextLex(pibIn, szTmp, LX_INTEGER)) {
-        ReportError(pibIn, RE_INIT | RE_FATAL, NULL, NULL);
+        PROPAGATE_EXIT(ReportError(pibIn, RE_INIT | RE_FATAL, NULL, NULL));
       } else {
         *piUB = atol(szTmp) + 1;
-        if (*piUB <= *piLB)
-          ReportError(pibIn, RE_UNKNOWN | RE_FATAL, "",
-                      "Upper bound must be higher than lower bound");
+        if (*piUB <= *piLB) {
+          PROPAGATE_EXIT(ReportError(pibIn, RE_UNKNOWN | RE_FATAL, "", "Upper bound must be higher than lower bound"));
+        }
       }
-      if (!GetPunct(pibIn, szTmp, ']')) { /* get closing bracket */
-        ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "]", NULL);
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szTmp, ']'))) { /* get closing bracket */
+        PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "]", NULL));
       }
     } else {
-      if (!GetPunct(pibIn, szTmp, ']')) { /* get closing bracket */
-        ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "]", NULL);
+      if (!PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szTmp, ']'))) { /* get closing bracket */
+        PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "]", NULL));
       } else { /* a number is an index, the upper bound is set at LB+1 */
         *piUB = *piLB + 1;
       }
     }
   }
+  return 0;
 } /* GetArrayBounds */
 
 /* ---------------------------------------------------------------------------
@@ -483,24 +505,25 @@ void GetArrayBounds(PINPUTBUF pibIn, PLONG piLB, PLONG piUB) {
    Copies the quoted string from buffer to szLex.
 */
 
-void GetaString(PINPUTBUF pibIn, PSTR szLex) {
+int GetaString(PINPUTBUF pibIn, PSTR szLex) {
   int i = 0;
 
-  if (!pibIn || !szLex)
-    return;
+  if (!pibIn || !szLex) {
+    return 0;
+  }
 
   if (IsString((PSTR)pibIn->pbufCur)) {
-    do
+    do {
       szLex[i++] = *++pibIn->pbufCur; /* Copy string */
+    }
 
-    while ((*pibIn->pbufCur) && (*pibIn->pbufCur != CH_STRDELIM) &&
-           (i < MAX_LEX - 1));
+    while ((*pibIn->pbufCur) && (*pibIn->pbufCur != CH_STRDELIM) && (i < MAX_LEX - 1));
   } /* if */
 
   if (i == MAX_LEX - 1) {
     Rprintf("\n***Error: max string length MAX_LEX exceeded in: %s\n", szLex);
     Rprintf("Exiting...\n\n");
-    exit(0);
+    return EXIT_ERROR;
   }
 
   if (*pibIn->pbufCur == CH_STRDELIM) {
@@ -509,7 +532,7 @@ void GetaString(PINPUTBUF pibIn, PSTR szLex) {
   }
 
   szLex[i] = '\0'; /* Overwrite closing delim with '\0' */
-
+  return 0;
 } /* GetaString */
 
 /* ---------------------------------------------------------------------------
@@ -527,40 +550,41 @@ void GetaString(PINPUTBUF pibIn, PSTR szLex) {
    but the statement is not flushed.
 */
 
-BOOL GetFuncArgs(PINPUTBUF pibIn, int nArgs, int rgiArgTypes[], PSTR szArgs,
-                 long rgiLowerB[], long rgiUpperB[]) {
+BOOL GetFuncArgs(PINPUTBUF pibIn, int nArgs, int rgiArgTypes[], PSTR szArgs, long rgiLowerB[], long rgiUpperB[]) {
   BOOL bOK = TRUE;
   int i, iType;
   PSTRLEX szPunct;
 
-  if (!(bOK = GetPunct(pibIn, szPunct, CH_LPAREN))) {
+  if (!(bOK = PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_LPAREN)))) {
     szPunct[1] = CH_LPAREN;
-    ReportError(pibIn, RE_EXPECTED, szPunct, NULL);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED, szPunct, NULL));
   }
 
   for (i = 0; i < nArgs && bOK; i++, szArgs += MAX_LEX) {
-    if (i)
+    if (i) {
       if (!(bOK = GetOptPunct(pibIn, szArgs, ','))) {
         *(szArgs + 1) = ',';
-        ReportError(pibIn, RE_EXPECTED, szArgs, NULL);
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED, szArgs, NULL));
         break; /* Error: Stop getting args */
       }
+    }
 
-    NextLex(pibIn, szArgs, &iType);
-    if (!(bOK &= (iType & rgiArgTypes[i]) > 0))
-      ReportError(pibIn, RE_LEXEXPECTED, vrgszLexTypes[rgiArgTypes[i]], szArgs);
+    PROPAGATE_EXIT(NextLex(pibIn, szArgs, &iType));
+    if (!(bOK &= (iType & rgiArgTypes[i]) > 0)) {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, vrgszLexTypes[rgiArgTypes[i]], szArgs));
+    }
 
     rgiLowerB[i] = rgiUpperB[i] = -1;
-    if (GetPunct(pibIn, szPunct, '[')) /* array found, read bounds */
-      GetArrayBounds(pibIn, &rgiLowerB[i], &rgiUpperB[i]);
+    if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, '['))) { /* array found, read bounds */
+      PROPAGATE_EXIT(GetArrayBounds(pibIn, &rgiLowerB[i], &rgiUpperB[i]));
+    }
 
   } /* for i */
 
   /* try to get closing parenthesis if not already gotten */
-  if (!(bOK =
-            (szPunct[0] == CH_RPAREN || GetPunct(pibIn, szPunct, CH_RPAREN)))) {
+  if (!(bOK = (szPunct[0] == CH_RPAREN || PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szPunct, CH_RPAREN))))) {
     szPunct[1] = CH_RPAREN;
-    ReportError(pibIn, RE_EXPECTED, szPunct, NULL);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED, szPunct, NULL));
   }
 
   return (bOK);
@@ -578,15 +602,14 @@ BOOL GetFuncArgs(PINPUTBUF pibIn, int nArgs, int rgiArgTypes[], PSTR szArgs,
 void GetIdentifier(PINPUTBUF pibIn, PSTR szLex) {
   int i = 0;
 
-  if (!pibIn || !szLex)
+  if (!pibIn || !szLex) {
     return;
+  }
 
   if (isalpha(*pibIn->pbufCur) || IsUnderscore(*pibIn->pbufCur)) {
     do {
       szLex[i++] = *pibIn->pbufCur++; /* Copy identifier */
-    } while ((*pibIn->pbufCur) &&
-             (isalnum(*pibIn->pbufCur) || IsUnderscore(*pibIn->pbufCur)) &&
-             (i < MAX_LEX - 1));
+    } while ((*pibIn->pbufCur) && (isalnum(*pibIn->pbufCur) || IsUnderscore(*pibIn->pbufCur)) && (i < MAX_LEX - 1));
   } /* if */
 
   szLex[i] = '\0';
@@ -611,8 +634,9 @@ void GetInteger(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
   BOOL bHasSign = FALSE;
   enum States { Start, Digits1, End } eState;
 
-  if (!pibIn || !szLex || !piLexType)
+  if (!pibIn || !szLex || !piLexType) {
     return;
+  }
 
   eState = Start;
   *piLexType = LX_NULL;
@@ -620,27 +644,30 @@ void GetInteger(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
 
     switch (eState) {
     case Start:
-      if (!bHasSign && IsSign(c))
+      if (!bHasSign && IsSign(c)) {
         bHasSign = TRUE;
-      else if (isdigit(*pibIn->pbufCur)) {
+      } else if (isdigit(*pibIn->pbufCur)) {
         *piLexType = LX_INTEGER;
         eState = Digits1;
       } /* else */
-      else
+      else {
         eState = End;
+      }
       break;
 
     case Digits1:
-      if (!isdigit(c))
+      if (!isdigit(c)) {
         eState = End;
+      }
       break;
 
     case End:
       break;
     } /* switch */
 
-    if (eState != End)
+    if (eState != End) {
       szLex[i++] = *pibIn->pbufCur++;
+    }
 
   } /* while */
   szLex[i] = '\0';
@@ -673,19 +700,11 @@ void GetNumber(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
   char c;
   BOOL bHasSign = FALSE;
   BOOL bLeadingDigits = FALSE;
-  enum States {
-    Start,
-    Digits1,
-    Point,
-    Digits2,
-    Exp,
-    ExpSign,
-    Digits3,
-    End
-  } eState;
+  enum States { Start, Digits1, Point, Digits2, Exp, ExpSign, Digits3, End } eState;
 
-  if (!pibIn || !szLex || !piLexType)
+  if (!pibIn || !szLex || !piLexType) {
     return;
+  }
 
   eState = Start;
   *piLexType = LX_NULL;
@@ -693,45 +712,49 @@ void GetNumber(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
 
     switch (eState) {
     case Start:
-      if (c == '.')
+      if (c == '.') {
         eState = Point;
-      else if (!bHasSign && IsSign(c))
+      } else if (!bHasSign && IsSign(c)) {
         bHasSign = TRUE;
-      else if (isdigit(*pibIn->pbufCur)) {
+      } else if (isdigit(*pibIn->pbufCur)) {
         bLeadingDigits = *piLexType = LX_INTEGER;
         eState = Digits1;
       } /* else */
-      else
+      else {
         eState = End;
+      }
       break;
 
     case Digits1:
-      if (c == '.')
+      if (c == '.') {
         eState = Point;
-      else if (c == 'e' || c == 'E')
+      } else if (c == 'e' || c == 'E') {
         eState = Exp;
-      else if (!isdigit(c))
+      } else if (!isdigit(c)) {
         eState = End;
+      }
       break;
 
     case Point:
       *piLexType = LX_FLOAT;
-      if (bLeadingDigits && (c == 'e' || c == 'E'))
+      if (bLeadingDigits && (c == 'e' || c == 'E')) {
         eState = Exp;
-      else if (isdigit(c))
+      } else if (isdigit(c)) {
         eState = Digits2;
-      else {
-        if (!bLeadingDigits) /* Error, point only */
+      } else {
+        if (!bLeadingDigits) { /* Error, point only */
           *piLexType = LX_NULL;
+        }
         eState = End;
       } /* else */
       break;
 
     case Digits2:
-      if (c == 'e' || c == 'E')
+      if (c == 'e' || c == 'E') {
         eState = Exp;
-      else if (!isdigit(c))
+      } else if (!isdigit(c)) {
         eState = End;
+      }
       break;
 
     case Exp:
@@ -743,25 +766,27 @@ void GetNumber(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
       /* Fall through! */
 
     case ExpSign:
-      if (isdigit(c))
+      if (isdigit(c)) {
         eState = Digits3;
-      else {
+      } else {
         *piLexType = LX_NULL;
         eState = End;
       }
       break;
 
     case Digits3:
-      if (!isdigit(c))
+      if (!isdigit(c)) {
         eState = End;
+      }
       break;
 
     case End:
       break;
     } /* switch */
 
-    if (eState != End)
+    if (eState != End) {
       szLex[i++] = *pibIn->pbufCur++;
+    }
 
   } /* while */
   szLex[i] = '\0';
@@ -769,31 +794,32 @@ void GetNumber(PINPUTBUF pibIn, PSTR szLex, PINT piLexType) {
 } /* GetNumber */
 
 /* ---------------------------------------------------------------------------
-   NextLex
+NextLex
 
    Skips over leading whitespace and copies the next lexical element
    into szLex.
 */
 
-void NextLex(PINPUTBUF pibIn, PSTRLEX szLex, PINT piLexType) {
+int NextLex(PINPUTBUF pibIn, PSTRLEX szLex, PINT piLexType) {
   static char vszEqnPunct[] = "+-/*()><?:,!=";
   char c;
   BOOL fDone = FALSE;
 
   *piLexType = LX_NULL;
-  if (!pibIn || !szLex || !piLexType || !pibIn->pbufCur || !(*pibIn->pbufCur))
-    return;
+  if (!pibIn || !szLex || !piLexType || !pibIn->pbufCur || !(*pibIn->pbufCur)) {
+    return 0;
+  }
 
   while (!fDone) {
     fDone = TRUE;
-    SkipWhitespace(pibIn);
+    PROPAGATE_EXIT(SkipWhitespace(pibIn));
 
     if (!EOB(pibIn)) {
       c = *pibIn->pbufCur;
 
       if (c == CH_COMMENT) { /* Comments can appear anywhere */
         fDone = FALSE;       /* Continue until you get a lex */
-        SkipComment(pibIn);
+        PROPAGATE_EXIT(SkipComment(pibIn));
       } /* if */
 
       else if (isalpha(c) || IsUnderscore(c)) { /* Take one identifier */
@@ -808,20 +834,19 @@ void NextLex(PINPUTBUF pibIn, PSTRLEX szLex, PINT piLexType) {
           szLex[1] = '\0';
           *piLexType = LX_EQNPUNCT;
         } /* if */
-      }   /* if */
+      } /* if */
 
       else if (c == CH_STRDELIM) {
         *piLexType = LX_STRING;
-        GetaString(pibIn, szLex);
+        PROPAGATE_EXIT(GetaString(pibIn, szLex));
       } /* if */
 
       else if (strchr(vszEqnPunct, c)) {
         *piLexType = LX_EQNPUNCT;
         szLex[0] = *pibIn->pbufCur++;
-        if ((c = *pibIn->pbufCur) != '=')
+        if ((c = *pibIn->pbufCur) != '=') {
           szLex[1] = '\0';
-        else if (szLex[0] == '!' || szLex[0] == '<' || szLex[0] == '>' ||
-                 szLex[0] == '=') {
+        } else if (szLex[0] == '!' || szLex[0] == '<' || szLex[0] == '>' || szLex[0] == '=') {
           szLex[1] = *pibIn->pbufCur++;
           szLex[2] = '\0';
         }
@@ -832,9 +857,9 @@ void NextLex(PINPUTBUF pibIn, PSTRLEX szLex, PINT piLexType) {
         szLex[0] = *pibIn->pbufCur++;
         szLex[1] = '\0';
       } /* else */
-    }   /* if */
-  }     /* while */
-
+    } /* if */
+  } /* while */
+  return 0;
 } /* NextLex */
 
 /* ---------------------------------------------------------------------------
@@ -850,7 +875,7 @@ void PreventLexSplit(PINPUTBUF pibIn, int iOffset) {
   PBUF pbufEOB = pibIn->pbufOrg + iOffset;
   PBUF pbufEOBOld;
 
-  if (!EOB(pibIn) /* If not EOB, use all of input, otherwise... */
+  if (!EOB(pibIn)                    /* If not EOB, use all of input, otherwise... */
       || (iOffset == BUFFER_SIZE)) { /* No room for NULL */
 
     pbufEOBOld = pbufEOB; /* Save EOB */
@@ -859,10 +884,12 @@ void PreventLexSplit(PINPUTBUF pibIn, int iOffset) {
 
     *pbufEOB = '\0'; /* Overwrite EOLN with NULL */
 
-    if ((lDelta = (long)(pbufEOB - pbufEOBOld)))
+    if ((lDelta = (long)(pbufEOB - pbufEOBOld))) {
       fseek(pibIn->pfileIn, lDelta, SEEK_CUR); /* Backup file ptr */
-  } else
+    }
+  } else {
     *pbufEOB = '\0'; /* Append NULL */
+  }
 
 } /* PreventLexSplit */
 
@@ -873,23 +900,30 @@ void PreventLexSplit(PINPUTBUF pibIn, int iOffset) {
    of which has already been stripped.
 */
 
-void SkipComment(PINPUTBUF pibIn) {
-  if (!pibIn)
-    return;
+int SkipComment(PINPUTBUF pibIn) {
+  if (!pibIn) {
+    return 0;
+  }
 
-  if (!*pibIn->pbufCur)
-    FillBuffer(pibIn, BUFFER_SIZE);
+  if (!*pibIn->pbufCur) {
+    PROPAGATE_EXIT(FillBuffer(pibIn, BUFFER_SIZE));
+  }
 
-  while (*pibIn->pbufCur++ != CH_EOLN) /* Eat 1 line comment */
-    if (!*pibIn->pbufCur)
-      if (FillBuffer(pibIn, BUFFER_SIZE) == EOF)
+  while (*pibIn->pbufCur++ != CH_EOLN) { /* Eat 1 line comment */
+    if (!*pibIn->pbufCur) {
+      if (PROPAGATE_EXIT_OR_RETURN_RESULT(FillBuffer(pibIn, BUFFER_SIZE))) {
         break;
+      }
+    }
+  }
 
   pibIn->iLineNum++;
 
-  if (!*pibIn->pbufCur)
-    FillBuffer(pibIn, BUFFER_SIZE);
+  if (!*pibIn->pbufCur) {
+    PROPAGATE_EXIT(FillBuffer(pibIn, BUFFER_SIZE));
+  }
 
+  return 0;
 } /* SkipComment */
 
 /* ---------------------------------------------------------------------------
@@ -900,11 +934,13 @@ void SkipComment(PINPUTBUF pibIn) {
 */
 
 char NextChar(PINPUTBUF pibIn) {
-  if (!pibIn || (!*pibIn->pbufCur && FillBuffer(pibIn, BUFFER_SIZE) == EOF))
+  if (!pibIn || (!*pibIn->pbufCur && PROPAGATE_EXIT_OR_RETURN_RESULT(FillBuffer(pibIn, BUFFER_SIZE)) == EOF)) {
     return (0);
+  }
 
-  else
+  else {
     return (*pibIn->pbufCur);
+  }
 
 } /* NextChar */
 
@@ -921,10 +957,10 @@ int GetOptPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
   int iReturn, iType;
 
   /* Assigning iReturn makes optional */
-  iReturn = SkipWhitespace(pibIn);
-  if (NextChar(pibIn) == chPunct) {
+  iReturn = PROPAGATE_EXIT_OR_RETURN_RESULT(SkipWhitespace(pibIn));
+  if (PROPAGATE_EXIT_OR_RETURN_RESULT(NextChar(pibIn)) == chPunct) {
     iReturn = TRUE;
-    NextLex(pibIn, szLex, &iType);
+    PROPAGATE_EXIT(NextLex(pibIn, szLex, &iType));
   }
   return (iReturn);
 
@@ -936,11 +972,10 @@ int GetOptPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
    Tries to get the given punctuation from the input buffer.
    Returns TRUE if the next lexical item was the chPunct, else FALSE .
 */
-
 int GetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
   int iType;
 
-  NextLex(pibIn, szLex, &iType);
+  PROPAGATE_EXIT(NextLex(pibIn, szLex, &iType));
   return ((iType == LX_PUNCT || iType == LX_EQNPUNCT) && szLex[0] == chPunct);
 
 } /* GetPunct */
@@ -956,10 +991,10 @@ int GetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
 int EGetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
   int iReturn;
 
-  iReturn = !GetPunct(pibIn, szLex, chPunct);
+  iReturn = !PROPAGATE_EXIT_OR_RETURN_RESULT(GetPunct(pibIn, szLex, chPunct));
   if (iReturn) {
     szLex[1] = chPunct;
-    ReportError(pibIn, RE_EXPECTED, szLex, NULL);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED, szLex, NULL));
   }
 
   return (iReturn);
@@ -972,20 +1007,24 @@ int EGetPunct(PINPUTBUF pibIn, PSTR szLex, char chPunct) {
    Eats buffer to the statement terminator.
 */
 
-void EatStatement(PINPUTBUF pib) {
+int EatStatement(PINPUTBUF pib) {
   char c;
 
-  if (!pib)
-    return;
+  if (!pib) {
+    return 0;
+  }
 
-  while ((c = NextChar(pib)) && (c != CH_STMTTERM)) {
-    if (c == CH_EOLN)
+  while ((c = PROPAGATE_EXIT_OR_RETURN_RESULT(NextChar(pib))) && (c != CH_STMTTERM)) {
+    if (c == CH_EOLN) {
       pib->iLineNum++;
+    }
     pib->pbufCur++; /* Eat to ... */
-  }                 /* while */
+  } /* while */
 
-  if (c)
+  if (c) {
     pib->pbufCur++; /* ... and including statement terminator */
+  }
+  return 0;
 } /* EatStatement */
 
 /* ---------------------------------------------------------------------------
@@ -1001,17 +1040,18 @@ void EatStatement(PINPUTBUF pib) {
    The buffer szStmt is assumed to be of type PSTREQN of size MAX_EQN.
 */
 
-void GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
+int GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
   int i = 0;
   int fDone = 0;
   int iParCount = 0;     /* parentheses counter */
   BOOL bParOpen = FALSE; /* True if a parenthesis is still open */
   BOOL bEscaped = FALSE;
 
-  if (!pibIn || !szStmt)
-    return;
+  if (!pibIn || !szStmt) {
+    return 0;
+  }
 
-  SkipWhitespace(pibIn);
+  PROPAGATE_EXIT(SkipWhitespace(pibIn));
 
   if (!EOB(pibIn)) {
     while (!fDone) {
@@ -1023,60 +1063,70 @@ void GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
           if (*pibIn->pbufCur != CH_COMMENT) {
             char szTmp[3]; // 2 chars + '\0' for terminating the string
             snprintf(szTmp, 3, "\\%c", *pibIn->pbufCur);
-            ReportError(pibIn, RE_UNEXPESCAPE | RE_FATAL, szTmp, NULL);
+            PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPESCAPE | RE_FATAL, szTmp, NULL));
           }
           bEscaped = TRUE;
         }
         /* Stop if end of statement is found (and if parentheses are balanced
            in the Inline context) */
-        fDone = (NextChar(pibIn) == CH_STMTTERM);
-        if (iKWCode == KM_INLINE)
+        fDone = (PROPAGATE_EXIT_OR_RETURN_RESULT(NextChar(pibIn)) == CH_STMTTERM);
+        if (iKWCode == KM_INLINE) {
           fDone = (fDone && !bParOpen); /* extra requirement */
+        }
         if (!fDone) {
           if ((*pibIn->pbufCur == CH_COMMENT) && !bEscaped) {
             /* skip true comments */
-            SkipComment(pibIn);
+            PROPAGATE_EXIT(SkipComment(pibIn));
           } else {
-            if (bEscaped)
+            if (bEscaped) {
               bEscaped = FALSE; /* reset it */
+            }
             if (i < MAX_EQN - 2) {
-              if ((szStmt[i++] = *pibIn->pbufCur++) == CH_EOLN)
+              if ((szStmt[i++] = *pibIn->pbufCur++) == CH_EOLN) {
                 pibIn->iLineNum++;
+              }
               if ((char)szStmt[i - 1] == '(') {
                 iParCount++;
                 bParOpen = TRUE;
               }
-              if ((char)szStmt[i - 1] == ')')
+              if ((char)szStmt[i - 1] == ')') {
                 iParCount--;
-              if ((iParCount == 0) && bParOpen)
+              }
+              if ((iParCount == 0) && bParOpen) {
                 bParOpen = FALSE;
+              }
             } else {
-              if (bParOpen)
-                ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL);
-              else
-                ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL, NULL);
+              if (bParOpen) {
+                PROPAGATE_EXIT(ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL));
+              } else {
+                PROPAGATE_EXIT(ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL, NULL));
+              }
             }
           }
         } else { /* statement terminator ';' found */
-          if (bParOpen)
-            ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL);
+          if (bParOpen) {
+            PROPAGATE_EXIT(ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL));
+          }
         }
       } /* if pibIn->pbufCur */
-      else
-        ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL);
+      else {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_UNBALPAR | RE_FATAL, NULL, NULL));
+      }
     } /* while */
 
     /* remove white spaces going backward - FB 28/2/98 */
-    while (isspace(szStmt[i - 1]))
+    while (isspace(szStmt[i - 1])) {
       i = i - 1;
+    }
 
     szStmt[i] = '\0';
 
   } /* if */
 
-  if (!i)
-    ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "rvalue to assignment", NULL);
-
+  if (!i) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED | RE_FATAL, "rvalue to assignment", NULL));
+  }
+  return 0;
 } /* GetStatement */
 
 /* ---------------------------------------------------------------------------
@@ -1092,26 +1142,26 @@ void GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
    Will not eat list terminator.
 */
 
-int NextListItem(PINPUTBUF pibIn, PSTR szLex, int bIdTypes, int fItemNum,
-                 char cListTerm) {
+int NextListItem(PINPUTBUF pibIn, PSTR szLex, int bIdTypes, int fItemNum, char cListTerm) {
   int iType, iReturn = 0;
 
   if (!fItemNum || GetOptPunct(pibIn, szLex, ',')) {
-    if (NextChar(pibIn) != cListTerm) {
-      NextLex(pibIn, szLex, &iType);
-      if ((iType & bIdTypes))
+    if (PROPAGATE_EXIT_OR_RETURN_RESULT(NextChar(pibIn)) != cListTerm) {
+      PROPAGATE_EXIT(NextLex(pibIn, szLex, &iType));
+      if ((iType & bIdTypes)) {
         iReturn = 1;
-      else
+      } else {
         iReturn = -1;
+      }
     } /* if */
-  }   /* if */
+  } /* if */
 
   return (iReturn);
 
 } /* NextListItem */
 
 /* ---------------------------------------------------------------------------
-   SkipWhitespace
+PROPAGATE_EXIT(SkipWhitespace
 
    Skips over whitespace of input buffer.  Returns non-zero if something
    has been skipped.
@@ -1121,28 +1171,34 @@ int SkipWhitespace(PINPUTBUF pibIn) {
   char c;
   int fSkipped = 0;
 
-  if (!pibIn)
+  if (!pibIn) {
     return 0;
+  }
 
-  if (!*pibIn->pbufCur && pibIn->pfileIn)
-    FillBuffer(pibIn, BUFFER_SIZE);
+  if (!*pibIn->pbufCur && pibIn->pfileIn) {
+    PROPAGATE_EXIT(FillBuffer(pibIn, BUFFER_SIZE));
+  }
 
   /* Skip Spaces, Tabs and Newlines */
 
   while (isspace(c = *pibIn->pbufCur) || c == CH_COMMENT) {
     fSkipped = 1;
-    if (c == CH_COMMENT)
-      SkipComment(pibIn);
+    if (c == CH_COMMENT) {
+      PROPAGATE_EXIT(SkipComment(pibIn));
+    }
 
     else {
-      if (c == '\n')
+      if (c == '\n') {
         pibIn->iLineNum++;
+      }
 
-      if (!*(++pibIn->pbufCur) && pibIn->pfileIn)
-        if (FillBuffer(pibIn, BUFFER_SIZE) == EOF)
+      if (!*(++pibIn->pbufCur) && pibIn->pfileIn) {
+        if (PROPAGATE_EXIT_OR_RETURN_RESULT(FillBuffer(pibIn, BUFFER_SIZE))) {
           break;
+        }
+      }
     } /* else */
-  }   /* while */
+  } /* while */
 
   return (fSkipped);
 
@@ -1161,7 +1217,7 @@ int SkipWhitespace(PINPUTBUF pibIn) {
    y[i * 2] -> y_4 if index = 2
 */
 
-void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
+int UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
   int j = 0, k = 0, m;
   BOOL bExpress = FALSE;
   PSTRLEX szExpression;
@@ -1179,14 +1235,14 @@ void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
         j++;
         bExpress = FALSE;
       }
-      if ((szEqn[j] != '\0') && (m == MAX_EQN - 1))
-        ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL,
-                    "(Occured while unrolling a loop)");
+      if ((szEqn[j] != '\0') && (m == MAX_EQN - 1)) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL, "(Occured while unrolling a loop)"));
+      }
       szExpression[m] = '\0'; /* terminate szExpression */
 
       /* compute expression and put back the result in szExpression */
-      snprintf(szExpression, MAX_LEX, "%ld",
-               EvaluateExpression(pibIn, index, szExpression));
+      long expression_result = PROPAGATE_EXIT_OR_RETURN_RESULT(EvaluateExpression(pibIn, index, szExpression));
+      snprintf(szExpression, MAX_LEX, "%ld", expression_result);
 
       /* copy szExpression into szEqnU */
       m = 0;
@@ -1196,7 +1252,7 @@ void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
         m++;
       }
     } /* end if bExpress */
-    else
+    else {
       switch (szEqn[j]) {
       case '[': /* replace by _ and enter expression parsing mode */
         szEqnU[k] = '_';
@@ -1206,8 +1262,7 @@ void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
         break;
 
       case ']': /* should have been eaten in expression parsing mode */
-        ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, "]",
-                    "(Could be nested brackets)");
+        PROPAGATE_EXIT(ReportError(pibIn, RE_UNEXPECTED | RE_FATAL, "]", "(Could be nested brackets)"));
 
       default: /* copy and advance */
         szEqnU[k] = szEqn[j];
@@ -1215,14 +1270,16 @@ void UnrollEquation(PINPUTBUF pibIn, long index, PSTR szEqn, PSTR szEqnU) {
         k++;
         break;
       }
+    }
   } /* while */
-  if ((szEqn[j] != '\0') && (k == MAX_EQN - 1))
-    ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL,
-                "(Occured in UnrollEquation)");
+  if ((szEqn[j] != '\0') && (k == MAX_EQN - 1)) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_EQNTOOLONG | RE_FATAL, NULL, "(Occured in UnrollEquation)"));
+  }
 
   /* terminate szEqnU */
   szEqnU[k] = '\0';
 
+  return 0;
 } /* UnrollEquation */
 
 /* End */

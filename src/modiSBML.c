@@ -151,36 +151,38 @@ KM vrgSBMLKW[] = {
    Augment the equation field of PVMMAPSTRCT with the equation szEqn by
    simple concatenation.
 */
-void AugmentEquation(PVMMAPSTRCT pvm, PSTR szEqn, PSTR szStoi, OPSIGNS sign) {
+__attribute__((warn_unused_result)) int AugmentEquation(PVMMAPSTRCT pvm, PSTR szEqn, PSTR szStoi, OPSIGNS sign) {
   PSTR szBuf;
   PSTRLEX szSymbol;
 
-  if (!pvm || !szEqn || !szStoi)
-    return;
+  if (!pvm || !szEqn || !szStoi) {
+    return 0;
+  }
 
-  if (sign == plus)
+  if (sign == plus) {
     snprintf(szSymbol, MAX_LEX, " + ");
+  }
 
-  if (sign == minus)
+  if (sign == minus) {
     snprintf(szSymbol, MAX_LEX, " - ");
+  }
 
-  int buf_len = strlen(pvm->szEqn) + strlen(szSymbol) + strlen(szStoi) +
-                strlen(szEqn) + 5;
+  int buf_len = strlen(pvm->szEqn) + strlen(szSymbol) + strlen(szStoi) + strlen(szEqn) + 5;
   if (szBuf = (PSTR)malloc(buf_len)) {
     if (!strcmp(szStoi, "1")) {
       snprintf(szBuf, buf_len, "%s%s%s", pvm->szEqn, szSymbol, szEqn);
     } else {
-      snprintf(szBuf, buf_len, "%s%s %s * %s", pvm->szEqn, szSymbol, szStoi,
-               szEqn);
+      snprintf(szBuf, buf_len, "%s%s %s * %s", pvm->szEqn, szSymbol, szStoi, szEqn);
     }
   }
 
-  else
-    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szEqn,
-                "* .. defining equation in AugmentEquation");
+  else {
+    PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, szEqn, "* .. defining equation in AugmentEquation"));
+  }
 
-  if (pvm->szEqn)
+  if (pvm->szEqn) {
     free(pvm->szEqn);
+  }
 
   pvm->szEqn = szBuf;
 
@@ -194,7 +196,7 @@ void AugmentEquation(PVMMAPSTRCT pvm, PSTR szEqn, PSTR szStoi, OPSIGNS sign) {
    local variables. Products should call this routine with "product"
    as last argument; Reactants should use "reactant".
 */
-void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
+__attribute__((warn_unused_result)) int ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
   int iLexType;
   HANDLE hType;
   PSTRLEX szSName;
@@ -215,8 +217,9 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
   if (*pibIn->pbufCur == '"') {
     *pibIn->pbufCur++;
     GetNumber(pibIn, szStoichio, &iLexType);
-  } else
+  } else {
     snprintf(szStoichio, MAX_LEX, "1");
+  }
   Rprintf("%s stoichio: %s\n", szSName, szStoichio);
 
   /* reactions are supposed to happen in the one compartment defined:
@@ -224,14 +227,13 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
   if (!GetVarPTR(pinfo->pvmGloVars, szSName)) {
     int len = strlen(szSName) + strlen(pinfo->pvmLocalCpts->szName) + 1 + 1 + 1;
     if (len > MAX_LEX) {
-      Rprintf("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n",
-              szSName, pinfo->pvmLocalCpts->szName);
+      Rprintf("\n***Error: max string length MAX_LEX exceeded in: %s_%s\n", szSName, pinfo->pvmLocalCpts->szName);
       Rprintf("Exiting...\n\n");
-      exit(0);
+      return EXIT_ERROR;
     }
     if (snprintf(szSName, len, "%s_%s", szSName, pinfo->pvmLocalCpts->szName) <
         0) { // truncated--should never happen with the above check.
-      exit(0);
+      return EXIT_ERROR;
     }
   }
 
@@ -243,15 +245,15 @@ void ConstructEqn(PINPUTBUF pibIn, PSTR szRName, VARTYPES eType) {
     pvm = GetVarPTR(pinfo->pvmDynEqns, szSName);
     if (!pvm) {
       /* no dynamic equation yet defined for szSName, create one */
-      DefineVariable(pibIn, szSName, "", KM_DXDT);
+      PROPAGATE_EXIT(DefineVariable(pibIn, szSName, "", KM_DXDT));
       /* pvmDynEqns has been initialized, refresh */
       pvm = GetVarPTR(pinfo->pvmDynEqns, szSName);
     }
-    AugmentEquation(pvm, szRName, szStoichio,
-                    (eType == reactant ? minus : plus));
+    PROPAGATE_EXIT(AugmentEquation(pvm, szRName, szStoichio, (eType == reactant ? minus : plus)));
   } else {
-    if (hType != ID_PARM)
-      ReportError(NULL, RE_BADSTATE | RE_FATAL, szSName, NULL);
+    if (hType != ID_PARM) {
+      PROPAGATE_EXIT(ReportError(NULL, RE_BADSTATE | RE_FATAL, szSName, NULL));
+    }
   }
 } /* ConstructEqn */
 
@@ -271,8 +273,9 @@ long CountLines(PFILE pFileIn) {
 
   /* keep reading lines as long as we have not reached eof */
   while (!(feof(pFileIn))) {
-    if (fscanf(pFileIn, "%1s", szDummy) > 0)
+    if (fscanf(pFileIn, "%1s", szDummy) > 0) {
       nLines++;
+    }
     ret = fscanf(pFileIn, "%*[^\n]");
     getc(pFileIn); /* throw away rest of line */
   }
@@ -292,8 +295,9 @@ long CountLines(PFILE pFileIn) {
 int GetSBMLKeywordCode(PSTR szKeyword) {
   PKM pkm = &vrgSBMLKW[0];
 
-  while (*pkm->szKeyword && strcmp(szKeyword, pkm->szKeyword))
+  while (*pkm->szKeyword && strcmp(szKeyword, pkm->szKeyword)) {
     pkm++;
+  }
 
   return (pkm->iKWCode); /* Return Keyword Code or 0 */
 
@@ -315,11 +319,13 @@ int GetSBMLLex(PINPUTBUF pibIn, int iEnding, int iKWCode) {
   BOOL bDone = FALSE;
   BOOL bFound = FALSE;
 
-  if (!pibIn)
+  if (!pibIn) {
     return (0);
+  }
 
-  if (!pibIn->pbufCur)
+  if (!pibIn->pbufCur) {
     return (0);
+  }
 
   while (!bDone) {
     c = *pibIn->pbufCur;
@@ -331,20 +337,22 @@ int GetSBMLLex(PINPUTBUF pibIn, int iEnding, int iKWCode) {
           szLex[0] = *pibIn->pbufCur++;
           GetIdentifier(pibIn, szLex);
           bDone = (GetSBMLKeywordCode(szLex) == iEnding);
-        } else /* '<' followed by '!' or '?' */
+        } else { /* '<' followed by '!' or '?' */
           while (*pibIn->pbufCur++ != '>')
-            ;  /* eat comment or section */
+            ; /* eat comment or section */
+        }
       } else { /* opening bracket not followed by '!', '?' or '/' */
         GetIdentifier(pibIn, szLex);
         bFound = (iKWCode == GetSBMLKeywordCode(szLex));
         bDone = bFound;
-      }    /* end else */
-    }      /* end if c == '<' */
+      } /* end else */
+    } /* end if c == '<' */
     else { /* c is not '<' */
-      if (c == 0)
+      if (c == 0) {
         bDone = TRUE;
-      else
+      } else {
         pibIn->pbufCur = pibIn->pbufCur + 1;
+      }
     }
   } /* end while */
 
@@ -357,43 +365,43 @@ int GetSBMLLex(PINPUTBUF pibIn, int iEnding, int iKWCode) {
 
    Declare a global variable and link its value to it.
 */
-void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
+__attribute__((warn_unused_result)) int SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
   PVMMAPSTRCT pvm;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
   int iKWCode;
 
   if (!(GetVarPTR(pinfo->pvmGloVars, szName))) { /* New id */
 
-    iKWCode = ((hType == ID_STATE
-                    ? KM_STATES /* Translate to KW_ */
-                    : (hType == ID_INPUT
-                           ? KM_INPUTS
-                           : (hType == ID_OUTPUT ? KM_OUTPUTS : KM_NULL))));
+    iKWCode = ((hType == ID_STATE ? KM_STATES /* Translate to KW_ */
+                                  : (hType == ID_INPUT ? KM_INPUTS : (hType == ID_OUTPUT ? KM_OUTPUTS : KM_NULL))));
 
-    if ((hType == ID_PARM) || (hType == (ID_LOCALDYN | ID_SPACEFLAG)) ||
-        (hType == (ID_LOCALCALCOUT | ID_SPACEFLAG)) ||
+    if ((hType == ID_PARM) || (hType == (ID_LOCALDYN | ID_SPACEFLAG)) || (hType == (ID_LOCALCALCOUT | ID_SPACEFLAG)) ||
         (hType == (ID_LOCALSCALE | ID_SPACEFLAG))) {
-      AddEquation(&pinfo->pvmGloVars, szName, szVal, hType);
-      if (hType == ID_PARM)
+      PROPAGATE_EXIT(AddEquation(&pinfo->pvmGloVars, szName, szVal, hType));
+      if (hType == ID_PARM) {
         Rprintf("param.   %s = %s\n", szName, szVal);
+      }
     } else {
-      DeclareModelVar(pibIn, szName, iKWCode);
+      PROPAGATE_EXIT(DeclareModelVar(pibIn, szName, iKWCode));
 
       /* link value to symbol */
       pvm = GetVarPTR(pinfo->pvmGloVars, szName);
-      DefineGlobalVar(pibIn, pvm, szName, szVal, hType);
+      PROPAGATE_EXIT(DefineGlobalVar(pibIn, pvm, szName, szVal, hType));
 
-      if (hType == ID_STATE)
+      if (hType == ID_STATE) {
         Rprintf("species  %s = %s\n", szName, szVal);
+      }
 
-      if (hType == ID_INPUT)
+      if (hType == ID_INPUT) {
         Rprintf("input    %s = %s\n", szName, szVal);
+      }
 
-      if (hType == ID_OUTPUT)
+      if (hType == ID_OUTPUT) {
         Rprintf("output   %s = %s\n", szName, szVal);
+      }
     }
   }
-
+  return 0;
 } /* SetVar */
 
 /* ----------------------------------------------------------------------------
@@ -404,19 +412,21 @@ void SetVar(PINPUTBUF pibIn, PSTR szName, PSTR szVal, HANDLE hType) {
    at the beginning of the name. Then define the variable.
    This is a callback function for ForAllVar().
 */
-int Create1Var(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
+__attribute__((warn_unused_result)) int Create1Var(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PFORSV pV = (PFORSV)pInfo;
   PSTRLEX szTmp;
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
     snprintf(szTmp, MAX_LEX, "%s%s", pV->szName, pvm->szName);
-    if (pvm->hType == (ID_LOCALDYN | ID_SPACEFLAG))
-      SetVar(pV->pibIn, szTmp, pvm->szEqn, pvm->hType);
-    else
-      SetVar(pV->pibIn, szTmp, pV->szVal, pvm->hType);
-  } else /* copy the PK template variable as is */
-    SetVar(pV->pibIn, pvm->szName, pvm->szEqn, pvm->hType);
+    if (pvm->hType == (ID_LOCALDYN | ID_SPACEFLAG)) {
+      PROPAGATE_EXIT(SetVar(pV->pibIn, szTmp, pvm->szEqn, pvm->hType));
+    } else {
+      PROPAGATE_EXIT(SetVar(pV->pibIn, szTmp, pV->szVal, pvm->hType));
+    }
+  } else { /* copy the PK template variable as is */
+    PROPAGATE_EXIT(SetVar(pV->pibIn, pvm->szName, pvm->szEqn, pvm->hType));
+  }
 
   return (1);
 
@@ -435,26 +445,28 @@ int Create1Var(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
    Then register the equation in the primary info structure of mod.
    This is a callback function for ForAllVar().
 */
-int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
+__attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PFORSV pV = (PFORSV)pInfo;
   PSTRLEX szTmpName = "";
   PSTREQN szTmpEq = "";
   INPUTBUF ibDummy;
+  InitINPUTBUF(&ibDummy);
   PSTRLEX szLex;
   int iType;
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
     snprintf(szTmpName, MAX_LEX, "%s%s", pV->szName, pvm->szName);
-  } else
+  } else {
     snprintf(szTmpName, MAX_LEX, "%s", pvm->szName); /* simple copy */
+  }
 
   /* deal with the equation */
   MakeStringBuffer(NULL, &ibDummy, pvm->szEqn);
 
   while (!EOB(&ibDummy)) {
 
-    NextLex(&ibDummy, szLex, &iType); /* ...all errors reported */
+    PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
       int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
@@ -463,7 +475,7 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
                 "Transcribe1AlgEqn: %s%s%s\n",
                 szTmpEq, pV->szName, szLex);
         Rprintf("Exiting...\n\n");
-        exit(0);
+        return EXIT_ERROR;
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
@@ -473,11 +485,10 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
                 "Transcribe1AlgEqn: %s%s\n",
                 szTmpEq, szLex);
         Rprintf("Exiting...\n\n");
-        exit(0);
+        return EXIT_ERROR;
       }
-      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
-          0) { // truncated--should never happen with the above check.
-        exit(0);
+      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+        return EXIT_ERROR;
       }
     }
 
@@ -485,11 +496,11 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
     if (pvm->hType < ID_DERIV) {
-      DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_NULL);
+      PROPAGATE_EXIT(DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_NULL));
       Rprintf("local v. %s = %s\n", szTmpName, szTmpEq);
     } else {
       if (pvm->hType == ID_INLINE) {
-        DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_INLINE);
+        PROPAGATE_EXIT(DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_INLINE));
         Rprintf("inline   %s\n", szTmpEq);
       }
     }
@@ -512,29 +523,32 @@ int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
    Then register the equation in the primary info structure of mod.
    This is a callback function for ForAllVar().
 */
-int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
+__attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PFORSV pV = (PFORSV)pInfo;
   PSTRLEX szTmpName = "";
   PSTREQN szTmpEq = "";
   INPUTBUF ibDummy;
+  InitINPUTBUF(&ibDummy);
   PSTRLEX szLex;
   int iType;
 
-  if ((pvm->hType & ID_TYPEMASK) != ID_DERIV)
+  if ((pvm->hType & ID_TYPEMASK) != ID_DERIV) {
     return (0);
+  }
 
   if (pvm->szName[0] == '_') {
     /* extend the variable name with the compartment name */
     snprintf(szTmpName, MAX_LEX, "%s%s", pV->szName, pvm->szName);
-  } else
+  } else {
     snprintf(szTmpName, MAX_LEX, "%s", pvm->szName); /* simple copy */
+  }
 
   /* deal with the equation */
   MakeStringBuffer(NULL, &ibDummy, pvm->szEqn);
 
   while (!EOB(&ibDummy)) {
 
-    NextLex(&ibDummy, szLex, &iType); /* ...all errors reported */
+    PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
       int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
@@ -543,7 +557,7 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
                 "Transcribe1DiffEqn: %s%s%s\n",
                 szTmpEq, pV->szName, szLex);
         Rprintf("Exiting...\n\n");
-        exit(0);
+        return EXIT_ERROR;
       }
       snprintf(szTmpEq, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
     } else {
@@ -553,18 +567,17 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
                 "Transcribe1DiffEqn: %s%s\n",
                 szTmpEq, szLex);
         Rprintf("Exiting...\n\n");
-        exit(0);
+        return EXIT_ERROR;
       }
-      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) <
-          0) { // truncated--should never happen with the above check.
-        exit(0);
+      if (snprintf(szTmpEq, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+        return EXIT_ERROR;
       }
     }
 
   } /* while */
 
   if (!(GetVarPTR(pV->pTarget, szTmpName))) { /* New id */
-    DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_DXDT);
+    PROPAGATE_EXIT(DefineVariable(pV->pibIn, szTmpName, szTmpEq, KM_DXDT));
     Rprintf("template ODE term for %s = %s\n", szTmpName, szTmpEq);
   }
 
@@ -579,7 +592,7 @@ int Transcribe1DiffEqn(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
    compartment named 'compartment'. Print the name and value of the compartment
    if bTell is TRUE.
 */
-void ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
+__attribute__((warn_unused_result)) int ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
   PSTRLEX szName;
   PSTREQN szEqn;
   int iLexType;
@@ -592,8 +605,9 @@ void ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
 
   GetIdentifier(pibIn, szName);
 
-  if (!strcmp(szName, "compartment")) /* do not register the external cpt */
-    return;
+  if (!strcmp(szName, "compartment")) { /* do not register the external cpt */
+    return 0;
+  }
 
   if (!(GetVarPTR(pinfo->pvmLocalCpts, szName))) {
 
@@ -604,20 +618,22 @@ void ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
       ; /* this assumes that value comes next */
 
     GetNumber(pibIn, szEqn, &iLexType);
-    if (!iLexType) /* no value, assign 0 by default */
+    if (!iLexType) { /* no value, assign 0 by default */
       snprintf(szEqn, MAX_EQN, "0.0");
+    }
 
     /* link value to symbol */
-    AddEquation(&pinfo->pvmLocalCpts, szName, szEqn, ID_COMPARTMENT);
+    PROPAGATE_EXIT(AddEquation(&pinfo->pvmLocalCpts, szName, szEqn, ID_COMPARTMENT));
 
-    if (bTell)
+    if (bTell) {
       Rprintf("compart. %s = %s\n", szName, szEqn);
+    }
 
   } /* end if */
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadCpt */
 
 /* ----------------------------------------------------------------------------
@@ -625,15 +641,16 @@ void ReadCpt(PINPUTBUF pibIn, BOOL bTell) {
 
    Read an SBML list of compartements section.
 */
-void ReadCpts(PINPUTBUF pibIn, BOOL bTell) {
+__attribute__((warn_unused_result)) int ReadCpts(PINPUTBUF pibIn, BOOL bTell) {
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* reset the compartment list! */
   pinfo->pvmLocalCpts = NULL;
 
-  while (GetSBMLLex(pibIn, KM_CPTLIST, KM_CPT))
-    ReadCpt(pibIn, bTell);
-
+  while (GetSBMLLex(pibIn, KM_CPTLIST, KM_CPT)) {
+    PROPAGATE_EXIT(ReadCpt(pibIn, bTell));
+  }
+  return 0;
 } /* ReadCpts */
 
 /* ----------------------------------------------------------------------------
@@ -641,7 +658,7 @@ void ReadCpts(PINPUTBUF pibIn, BOOL bTell) {
 
    Read a function definition section in the given SBML level 2 buffer.
 */
-void ReadFunction(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadFunction(PINPUTBUF pibIn) {
   PSTRLEX szRName;
   PSTREQN szEqn;
   int bInited = FALSE;
@@ -664,16 +681,16 @@ void ReadFunction(PINPUTBUF pibIn) {
   /* get an "apply" tag */
   GetSBMLLex(pibIn, KM_SBML, KM_APPLY);
 
-  ReadApply(pibIn, &bInited, szEqn);
+  PROPAGATE_EXIT(ReadApply(pibIn, &bInited, szEqn));
 
   Rprintf("rate for %s = %s\n", szRName, szEqn);
 
   /* define reaction name as Derivative spec in the Dynamics section */
-  DefineVariable(pibIn, szRName, szEqn, KM_DXDT);
+  PROPAGATE_EXIT(DefineVariable(pibIn, szRName, szEqn, KM_DXDT));
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadFunction */
 
 /* ----------------------------------------------------------------------------
@@ -681,13 +698,17 @@ void ReadFunction(PINPUTBUF pibIn) {
 
    Read a list of function definitions section.
 */
-void ReadFunctions(PINPUTBUF pibIn, int iSBML_level) {
+__attribute__((warn_unused_result)) int ReadFunctions(PINPUTBUF pibIn, int iSBML_level) {
 
-  if (iSBML_level == 1)
+  if (iSBML_level == 1) {
     Rprintf("mod: ignoring function definitions in level 1...\n");
-  else
-    while (GetSBMLLex(pibIn, KM_FUNCLIST, KM_FUNC))
-      ReadFunction(pibIn);
+  } else {
+    while (GetSBMLLex(pibIn, KM_FUNCLIST, KM_FUNC)) {
+      PROPAGATE_EXIT(ReadFunction(pibIn));
+    }
+  }
+
+  return 0;
 
 } /* ReadFunctions */
 
@@ -698,7 +719,7 @@ void ReadFunctions(PINPUTBUF pibIn, int iSBML_level) {
    reactions of the SBML model stored in the given buffer.
 
 */
-void ReadDifferentials(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadDifferentials(PINPUTBUF pibIn) {
   PSTRLEX szRName;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
@@ -719,7 +740,7 @@ void ReadDifferentials(PINPUTBUF pibIn) {
 
     while (GetSBMLLex(pibIn, KM_REACTANTS, KM_SPECIES_REF)) {
       /* construct the differential for that reactant */
-      ConstructEqn(pibIn, szRName, reactant);
+      PROPAGATE_EXIT(ConstructEqn(pibIn, szRName, reactant));
     }
 
     /* go to the products' list */
@@ -727,7 +748,7 @@ void ReadDifferentials(PINPUTBUF pibIn) {
 
     while (GetSBMLLex(pibIn, KM_PRODUCTS, KM_SPECIES_REF)) {
       /* construct the differential for that product */
-      ConstructEqn(pibIn, szRName, product);
+      PROPAGATE_EXIT(ConstructEqn(pibIn, szRName, product));
     }
 
   } /* end while */
@@ -739,7 +760,7 @@ void ReadDifferentials(PINPUTBUF pibIn) {
 
    Read an SBML global parameter tag content and set it up as global variable.
 */
-void ReadParameter(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadParameter(PINPUTBUF pibIn) {
   PSTRLEX szName;
   PSTREQN szEqn;
   int iLexType;
@@ -766,7 +787,7 @@ void ReadParameter(PINPUTBUF pibIn) {
     }
 
     /* link value to symbol */
-    DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
+    PROPAGATE_EXIT(DefineGlobalVar(pibIn, pvm, szName, szEqn, hType));
 
     Rprintf("param.   %s = %s\n", szName, szEqn);
 
@@ -775,12 +796,12 @@ void ReadParameter(PINPUTBUF pibIn) {
   else { /* the parameter was already defined, this is confusing, exit */
     Rprintf("***Error: redeclaration of parameter %s\n", szName);
     Rprintf("Exiting...\n\n");
-    exit(0);
+    return EXIT_ERROR;
   }
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadParameter */
 
 /* ----------------------------------------------------------------------------
@@ -788,9 +809,11 @@ void ReadParameter(PINPUTBUF pibIn) {
 
    Read an SBML list of parameters section.
 */
-void ReadParameters(PINPUTBUF pibIn) {
-  while (GetSBMLLex(pibIn, KM_PARAMS, KM_PARAM))
-    ReadParameter(pibIn);
+__attribute__((warn_unused_result)) int ReadParameters(PINPUTBUF pibIn) {
+  while (GetSBMLLex(pibIn, KM_PARAMS, KM_PARAM)) {
+    PROPAGATE_EXIT(ReadParameter(pibIn));
+  }
+  return 0;
 
 } /* ReadParameters */
 
@@ -799,7 +822,7 @@ void ReadParameters(PINPUTBUF pibIn) {
 
    Read an SBML reaction tag in the given SBML level 1 buffer.
 */
-void ReadReaction_L1(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadReaction_L1(PINPUTBUF pibIn) {
   PSTRLEX szRName;
   PSTREQN szEqn;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
@@ -825,16 +848,16 @@ void ReadReaction_L1(PINPUTBUF pibIn) {
   /* go back one char */
   pibIn->pbufCur = pibIn->pbufCur - 1;
 
-  GetaString(pibIn, szEqn);
+  PROPAGATE_EXIT(GetaString(pibIn, szEqn));
 
   Rprintf("reaction %s = %s\n", szRName, szEqn);
 
   /* define reaction name as a local variable in the Dynamics section */
-  DefineVariable(pibIn, szRName, szEqn, 0);
+  PROPAGATE_EXIT(DefineVariable(pibIn, szRName, szEqn, 0));
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadReaction_L1 */
 
 /* ----------------------------------------------------------------------------
@@ -842,7 +865,7 @@ void ReadReaction_L1(PINPUTBUF pibIn) {
 
    Transcribe the C language symbol of an SMBL reaction name.
 */
-void TranscribeOpSymbol(PSTR szOp) {
+__attribute__((warn_unused_result)) int TranscribeOpSymbol(PSTR szOp) {
   switch (GetSBMLKeywordCode(szOp)) {
 
   case KM_PLUS:
@@ -867,8 +890,9 @@ void TranscribeOpSymbol(PSTR szOp) {
 
   default:
     Rprintf("***Error: unknown mathXML operation '%s' - exiting...\n\n", szOp);
-    exit(0);
+    return EXIT_ERROR;
   }
+  return 0;
 
 } /* TranscribeOpSymbol */
 
@@ -880,7 +904,7 @@ void TranscribeOpSymbol(PSTR szOp) {
    The opening <apply> tag is supposed to have been read.
    Note : this rather a hack.
 */
-void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
+int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
   PSTRLEX szOp;
   PSTRLEX szLex;
   int iKw;
@@ -890,9 +914,9 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* write an opening '(' to szEqn */
-  if (*bInited) /* we are somewhere in an "apply" section: concatenate */
+  if (*bInited) { /* we are somewhere in an "apply" section: concatenate */
     snprintf(szEqn, MAX_EQN, "%s(", szEqn);
-  else {
+  } else {
     snprintf(szEqn, MAX_EQN, "("); /* initiate */
     *bInited = TRUE;
   }
@@ -901,12 +925,13 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
   while (*pibIn->pbufCur++ != '<')
     ;
   c = *pibIn->pbufCur; /* get character after '<' */
-  if (c == '!')        /* comment, skip it */
+  if (c == '!') {      /* comment, skip it */
     while (*pibIn->pbufCur++ != '<')
       ;
+  }
 
   GetIdentifier(pibIn, szOp);
-  TranscribeOpSymbol(szOp);
+  PROPAGATE_EXIT(TranscribeOpSymbol(szOp));
 
   do {
     /* try to get the next lex, stop if it's an /apply token */
@@ -919,69 +944,74 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
       iKw = GetSBMLKeywordCode(szLex);
       if ((iKw == KM_APPLY) || (iKw == KM_MATH)) {
         snprintf(szEqn, MAX_EQN, "%s)", szEqn);
-        return;
+        return 0;
       }
-    } else /* 'c' is not '/', read item */
+    } else { /* 'c' is not '/', read item */
       GetIdentifier(pibIn, szLex);
+    }
 
     if (!strcmp(szLex, "apply")) {
       ithTerm++;
 
       if (!strcmp(szOp, "pow")) {
-        if (ithTerm > 1)
+        if (ithTerm > 1) {
           snprintf(szEqn, MAX_EQN, "%s)", szEqn);
-        else
+        } else {
           snprintf(szEqn, MAX_EQN, "%s%s(,", szEqn, szOp);
+        }
       } else {
-        if (ithTerm > 1)
+        if (ithTerm > 1) {
           snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szOp);
+        }
       }
-      ReadApply(pibIn, bInited, szEqn); /* found "apply", get lower level */
+      PROPAGATE_EXIT(ReadApply(pibIn, bInited, szEqn)); /* found "apply", get lower level */
     } else { /* szLex == "ci" (hopefully!), get the atoms of the expression */
       do {
         /* go one char, beyond '>' */
         pibIn->pbufCur = pibIn->pbufCur + 1;
-        SkipWhitespace(pibIn);
+        PROPAGATE_EXIT(SkipWhitespace(pibIn));
         GetIdentifier(pibIn, szLex); /* this should be a valid formula atom */
 
         /* if PK template is used, reactions are supposed to happen in the
            one compartment defined: pad species name with compartment name */
         if ((pinfo->bTemplateInUse) && (!GetVarPTR(pinfo->pvmGloVars, szLex))) {
-          int len =
-              strlen(szLex) + 1 + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
+          int len = strlen(szLex) + 1 + 1 + strlen(pinfo->pvmLocalCpts->szName) + 1;
           if (len > MAX_LEX) {
             Rprintf("\n***Error: max string length MAX_LEX exceeded in "
                     "ReadApply: %s_%s\n",
                     szLex, pinfo->pvmLocalCpts->szName);
             Rprintf("Exiting...\n\n");
-            exit(0);
+            return EXIT_ERROR;
           }
           if (snprintf(szLex, len, "%s_%s", szLex,
-                       pinfo->pvmLocalCpts->szName) <
-              0) { // truncated--should never happen with the above check.
-            exit(0);
+                       pinfo->pvmLocalCpts->szName) < 0) { // truncated--should never happen with the above check.
+            return EXIT_ERROR;
           }
         }
 
         ithTerm++;
 
         if (!strcmp(szOp, "pow")) {
-          if (ithTerm > 1)
+          if (ithTerm > 1) {
             snprintf(szEqn, MAX_EQN, "%s%s)", szEqn, szLex);
-          else
+          } else {
             snprintf(szEqn, MAX_EQN, "%s%s(%s,", szEqn, szOp, szLex);
+          }
         } else {
-          if (ithTerm > 1)
+          if (ithTerm > 1) {
             snprintf(szEqn, MAX_EQN, "%s%s%s", szEqn, szOp, szLex);
-          else
+          } else {
             snprintf(szEqn, MAX_EQN, "%s%s", szEqn, szLex);
+          }
         }
       } while (GetSBMLLex(pibIn, KM_APPLY, KM_CI));
       snprintf(szEqn, MAX_EQN, "%s)", szEqn);
-      return;
+      return 0;
     } /* end else */
-  }   /* end do */
+  } /* end do */
   while (!bDone);
+
+  return 0;
 
 } /* ReadApply */
 
@@ -990,7 +1020,7 @@ void ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
 
    Read a reaction tag in the given SBML level 2 buffer.
 */
-void ReadReaction_L2(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadReaction_L2(PINPUTBUF pibIn) {
   PSTRLEX szRName;
   PSTREQN szEqn;
   int bInited = FALSE;
@@ -1010,16 +1040,16 @@ void ReadReaction_L2(PINPUTBUF pibIn) {
   /* get an "apply" tag */
   GetSBMLLex(pibIn, KM_SBML, KM_APPLY);
 
-  ReadApply(pibIn, &bInited, szEqn);
+  PROPAGATE_EXIT(ReadApply(pibIn, &bInited, szEqn));
 
   Rprintf("reaction %s = %s\n", szRName, szEqn);
 
   /* define reaction name as a local variable in the Dynamics section */
-  DefineVariable(pibIn, szRName, szEqn, 0);
+  PROPAGATE_EXIT(DefineVariable(pibIn, szRName, szEqn, 0));
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadReaction_L2 */
 
 /* ----------------------------------------------------------------------------
@@ -1027,14 +1057,15 @@ void ReadReaction_L2(PINPUTBUF pibIn) {
 
    Read a list of reactions sections.
 */
-void ReadReactions(PINPUTBUF pibIn, int iSBML_level) {
+__attribute__((warn_unused_result)) int ReadReactions(PINPUTBUF pibIn, int iSBML_level) {
   while (GetSBMLLex(pibIn, KM_REACTIONS, KM_REACTION)) {
-    if (iSBML_level == 1)
-      ReadReaction_L1(pibIn);
-    else
-      ReadReaction_L2(pibIn);
+    if (iSBML_level == 1) {
+      PROPAGATE_EXIT(ReadReaction_L1(pibIn));
+    } else {
+      PROPAGATE_EXIT(ReadReaction_L2(pibIn));
+    }
   }
-
+  return 0;
 } /* ReadReactions */
 
 /* ----------------------------------------------------------------------------
@@ -1042,7 +1073,7 @@ void ReadReactions(PINPUTBUF pibIn, int iSBML_level) {
 
    Read a rate rule section in the given SBML level 2 buffer.
 */
-void ReadRule(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadRule(PINPUTBUF pibIn) {
   PSTRLEX szRName;
   PSTREQN szEqn;
   int bInited = FALSE;
@@ -1062,16 +1093,16 @@ void ReadRule(PINPUTBUF pibIn) {
   /* get an "apply" tag */
   GetSBMLLex(pibIn, KM_SBML, KM_APPLY);
 
-  ReadApply(pibIn, &bInited, szEqn);
+  PROPAGATE_EXIT(ReadApply(pibIn, &bInited, szEqn));
 
   Rprintf("rate for %s = %s\n", szRName, szEqn);
 
   /* define reaction name as Derivative spec in the Dynamics section */
-  DefineVariable(pibIn, szRName, szEqn, KM_DXDT);
+  PROPAGATE_EXIT(DefineVariable(pibIn, szRName, szEqn, KM_DXDT));
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* ReadRule */
 
 /* ----------------------------------------------------------------------------
@@ -1079,13 +1110,15 @@ void ReadRule(PINPUTBUF pibIn) {
 
    Read a list of rate rules.
 */
-void ReadRules(PINPUTBUF pibIn, int iSBML_level) {
+__attribute__((warn_unused_result)) int ReadRules(PINPUTBUF pibIn, int iSBML_level) {
 
-  if (iSBML_level == 1)
+  if (iSBML_level == 1) {
     Rprintf("mod: ignoring rate rules definitions in level 1...\n");
-  else
-    while (GetSBMLLex(pibIn, KM_RULESLIST, KM_RATERULE))
-      ReadRule(pibIn);
+  } else {
+    while (GetSBMLLex(pibIn, KM_RULESLIST, KM_RATERULE)) {
+      PROPAGATE_EXIT(ReadRule(pibIn));
+    }
+  }
 
 } /* ReadRules */
 
@@ -1094,7 +1127,7 @@ void ReadRules(PINPUTBUF pibIn, int iSBML_level) {
 
    Read a sbml tag content and get the level.
 */
-int ReadSBMLLevel(PINPUTBUF pibIn) {
+__attribute__((warn_unused_result)) int ReadSBMLLevel(PINPUTBUF pibIn) {
   PSTREQN szEqn;
   int iLexType;
 
@@ -1110,7 +1143,7 @@ int ReadSBMLLevel(PINPUTBUF pibIn) {
 
   if (!iLexType) { /* no value, assign 0 by default */
     Rprintf("***Error: cannot read the sbml level - exiting...\n\n");
-    exit(0);
+    return EXIT_ERROR;
   }
 
   while (*pibIn->pbufCur++ != '>')
@@ -1128,7 +1161,7 @@ int ReadSBMLLevel(PINPUTBUF pibIn) {
 
   default:
     Rprintf("***Error: unknown sbml level %s - exiting...\n\n", szEqn);
-    exit(0);
+    return EXIT_ERROR;
   }
 
 } /* ReadSBMLLevel */
@@ -1142,7 +1175,7 @@ int ReadSBMLLevel(PINPUTBUF pibIn) {
    If bProcessPK_ODEs is TRUE, the derivatives specified by the PK template
    are processed and copied to the main info.
 */
-void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
+__attribute__((warn_unused_result)) int Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
   PSTRLEX szName;
   PSTRLEX szBoundary;
   PSTRLEX szCpt;
@@ -1188,7 +1221,7 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
         /* compartment not defined by the template: error */
         Rprintf("***Error: template did not defined");
         Rprintf(" compartment '%s' - exiting...\n\n", szCpt);
-        exit(0);
+        return EXIT_ERROR;
       } else { /* extend the variable name with the compartment name */
         int len = strlen(szName) + 1 + 1 + strlen(szCpt) + 1;
         if (len > MAX_LEX) {
@@ -1196,11 +1229,10 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
                   "Read1Species: %s_%s\n",
                   szName, szCpt);
           Rprintf("Exiting...\n\n");
-          exit(0);
+          return EXIT_ERROR;
         }
-        if (snprintf(szName, len, "%s_%s", szName, szCpt) <
-            0) { // truncated--should never happen with the above check.
-          exit(0);
+        if (snprintf(szName, len, "%s_%s", szName, szCpt) < 0) { // truncated--should never happen with the above check.
+          return EXIT_ERROR;
         }
       }
 
@@ -1208,12 +1240,13 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
         /* species assigned boundary conditions are defined as parameters */
         if (!(hType = GetVarType(pinfo->pvmGloVars, szName))) { /* New id */
           /* link value to symbol */
-          DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
+          PROPAGATE_EXIT(DefineGlobalVar(pibIn, pvm, szName, szEqn, hType));
           Rprintf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
-        }  /* end if */
-      }    /* end if bBoundary */
-      else /* not boundary, create a state variable */
-        SetVar(pibIn, szName, szEqn, ID_STATE);
+        } /* end if */
+      } /* end if bBoundary */
+      else { /* not boundary, create a state variable */
+        PROPAGATE_EXIT(SetVar(pibIn, szName, szEqn, ID_STATE));
+      }
     } else { /* species is outside of a meaningful compartment */
 
       /* first: species set to boundary conditions (i.e. invariant) are
@@ -1223,11 +1256,10 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
         Rprintf("***Error: Species %s is set to boundary;\n", szName);
         Rprintf("          It has to be inside a meaningful compartment -");
         Rprintf("exiting.\n\n");
-        exit(0);
+        return EXIT_ERROR;
       }
 
-      /* species in external compartment, store its info to pass through
-         ForAllVar list scanning routine */
+      /* species in external compartment, store its info to pass through ForAllVar list scanning routine */
       sVar.pibIn = pibIn;
       sVar.szName = szName;
       sVar.szVal = szEqn;
@@ -1235,58 +1267,53 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
       /* create state variables, input, outputs and parameters, adding the
          species name at the beginning of each state variable of the
          template that starts with '_' */
-      ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_NULL,
-                (PVOID)&sVar);
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_NULL, (PVOID)&sVar));
 
       /* same for the PK variables local to Dynamics */
       pinfo->wContext = CN_DYNAMICS;
       sVar.pTarget = pinfo->pvmDynEqns;
-      ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALDYN,
-                (PVOID)&sVar);
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALDYN, (PVOID)&sVar));
       /* transcribe PK dynamic equations, except derivatives */
-      ForAllVar(NULL, ptempinfo->pvmDynEqns, &Transcribe1AlgEqn, ID_NULL,
-                (PVOID)&sVar);
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmDynEqns, &Transcribe1AlgEqn, ID_NULL, (PVOID)&sVar));
       /* transcribe derivatives only if requested */
-      if (bProcessPK_ODEs)
-        ForAllVar(NULL, ptempinfo->pvmDynEqns, &Transcribe1DiffEqn, ID_NULL,
-                  (PVOID)&sVar);
+      if (bProcessPK_ODEs) {
+        PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmDynEqns, &Transcribe1DiffEqn, ID_NULL, (PVOID)&sVar));
+      }
 
       /* same for Scale */
       pinfo->wContext = CN_SCALE;
       sVar.pTarget = pinfo->pvmScaleEqns;
-      ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALSCALE,
-                (PVOID)&sVar);
-      ForAllVar(NULL, ptempinfo->pvmScaleEqns, &Transcribe1AlgEqn, ID_NULL,
-                (PVOID)&sVar);
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALSCALE, (PVOID)&sVar));
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmScaleEqns, &Transcribe1AlgEqn, ID_NULL, (PVOID)&sVar));
 
       /* same CalcOutputs */
       pinfo->wContext = CN_CALCOUTPUTS;
       sVar.pTarget = pinfo->pvmCalcOutEqns;
-      ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALCALCOUT,
-                (PVOID)&sVar);
-      ForAllVar(NULL, ptempinfo->pvmCalcOutEqns, &Transcribe1AlgEqn, ID_NULL,
-                (PVOID)&sVar);
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmGloVars, &Create1Var, ID_LOCALCALCOUT, (PVOID)&sVar));
+      PROPAGATE_EXIT(ForAllVar(NULL, ptempinfo->pvmCalcOutEqns, &Transcribe1AlgEqn, ID_NULL, (PVOID)&sVar));
     }
   } /* end if (pinfo->bTemplateInUse) */
 
   else { /* no PK template, process the variable, ignoring compartments */
-    if (!iLexType)
+    if (!iLexType) {
       snprintf(szEqn, MAX_EQN, "0.0"); /* no value, assign 0 by default */
+    }
     if (bBoundary) {
       /* species assigned boundary conditions are defined as parameters */
       if (!(hType = GetVarType(pinfo->pvmGloVars, szName))) { /* New id */
-        /* link value to symbol */
-        DefineGlobalVar(pibIn, pvm, szName, szEqn, hType);
+                                                              /* link value to symbol */
+        PROPAGATE_EXIT(DefineGlobalVar(pibIn, pvm, szName, szEqn, hType));
         Rprintf("param.   %s = %s  (was boundary species)\n", szName, szEqn);
-      }  /* end if */
-    }    /* end if bBoundary */
-    else /* not boundary, create a state variable */
-      SetVar(pibIn, szName, szEqn, ID_STATE);
+      } /* end if */
+    } /* end if bBoundary */
+    else { /* not boundary, create a state variable */
+      PROPAGATE_EXIT(SetVar(pibIn, szName, szEqn, ID_STATE));
+    }
   }
 
   while (*pibIn->pbufCur++ != '>')
     ; /* go to end of tag */
-
+  return 0;
 } /* Read1Species */
 
 /* ----------------------------------------------------------------------------
@@ -1294,10 +1321,11 @@ void Read1Species(PINPUTBUF pibIn, BOOL bProcessPK_ODEs) {
 
    Read a list of species section.
 */
-void ReadSpecies(PINPUTBUF pibIn, int iSBML_level, BOOL bProcessPK_ODEs) {
-  while (GetSBMLLex(pibIn, KM_SPECIESLIST, KM_SPECIES))
-    Read1Species(pibIn, bProcessPK_ODEs);
-
+__attribute__((warn_unused_result)) int ReadSpecies(PINPUTBUF pibIn, int iSBML_level, BOOL bProcessPK_ODEs) {
+  while (GetSBMLLex(pibIn, KM_SPECIESLIST, KM_SPECIES)) {
+    PROPAGATE_EXIT(Read1Species(pibIn, bProcessPK_ODEs));
+  }
+  return 0;
 } /* ReadSpecies */
 
 /* ----------------------------------------------------------------------------
@@ -1306,7 +1334,7 @@ void ReadSpecies(PINPUTBUF pibIn, int iSBML_level, BOOL bProcessPK_ODEs) {
    Reads strings found at the beginning of each line (except the first one) of
    a file.
 */
-void ReadFileNames(PINPUTBUF pibIn, PLONG nFiles, PSTR **pszNames) {
+__attribute__((warn_unused_result)) int ReadFileNames(PINPUTBUF pibIn, PLONG nFiles, PSTR **pszNames) {
   long i;
   int iLexType, iErr = 0;
   char szLex[MAX_FILENAMESIZE];
@@ -1317,50 +1345,64 @@ void ReadFileNames(PINPUTBUF pibIn, PLONG nFiles, PSTR **pszNames) {
   pbufStore = pibIn->pbufCur;
 
   do { /* Get number of model filenames in list */
-    GetaString(pibIn, szLex);
+    PROPAGATE_EXIT(GetaString(pibIn, szLex));
     *nFiles = *nFiles + 1;
-    NextLex(pibIn, szPunct, &iLexType);
-    SkipWhitespace(pibIn);
+    PROPAGATE_EXIT(NextLex(pibIn, szPunct, &iLexType));
+    PROPAGATE_EXIT(SkipWhitespace(pibIn));
 
     if (!(iLexType & LX_IDENTIFIER)) {
       /* not an identifier, should be ',' or '}' */
-      if ((szPunct[0] != ',') && (szPunct[0] != CH_RBRACE))
+      if ((szPunct[0] != ',') && (szPunct[0] != CH_RBRACE)) {
         iErr = szPunct[1] = CH_RBRACE;
+      }
     }
   } while ((szPunct[0] != CH_RBRACE) && (!iErr));
 
-  if (!(*pszNames = (PSTR *)malloc(*nFiles * sizeof(PSTR))))
-    ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "ReadJModels", NULL);
+  if (!(*pszNames = (PSTR *)malloc(*nFiles * sizeof(PSTR)))) {
+    PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "ReadJModels", NULL));
+  }
 
   /* Get actual model filenames */
   pibIn->pbufCur = pbufStore;
   for (i = 0; i < *nFiles; i++) {
-    GetaString(pibIn, szLex);
-    NextLex(pibIn, szPunct, &iLexType);
-    SkipWhitespace(pibIn);
+    PROPAGATE_EXIT(GetaString(pibIn, szLex));
+    PROPAGATE_EXIT(NextLex(pibIn, szPunct, &iLexType));
+    PROPAGATE_EXIT(SkipWhitespace(pibIn));
 
-    if (!((*pszNames)[i] = (PSTR)malloc(strlen(szLex) + 1)))
-      ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "ReadFileNames", NULL);
-    else
+    if (!((*pszNames)[i] = (PSTR)malloc(strlen(szLex) + 1))) {
+      PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "ReadFileNames", NULL));
+    } else {
       strcpy((*pszNames)[i], szLex);
+    }
   } /* for i */
-
+  return 0;
 } /* ReadFileNames */
 
+void cleanup_filenames(long nFiles, PSTR *pszFileNames) {
+  for (int i = 0; i < nFiles; i++) {
+    if (pszFileNames[i]) {
+      free(pszFileNames[i]);
+      pszFileNames[i] = NULL;
+    }
+  }
+
+  free(pszFileNames);
+}
 /* ----------------------------------------------------------------------------
    ReadSBMLModels
 
    Read the list of SBML model definition file given in an SBMLModels list.
 */
-void ReadSBMLModels(PINPUTBUF pibIn) {
+int ReadSBMLModels(PINPUTBUF pibIn) {
   long i, nFiles = 0;
   PSTR *pszFileNames = NULL;
   INPUTBUF ibInLocal;
+  InitINPUTBUF(&ibInLocal);
   int iSBML_level;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* read the SBML model file names from current buffer */
-  ReadFileNames(pibIn, &nFiles, &pszFileNames);
+  PROPAGATE_EXIT(ReadFileNames(pibIn, &nFiles, &pszFileNames));
 
   /* in each file, get the functions, the compartements, variables and
      rate rules  or reactions (to be set up as local variables) */
@@ -1370,57 +1412,85 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
 
     /* init buffer and read in the input file. */
     /* buffer size -1 will create a buffer of the size of the input file */
-    if (!InitBuffer(&ibInLocal, -1, pszFileNames[i]))
-      ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL);
+    if (InitBuffer(&ibInLocal, -1, pszFileNames[i]) <= 0) {
+      cleanup_filenames(nFiles, pszFileNames);
+      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
+    }
 
     /* attach info records to input buffer */
     ibInLocal.pInfo = pibIn->pInfo;
     ibInLocal.pTempInfo = pibIn->pTempInfo;
 
     /* read the SBML level */
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SBML))
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SBML)) {
       iSBML_level = ReadSBMLLevel(&ibInLocal);
+    }
 
     /* PK template requires level 2 SBML, issue an error otherwise */
     if ((pinfo->bTemplateInUse) && (iSBML_level < 2)) {
       Rprintf("***Error: use of a PK template requires ");
       Rprintf("SBML level 2 - exiting.\n\n");
-      exit(0);
+      cleanup_filenames(nFiles, pszFileNames);
+      return EXIT_ERROR;
     }
 
     /* read compartments, do not presume order, reset buffer */
     if (pinfo->bTemplateInUse) {
       ibInLocal.pbufCur = ibInLocal.pbufOrg;
-      if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST))
-        ReadCpts(&ibInLocal, TRUE); /* TRUE -> print the cpt name etc. */
+      if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST)) {
+        if (ReadCpts(&ibInLocal, TRUE) == EXIT_ERROR) { /* TRUE -> print the cpt name etc. */
+          cleanup_filenames(nFiles, pszFileNames);
+          return EXIT_ERROR;
+        }
+      }
     } else { /* ignore the compartments of SBML models if no template */
       Rprintf("no PK template given: ignoring SBML compartments\n");
     }
 
     /* read function definitions, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_FUNCLIST))
-      ReadFunctions(&ibInLocal, iSBML_level);
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_FUNCLIST)) {
+      if (ReadFunctions(&ibInLocal, iSBML_level) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
+    }
 
     /* read SBML parameters, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    while (GetSBMLLex(&ibInLocal, KM_SBML, KM_PARAMS))
-      ReadParameters(&ibInLocal);
+    while (GetSBMLLex(&ibInLocal, KM_SBML, KM_PARAMS)) {
+      if (ReadParameters(&ibInLocal) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
+    }
 
     /* read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST))
-      ReadSpecies(&ibInLocal, iSBML_level, FALSE); /* don't bProcessPK_ODEs */
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST)) {
+      if (ReadSpecies(&ibInLocal, iSBML_level, FALSE) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      } /* don't bProcessPK_ODEs */
+    }
 
     /* read SBML rate rules, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_RULESLIST))
-      ReadRules(&ibInLocal, iSBML_level);
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_RULESLIST)) {
+      if (ReadRules(&ibInLocal, iSBML_level) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
+    }
 
     /* read SBML reactions, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_REACTIONS))
-      ReadReactions(&ibInLocal, iSBML_level);
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_REACTIONS)) {
+      if (ReadReactions(&ibInLocal, iSBML_level) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
+    }
 
   } /* for model index i*/
 
@@ -1428,8 +1498,11 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
   for (i = 0; i < nFiles; i++) {
 
     /* init buffer and read in the input file. */
-    if (!InitBuffer(&ibInLocal, -1, pszFileNames[i]))
-      ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL);
+    if (InitBuffer(&ibInLocal, -1, pszFileNames[i]) <= 0) {
+      /* cleanup */
+      cleanup_filenames(nFiles, pszFileNames);
+      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadJModels", NULL));
+    }
 
     ibInLocal.pInfo = pibIn->pInfo;
     ibInLocal.pTempInfo = pibIn->pTempInfo;
@@ -1437,30 +1510,40 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
     /* re-read compartments, no printing */
     /* ignore the compartments of SBML models if no template */
     if (pinfo->bTemplateInUse) {
-      if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST))
-        ReadCpts(&ibInLocal, FALSE);
+      if (GetSBMLLex(&ibInLocal, KM_SBML, KM_CPTLIST)) {
+        if (ReadCpts(&ibInLocal, FALSE) == EXIT_ERROR) {
+          cleanup_filenames(nFiles, pszFileNames);
+          return EXIT_ERROR;
+        }
+      }
     }
 
     Rprintf("\nmod: reading differentials in model %s\n", pszFileNames[i]);
 
     /* re-read SBML species, reset buffer */
     ibInLocal.pbufCur = ibInLocal.pbufOrg;
-    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST))
-      ReadSpecies(&ibInLocal, iSBML_level, TRUE); /* TRUE: bProcessPK_ODEs */
+    if (GetSBMLLex(&ibInLocal, KM_SBML, KM_SPECIESLIST)) {
+      if (ReadSpecies(&ibInLocal, iSBML_level, TRUE) == EXIT_ERROR) { /* TRUE: bProcessPK_ODEs */
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
+    }
 
-    ReadDifferentials(&ibInLocal);
+    if (ReadDifferentials(&ibInLocal) == EXIT_ERROR) {
+      cleanup_filenames(nFiles, pszFileNames);
+      return EXIT_ERROR;
+    }
 
   } /* for model index i*/
 
   Rprintf("\n");
 
   /* cleanup */
-  for (i = 0; i < nFiles; i++)
-    free(pszFileNames[i]);
-
-  free(pszFileNames);
+  cleanup_filenames(nFiles, pszFileNames);
 
   pinfo->wContext = CN_END;
+
+  return 0;
 
 } /* ReadSBMLModels */
 
@@ -1472,8 +1555,9 @@ void ReadSBMLModels(PINPUTBUF pibIn) {
    stored in the pTmpInfo structure of the pibIn buffer argument.
 
 */
-void ReadPKTemplate(PINPUTBUF pibIn) {
+int ReadPKTemplate(PINPUTBUF pibIn) {
   INPUTBUF ibInLocal;
+  InitINPUTBUF(&ibInLocal);
   PSTRLEX szLex; /* Lex elem of MAX_LEX length */
   PSTREQN szEqn; /* Equation buffer of MAX_EQN length */
   int iLexType;
@@ -1488,28 +1572,37 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
   pinfo->wContext = CN_GLOBAL;
 
   /* read the template model file name from current buffer */
-  ReadFileNames(pibIn, &nFiles, &pszFileNames);
+  PROPAGATE_EXIT(ReadFileNames(pibIn, &nFiles, &pszFileNames));
 
-  if (nFiles > 1)
+  if (nFiles > 1) {
     Rprintf("mod: cannot use more that one template - using only the 1st\n\n");
+  }
 
   /* give the template name used */
   Rprintf("%s\n", pszFileNames[0]);
 
-  if (!InitBuffer(&ibInLocal, BUFFER_SIZE, pszFileNames[0]))
-    ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL);
+  if (InitBuffer(&ibInLocal, BUFFER_SIZE, pszFileNames[0]) <= 0) {
+    cleanup_filenames(nFiles, pszFileNames);
+    PROPAGATE_EXIT(ReportError(&ibInLocal, RE_INIT | RE_FATAL, "ReadModel", NULL));
+  }
 
   ibInLocal.pInfo = (PVOID)pinfo; /* Attach info to local input buffer */
-
+  int ret;
   do { /* State machine for parsing syntax */
-    NextLex(&ibInLocal, szLex, &iLexType);
+    if (NextLex(&ibInLocal, szLex, &iLexType) == EXIT_ERROR) {
+      cleanup_filenames(nFiles, pszFileNames);
+      return EXIT_ERROR;
+    }
     switch (iLexType) {
     case LX_NULL:
       pinfo->wContext = CN_END;
       break;
 
     case LX_IDENTIFIER:
-      ProcessWord(&ibInLocal, szLex, szEqn);
+      if (ProcessWord(&ibInLocal, szLex, szEqn) == EXIT_ERROR) {
+        cleanup_filenames(nFiles, pszFileNames);
+        return EXIT_ERROR;
+      }
       break;
 
     case LX_PUNCT:
@@ -1517,13 +1610,15 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
       if (szLex[0] == CH_STMTTERM) {
         break;
       } else {
-        if (szLex[0] == CH_RBRACE &&
-            (pinfo->wContext & (CN_DYNAMICS | CN_JACOB | CN_SCALE))) {
+        if (szLex[0] == CH_RBRACE && (pinfo->wContext & (CN_DYNAMICS | CN_JACOB | CN_SCALE))) {
           pinfo->wContext = CN_GLOBAL;
           break;
         } else {
           if (szLex[0] == CH_COMMENT) {
-            SkipComment(&ibInLocal);
+            if (SkipComment(&ibInLocal) == EXIT_ERROR) {
+              cleanup_filenames(nFiles, pszFileNames);
+              return EXIT_ERROR;
+            }
             break;
           }
           /* else: fall through! */
@@ -1531,18 +1626,24 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
       }
 
     default:
-      ReportError(&ibInLocal, RE_UNEXPECTED, szLex, "* Ignoring");
+      cleanup_filenames(nFiles, pszFileNames);
+      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_UNEXPECTED, szLex, "* Ignoring"));
       break;
 
     case LX_INTEGER:
     case LX_FLOAT:
-      ReportError(&ibInLocal, RE_UNEXPNUMBER, szLex, "* Ignoring");
+      cleanup_filenames(nFiles, pszFileNames);
+      PROPAGATE_EXIT(ReportError(&ibInLocal, RE_UNEXPNUMBER, szLex, "* Ignoring"));
       break;
 
     } /* switch */
 
-  } while (pinfo->wContext != CN_END &&
-           (*ibInLocal.pbufCur || FillBuffer(&ibInLocal, BUFFER_SIZE) != EOF));
+    ret = FillBuffer(&ibInLocal, BUFFER_SIZE);
+    if (ret == EXIT_ERROR) {
+      cleanup_filenames(nFiles, pszFileNames);
+      return EXIT_ERROR;
+    }
+  } while (pinfo->wContext != CN_END && (*ibInLocal.pbufCur || ret != EOF));
 
   fclose(ibInLocal.pfileIn);
 
@@ -1559,6 +1660,8 @@ void ReadPKTemplate(PINPUTBUF pibIn) {
   pinfo->wContext = CN_TEMPLATE_DEFINED;
   pinfo->bTemplateInUse = TRUE;
 
+  cleanup_filenames(nFiles, pszFileNames);
+  return 0;
 } /* ReadPKTemplate */
 
 #endif /* HAVE_LIBSBML */

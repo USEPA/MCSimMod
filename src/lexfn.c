@@ -80,8 +80,9 @@ IFM vrgifmMap[] = {
 int GetFnType(PSTR szName) {
   PIFM pifm = &vrgifmMap[0];
 
-  while (*pifm->szName && MyStrcmp(szName, pifm->szName))
+  while (*pifm->szName && MyStrcmp(szName, pifm->szName)) {
     pifm++;
+  }
 
   return (pifm->iIFNType); /* Return Keyword Code or 0 */
 
@@ -136,11 +137,12 @@ BOOL DefDepParm(PSTR szLex, PDOUBLE pdValue, HANDLE *phvar) {
 
     if (!(*phvar = (HANDLE)GetParmHandle(szLex))) {
       bReturn = FALSE;
-      ReportError(NULL, RE_UNDEFINED, szLex, NULL);
+      PROPAGATE_EXIT(ReportError(NULL, RE_UNDEFINED, szLex, NULL));
     } /* if */
-  }   /* if */
-  else
+  } /* if */
+  else {
     *pdValue = atof(szLex); /* Define actual parm from number */
+  }
 
   return (bReturn);
 
@@ -165,15 +167,18 @@ BOOL GetInputArgs(PINPUTBUF pibIn, PIFN pifn) {
   long rgiLowerB[4], rgiUpperB[4];
   BOOL bReturn = FALSE;
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 4; i++) {
     rgiTypes[i] = LX_INTEGER | LX_FLOAT | LX_IDENTIFIER;
+  }
 
-  if (GetFuncArgs(pibIn, 4, rgiTypes, rgszLex[0], rgiLowerB, rgiUpperB)) {
+  if (PROPAGATE_EXIT_OR_RETURN_RESULT(GetFuncArgs(pibIn, 4, rgiTypes, rgszLex[0], rgiLowerB, rgiUpperB))) {
 
-    for (i = 0; i < 4; i++)
-      if ((rgiLowerB[i] != -1) || (rgiUpperB[i] != -1))
-        ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, "array bounds",
-                    "Arrays cannot be used as input function parameters");
+    for (i = 0; i < 4; i++) {
+      if ((rgiLowerB[i] != -1) || (rgiUpperB[i] != -1)) {
+        PROPAGATE_EXIT(ReportError(pibIn, RE_BADCONTEXT | RE_FATAL, "array bounds",
+                                   "Arrays cannot be used as input function parameters"));
+      }
+    }
 
     /* Try to get each parm to show all errors */
     bReturn = TRUE;
@@ -181,13 +186,15 @@ BOOL GetInputArgs(PINPUTBUF pibIn, PIFN pifn) {
     bReturn &= DefDepParm(rgszLex[1], &pifn->dTper, &pifn->hTper);
     bReturn &= DefDepParm(rgszLex[2], &pifn->dT0, &pifn->hT0);
 
-    if (pifn->iType == IFN_PEREXP)
+    if (pifn->iType == IFN_PEREXP) {
       bReturn &= DefDepParm(rgszLex[3], &pifn->dDecay, &pifn->hDecay);
-    else
+    } else {
       bReturn &= DefDepParm(rgszLex[3], &pifn->dTexp, &pifn->hTexp);
+    }
 
-    if (!bReturn)
-      ReportError(pibIn, RE_EXPECTED, "input-spec", NULL);
+    if (!bReturn) {
+      PROPAGATE_EXIT(ReportError(pibIn, RE_EXPECTED, "input-spec", NULL));
+    }
   } /* if */
 
   return (bReturn);
@@ -204,10 +211,12 @@ BOOL GetNNumbers(PINPUTBUF pibIn, PSTR szLex, int nNumbers, PDOUBLE rgd) {
   int i;
 
   for (i = 0; i < nNumbers && !bErr; i++) {
-    if (i)
-      GetOptPunct(pibIn, szLex, ',');
-    if (!(bErr = ENextLex(pibIn, szLex, LX_NUMBER)))
+    if (i) {
+      PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+    }
+    if (!(bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(ENextLex(pibIn, szLex, LX_NUMBER)))) {
       rgd[i] = atof(szLex);
+    }
   } /* for */
 
   return bErr;
@@ -223,45 +232,52 @@ BOOL GetNNumbers(PINPUTBUF pibIn, PSTR szLex, int nNumbers, PDOUBLE rgd) {
 BOOL GetNDoses(PINPUTBUF pibIn, PSTR szLex, PIFN pifn) {
   BOOL bErr = FALSE; /* Return value flags error condition */
 
-  if ((bErr = EGetPunct(pibIn, szLex, CH_LPAREN)))
+  if ((bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(EGetPunct(pibIn, szLex, CH_LPAREN)))) {
     goto Exit_GetNDoses;
+  }
 
   /* Get positive integer number of doses */
-  if ((bErr = ENextLex(pibIn, szLex, LX_INTEGER)))
+  if ((bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(ENextLex(pibIn, szLex, LX_INTEGER)))) {
     goto Exit_GetNDoses;
+  }
 
   pifn->nDoses = atoi(szLex);
 
   if ((bErr = (pifn->nDoses <= 0))) {
-    ReportError(pibIn, RE_LEXEXPECTED, "positive-integer", szLex);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, "positive-integer", szLex));
     goto Exit_GetNDoses;
   } /* if */
 
   if (!(pifn->rgT0s = (PDOUBLE)malloc(pifn->nDoses * sizeof(double))) ||
       !(pifn->rgTexps = (PDOUBLE)malloc(pifn->nDoses * sizeof(double))) ||
-      !(pifn->rgMags = (PDOUBLE)malloc(pifn->nDoses * sizeof(double))))
-    ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "GetNDoses", NULL);
+      !(pifn->rgMags = (PDOUBLE)malloc(pifn->nDoses * sizeof(double)))) {
+    PROPAGATE_EXIT(ReportError(pibIn, RE_OUTOFMEM | RE_FATAL, "GetNDoses", NULL));
+  }
 
   /* Try to get doses list: n Mag's, n T0's, n Texp's */
-  GetOptPunct(pibIn, szLex, ',');
+  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
   bErr = GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgMags);
 
-  GetOptPunct(pibIn, szLex, ',');
-  if (!bErr)
-    bErr = GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgT0s);
+  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+  if (!bErr) {
+    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgT0s));
+  }
 
-  GetOptPunct(pibIn, szLex, ',');
-  if (!bErr)
-    bErr = GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgTexps);
+  PROPAGATE_EXIT(GetOptPunct(pibIn, szLex, ','));
+  if (!bErr) {
+    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(GetNNumbers(pibIn, szLex, pifn->nDoses, pifn->rgTexps));
+  }
 
-  if (!bErr)
-    bErr = EGetPunct(pibIn, szLex, CH_RPAREN);
+  if (!bErr) {
+    bErr = PROPAGATE_EXIT_OR_RETURN_RESULT(EGetPunct(pibIn, szLex, CH_RPAREN));
+  }
 
 Exit_GetNDoses:
 
-  if (bErr)
-    fprintf(stderr, "Syntax: GetNDoses (nDoses, <n Magnitudes>, "
-                    "<n T0's>, <n Texposure's>)\n");
+  if (bErr) {
+    REprintf("Syntax: GetNDoses (nDoses, <n Magnitudes>, "
+             "<n T0's>, <n Texposure's>)\n");
+  }
 
   return (!bErr);
 
@@ -277,12 +293,14 @@ Exit_GetNDoses:
 BOOL GetInputFn(PINPUTBUF pibIn, PSTR sz, PIFN pifn) {
   INPUTBUF ibDummy;
   PINPUTBUF pibDum = &ibDummy;
+  InitINPUTBUF(pibDum);
   PSTRLEX szLex;
   int iType;
   BOOL bReturn = FALSE;
 
-  if (!pibIn || !pifn)
+  if (!pibIn || !pifn) {
     return (FALSE);
+  }
 
   /* Define global variable map (yech) */
   {
@@ -291,17 +309,18 @@ BOOL GetInputFn(PINPUTBUF pibIn, PSTR sz, PIFN pifn) {
     vpvmGlo = pinfo->pvmGloVars;
   } /* block */
 
-  if (sz)
+  if (sz) {
     MakeStringBuffer(pibIn, pibDum, sz);
-  else
+  } else {
     pibDum = pibIn;
+  }
 
-  NextLex(pibDum, szLex, &iType);
+  PROPAGATE_EXIT(NextLex(pibDum, szLex, &iType));
   switch (iType) {
   default:
   case LX_NULL:
   case LX_PUNCT:
-    ReportError(pibIn, RE_LEXEXPECTED, "input-spec", NULL);
+    PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, "input-spec", NULL));
     break;
 
   case LX_FLOAT:
@@ -313,22 +332,22 @@ BOOL GetInputFn(PINPUTBUF pibIn, PSTR sz, PIFN pifn) {
       pifn->iType = GetFnType(szLex);
       switch (pifn->iType) {
       case IFN_NDOSES:
-        bReturn = GetNDoses(pibDum, szLex, pifn);
+        bReturn = PROPAGATE_EXIT_OR_RETURN_RESULT(GetNDoses(pibDum, szLex, pifn));
         break;
 
       default:
         pifn->iType = IFN_NULL;
-        ReportError(pibIn, RE_LEXEXPECTED, "input-spec", szLex);
+        PROPAGATE_EXIT(ReportError(pibIn, RE_LEXEXPECTED, "input-spec", szLex));
         break;
 
       case IFN_PERDOSE:
       case IFN_PERRATE:
       case IFN_PEREXP:
-        bReturn = GetInputArgs(pibDum, pifn);
+        bReturn = PROPAGATE_EXIT_OR_RETURN_RESULT(GetInputArgs(pibDum, pifn));
         break;
 
       } /* switch pifn-> iType */
-    }   /* if identifier */
+    } /* if identifier */
 
     else {
       pifn->iType = IFN_CONSTANT;
