@@ -643,7 +643,7 @@ int TranslateEquation(PFILE pfile, PSTR szEqn, long iEqType) {
    Callback function for ForAllVar().
 */
 int WriteOneEquation(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
-  long iType = (long)pInfo;
+  intptr_t iType = (intptr_t)pInfo;
 
   if (pvm->hType & ID_SPACEFLAG) { /* Flag for space between equations */
     fprintf(pfile, "\n");
@@ -1369,7 +1369,7 @@ int Is_numeric(PSTR str) {
 int WriteOne_R_PSDecl(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PSTR szVarName;
   PSTR szZero = "0.0";
-  long End = (long)pInfo;
+  intptr_t End = (intptr_t)pInfo;
   PSTR RHS;
   int iOut;
 
@@ -1413,7 +1413,7 @@ int WriteOne_R_ParmInit(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PSTR szVarName;
   int iOut;
 
-  if (((long)pInfo) < 1) {
+  if (((intptr_t)pInfo) < 1) {
     szVarName = GetName(pvm, NULL, NULL, ID_NULL);
     iOut = Is_numeric(pvm->szEqn);
     if (iOut == 0) {
@@ -1431,7 +1431,7 @@ int WriteOne_R_ParmInit(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
 */
 int WriteOne_R_StateInit(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
   PSTR szVarName;
-  long End = (long)pInfo;
+  intptr_t End = (intptr_t)pInfo;
 
   if (End < 1) {
     szVarName = GetName(pvm, NULL, NULL, ID_NULL);
@@ -1461,7 +1461,7 @@ int WriteOne_R_StateInit(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
    For R only
 */
 int WriteOneOutputName(PFILE pfile, PVMMAPSTRCT pvm, PVOID pInfo) {
-  long END = (long)pInfo;
+  intptr_t END = (intptr_t)pInfo;
 
   switch (END) {
   case -1:
