@@ -13,24 +13,36 @@
 #' @param c_file output c_file that is compiled by `c_mod`
 #' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
 #' @param dll_file Possible previously compiled dll
+#' @param path Resolved path for file placement
 #'
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
-compile_model <- function(model_file, c_file, dll_name, dll_file) {
-  # Unload DLL if it has been loaded.
-  if (is.loaded("derivs", PACKAGE = dll_name)) {
-    dyn.unload(dll_file)
-  }
+compile_model <- function(model_file, c_file, dll_name, dll_file, path) {
+  originalPath <- getwd()
+  tryCatch(
+    {
+      if (path != "") {
+        setwd(path)
+      }
+      # Unload DLL if it has been loaded.
+      if (is.loaded("derivs", PACKAGE = dll_name)) {
+        dyn.unload(dll_file)
+      }
 
-  # Create a C model file (ending with ".c") and an R parameter
-  # initialization file (ending with "_inits.R") from the GNU MCSim model
-  # definition file (ending with ".model"). Using the "-R" option generates
-  # code compatible with functions in the R deSolve package.
-  if (.C("c_mod", model_file, c_file)[[1]] < 0) {
-    stop("c_mod failed")
-  }
+      # Create a C model file (ending with ".c") and an R parameter
+      # initialization file (ending with "_inits.R") from the GNU MCSim model
+      # definition file (ending with ".model"). Using the "-R" option generates
+      # code compatible with functions in the R deSolve package.
+      if (.C("c_mod", model_file, c_file)[[1]] < 0) {
+        stop("c_mod failed")
+      }
 
-  # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
-  r_path <- file.path(R.home("bin"), "R")
-  system(paste0(r_path, " CMD SHLIB ", c_file))
+      # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
+      r_path <- file.path(R.home("bin"), "R")
+      system(paste0(r_path, " CMD SHLIB ", c_file))
+    },
+    finally = {
+      setwd(originalPath)
+    }
+  )
 }

@@ -8,6 +8,7 @@
 Model <- setRefClass("Model",
   fields = list(
     mName = "character",
+    mPath = "character",
     mString = "character",
     initParms = "function",
     initStates = "function",
@@ -22,34 +23,43 @@ Model <- setRefClass("Model",
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot both have a model file `mName` and a model string `mString`")
       }
+      if (length(mName) > 0 & length(mPath) == 0) {
+        # default to current working directory
+        mPath <<- "."
+      }
       if (length(mString) > 0) {
-        # default to temporary directory
-        file <- tempfile(pattern = "mcsimmod_", tmpdir = '.')
+        if (length(mPath) == 0) {
+          mPath <<- tempdir(check = T)
+        }
+        file <- tempfile(pattern = "mcsimmod_", tmpdir = mPath)
         mName <<- basename(file)
         writeLines(mString, paste0(file, ".model"))
       }
+      mPath <<- normalizePath(mPath, mustWork = TRUE)
       paths <<- list(
         dll_name = paste0(mName, "_model"),
         c_file = paste0(mName, "_model.c"),
         o_file = paste0(mName, "_model.o"),
         dll_file = paste0(mName, "_model", .Platform$dynlib.ext),
         inits_file = paste0(mName, "_model_inits.R"),
-        model_file = paste0(mName, ".model")
+        model_file = paste0(mName, ".model"),
+        abs_dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
+        abs_inits_file = file.path(mPath, paste0(mName, "_model", "_inits.R"))
       )
     },
     loadModel = function() {
       # Construct names of required files and objects from mName.
-      if (!file.exists(paths$dll_file)) {
-        compile_model(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file)
+      if (!file.exists(paths$abs_dll_file)) {
+        compile_model(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, mPath)
       }
 
       # Logic for compiling here if trying to load an uncompiled model
 
       # Load the compiled model (DLL).
-      dyn.load(paths$dll_file)
+      dyn.load(paths$abs_dll_file)
 
       # Run script that defines initialization functions.
-      source(paths$inits_file, local = TRUE)
+      source(paths$abs_inits_file, local = TRUE)
       initParms <<- initParms
       initStates <<- initStates
       Outputs <<- Outputs
@@ -66,7 +76,7 @@ Model <- setRefClass("Model",
     runModel = function(times, method = "lsoda", ...) {
       # Solve the ODE system using the "ode" function from the package "deSolve".
       out <- ode(Y0, times,
-        func = "derivs", parms = parms, dllname = paths$dll_name,
+        func = "derivs", parms = parms, dllname = paths$abs_dll_name,
         initforc = "initforc", initfunc = "initmod", nout = length(Outputs),
         outnames = Outputs, method = method, ...
       )

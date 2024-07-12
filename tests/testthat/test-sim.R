@@ -1,8 +1,7 @@
 testthat::test_that("Model$fromFile", {
-  setwd('../data')
   testthat::expect_true(file.exists("exponential.model"))
 
-  model <- Model(mName = "exponential")
+  model <- Model(mName = "exponential", mPath="../data")
   model$loadModel()
   model$updateParms(list(r = -0.5, A0 = 100))
   model$updateY0()
