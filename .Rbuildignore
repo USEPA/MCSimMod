@@ -1,4 +1,9 @@
-^RMCSim\.Rproj$
+^MCSimMod\.Rproj$
 ^\.Rproj\.user$
 ^doc$
 ^Meta$
+^\.github$
+.clang-format
+README.md
+CONTRIBUTING.md
+^LICENSE\.md$

@@ -10,6 +10,15 @@ functions that can be used for initializing model states and parameters.}
 \usage{
 compile_model(model_file, c_file, dll_name, dll_file)
 }
+\arguments{
+\item{model_file}{model file name that needs to be compiled}
+
+\item{c_file}{output c_file that is compiled by \code{c_mod}}
+
+\item{dll_name}{dynamic library that has the "derivs" function from a previously compiled model}
+
+\item{dll_file}{Possible previously compiled dll}
+}
 \description{
 Inputs:
 mName: String containing the name of the MCSim model. Exclude the file name

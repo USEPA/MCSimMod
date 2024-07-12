@@ -29,8 +29,6 @@ jobs:
           extra-packages: any::rcmdcheck, any::covr, any::DT, any::devtools
       - name: check package
         uses: r-lib/actions/check-r-package@v2
-        with:
-          error-on: '"error"'  # TODO - change to warning (or remove)
       - name: Test coverage
         run: |
           coverage_output <- covr::package_coverage(

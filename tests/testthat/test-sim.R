@@ -1,12 +1,12 @@
 testthat::test_that("Model$fromFile", {
-  setwd('../data')  
+  setwd('../data')
   testthat::expect_true(file.exists("exponential.model"))
 
   model <- Model(mName = "exponential")
   model$loadModel()
   model$updateParms(list(r = -0.5, A0 = 100))
   model$updateY0()
-  
+
   times <- seq(from = 0, to = 10, by = 0.1)
   exp_out <- model$runModel(times)
 
