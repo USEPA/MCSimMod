@@ -27,27 +27,23 @@
 
 typedef struct tagKM {
   PSTR szKeyword;
-  int  iKWCode;   /* Enumeration code of Keyword KM_* */
-  WORD  fContext; /* Bit flags of valid context for KW */
-} KM, *PKM; /* Keyword Map */
-
+  int iKWCode;   /* Enumeration code of Keyword KM_* */
+  WORD fContext; /* Bit flags of valid context for KW */
+} KM, *PKM;      /* Keyword Map */
 
 /* ---------------------------------------------------------------------------
    Public Prototypes */
 
-int  GetKeywordCode (PSTR szKeyword, PINT pfContext);
-PSTR GetKeyword (int iCode);
-void GetVarList (PINPUTBUF pibIn, PSTR szLex, int iKWCode);
-void ProcessDTStatement (PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode);
-void ProcessIdentifier (PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode);
-void ProcessInlineStatement (PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, 
-                             int iKWCode);
-void ProcessWord (PINPUTBUF pibIn, PSTR szLex, PSTR szEqn);
-void ReadModel (PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn);
+int GetKeywordCode(PSTR szKeyword, PINT pfContext);
+PSTR GetKeyword(int iCode);
+__attribute__((warn_unused_result)) int GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode);
+__attribute__((warn_unused_result)) int ProcessDTStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode);
+__attribute__((warn_unused_result)) int ProcessIdentifier(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode);
+__attribute__((warn_unused_result)) int ProcessInlineStatement(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn, int iKWCode);
+__attribute__((warn_unused_result)) int ProcessWord(PINPUTBUF pibIn, PSTR szLex, PSTR szEqn);
+__attribute__((warn_unused_result)) int ReadModel(PINPUTINFO pinfo, PINPUTINFO ptempinfo, PSTR szFileIn);
 
 #define MODI_H_DEFINED
 #endif
 
 /* End */
-
-

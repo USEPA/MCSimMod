@@ -1,0 +1,16 @@
+BasedOnStyle: LLVM
+BreakBeforeBraces: Attach
+# BraceWrapping:
+#   AfterControlStatement: Never
+#   AfterClass: false
+#   AfterEnum: false
+#   AfterFunction: false
+#   AfterNamespace: false
+#   AfterStruct: false
+#   AfterUnion: false
+#   BeforeCatch: false
+#   BeforeElse: true
+#   IndentBraces: false
+InsertBraces: true
+ColumnLimit: 120
+AllowShortIfStatementsOnASingleLine: Never
