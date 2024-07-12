@@ -28,13 +28,11 @@
 
 #include "config.h"
 
-
 /* ----------------------------------------------------------------------------
    Public Definitions
 */
 
 #define MAX_ARGS 25
-
 
 /* ----------------------------------------------------------------------------
    Public Constants
@@ -42,20 +40,19 @@
 
 /* SBML Context Types, to define SBML sections */
 
-#define CN_SBML          1
-#define CN_APPLY         1
+#define CN_SBML 1
+#define CN_APPLY 1
 
 /* ---------------------------------------------------------------------------
    Public Typedefs */
 
-
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-int  GetSBMLKeywordCode (PSTR szKeyword);
-void ReadApply (PINPUTBUF pibIn, PINT bInited, PSTR toto);
-void ReadSBMLModels (PINPUTBUF pibIn);
-void ReadPKTemplate (PINPUTBUF pibIn);
+int GetSBMLKeywordCode(PSTR szKeyword);
+__attribute__((warn_unused_result)) int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR toto);
+__attribute__((warn_unused_result)) int ReadSBMLModels(PINPUTBUF pibIn);
+__attribute__((warn_unused_result)) int ReadPKTemplate(PINPUTBUF pibIn);
 
 #define MODISBML_H_DEFINED
 #endif

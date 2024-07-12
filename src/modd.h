@@ -22,32 +22,28 @@
 
 #ifndef MODD_H_DEFINED
 
-
 /* ---------------------------------------------------------------------------
    Prototypes */
 
-void AddEquation (PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType);
-HANDLE CalculateVarHandle (PVMMAPSTRCT pvm, PSTR sz);
-PSTR CopyString (PSTR szOrg);
-void DeclareModelVar (PINPUTBUF pibIn, PSTR szName, int iKWCode);
-void DefineCalcOutEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineDynamicsEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, 
-                        HANDLE hType);
-void DefineGlobalVar (PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, 
-                      PSTR szEqn, HANDLE hType);
-void DefineJacobEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineScaleEqn (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
-void DefineVariable (PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode);
-PVMMAPSTRCT GetVarPTR (PVMMAPSTRCT pvm, PSTR szName);
-int  GetVarType (PVMMAPSTRCT pvm, PSTR szName);
-BOOL IsMathFunc (PSTR sz);
-void SetEquation (PVMMAPSTRCT pvm, PSTR szEqn);
-void SetVarType (PVMMAPSTRCT pvm, PSTR szName, HANDLE hType);
-BOOL VerifyEqn (PINPUTBUF pibIn, PSTR szEqn);
+__attribute__((warn_unused_result)) int AddEquation(PVMMAPSTRCT *ppvm, PSTR szName, PSTR szEqn, HANDLE hType);
+HANDLE CalculateVarHandle(PVMMAPSTRCT pvm, PSTR sz);
+__attribute__((warn_unused_result)) int CopyString(PSTR szOrg, PSTR *szBuf);
+__attribute__((warn_unused_result)) int DeclareModelVar(PINPUTBUF pibIn, PSTR szName, int iKWCode);
+__attribute__((warn_unused_result)) int DefineCalcOutEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+__attribute__((warn_unused_result)) int DefineDynamicsEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+__attribute__((warn_unused_result)) int DefineGlobalVar(PINPUTBUF pibIn, PVMMAPSTRCT pvm, PSTR szName, PSTR szEqn,
+                                                        HANDLE hType);
+__attribute__((warn_unused_result)) int DefineJacobEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+__attribute__((warn_unused_result)) int DefineScaleEqn(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, HANDLE hType);
+__attribute__((warn_unused_result)) int DefineVariable(PINPUTBUF pibIn, PSTR szName, PSTR szEqn, int iKWCode);
+PVMMAPSTRCT GetVarPTR(PVMMAPSTRCT pvm, PSTR szName);
+int GetVarType(PVMMAPSTRCT pvm, PSTR szName);
+BOOL IsMathFunc(PSTR sz);
+__attribute__((warn_unused_result)) int SetEquation(PVMMAPSTRCT pvm, PSTR szEqn);
+void SetVarType(PVMMAPSTRCT pvm, PSTR szName, HANDLE hType);
+__attribute__((warn_unused_result)) BOOL VerifyEqn(PINPUTBUF pibIn, PSTR szEqn);
 
 #define MODD_H_DEFINED
 #endif
 
 /* End */
-
-

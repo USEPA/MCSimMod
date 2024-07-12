@@ -28,29 +28,28 @@
 
 #include <stdio.h>
 
-
 /* ----------------------------------------------------------------------------
    Typedefs
 */
 
-typedef int            BOOL;
-typedef unsigned char  BYTE;
-typedef unsigned int   WORD;
-typedef unsigned long  DWORD;
-typedef DWORD          HANDLE;
+typedef int BOOL;
+typedef unsigned char BYTE;
+typedef unsigned int WORD;
+typedef unsigned long DWORD;
+typedef DWORD HANDLE;
 
-typedef char*          PSTR;
-typedef BYTE*          PBYTE;
-typedef int*           PINT;
-typedef WORD*          PWORD;
-typedef long*          PLONG;
-typedef DWORD*         PDWORD;
-typedef void*          PVOID;
+typedef char *PSTR;
+typedef BYTE *PBYTE;
+typedef int *PINT;
+typedef WORD *PWORD;
+typedef long *PLONG;
+typedef DWORD *PDWORD;
+typedef void *PVOID;
 
-typedef float*         PFLOAT;
-typedef double*        PDOUBLE;
+typedef float *PFLOAT;
+typedef double *PDOUBLE;
 
-typedef FILE*          PFILE;
+typedef FILE *PFILE;
 
 #ifndef TRUE
 #define TRUE 1
@@ -61,4 +60,3 @@ typedef FILE*          PFILE;
 #endif
 
 /* End */
-

@@ -1,6 +1,6 @@
-#' RMCSim class to run a model
+#' MCSimMod class to run a model
 #' 
-#' A class for managing RMCSim models
+#' A class for managing MCSimMod models
 #' 
 #' @import methods
 #' @import deSolve
@@ -78,10 +78,12 @@
                                )
                              )
   
-  #' Return an RMCSim instance from a string-based model
+  #' Return an MCSimMod instance from a string-based model
   #'
   #' Convenience method to build a string-based method.
   #'
+  #' @param string model string specifying a complete MCSim ODE model
+  #' @returns An MCSimMod model object
   #' @export
   fromString <- function(string){
     file <- tempfile(pattern="tmp_mcsim", tmpdir='.')
