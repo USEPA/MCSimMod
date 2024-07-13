@@ -17,3 +17,6 @@ tests/data/*.R
 tests/data/*.c
 tests/data/*.dll
 tests/data/*.o
+inst/doc
+/doc/
+/Meta/
