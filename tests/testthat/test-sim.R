@@ -1,25 +1,25 @@
 testthat::test_that("Model$fromFile", {
-    setwd("../data")
-    testthat::expect_true(file.exists("exponential.model"))
+  setwd("../data")
+  testthat::expect_true(file.exists("exponential.model"))
 
-    model <- Model$new(mName = "exponential")
+  model <- Model$new(mName = "exponential")
 
-    model$loadModel()
-    model$updateParms(list(r = -0.5, A0 = 100))
-    model$updateY0()
+  model$loadModel()
+  model$updateParms(list(r = -0.5, A0 = 100))
+  model$updateY0()
 
-    times <- seq(from = 0, to = 10, by = 0.1)
-    exp_out <- model$runModel(times)
+  times <- seq(from = 0, to = 10, by = 0.1)
+  exp_out <- model$runModel(times)
 
-    testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
-    testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
-    testthat::expect_true(sum(exp_out[, 2]) > 0)
+  testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
+  testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
+  testthat::expect_true(sum(exp_out[, 2]) > 0)
 
-    model$cleanup()
+  model$cleanup()
 })
 
 testthat::test_that("Model$fromString", {
-    modelString <- "
+  modelString <- "
     States = {A};
     Outputs = {Bout, Cout};
     Inputs = {Bin, Cin};
@@ -38,19 +38,19 @@ testthat::test_that("Model$fromString", {
 
     End.
     "
-    
-    model <- Model(mString = modelString)
 
-    model$loadModel()
-    model$updateParms(list(r = -0.5, A0 = 100))
-    model$updateY0()
+  model <- Model(mString = modelString)
 
-    times <- seq(from = 0, to = 10, by = 0.1)
-    output <- model$runModel(times)
+  model$loadModel()
+  model$updateParms(list(r = -0.5, A0 = 100))
+  model$updateY0()
 
-    testthat::expect_true(all(dim(output) == c(length(times), 4)))
-    testthat::expect_true(all(colnames(output) == c("time", "A", "Bout", "Cout")))
-    testthat::expect_true(sum(output[, 2]) > 0)
+  times <- seq(from = 0, to = 10, by = 0.1)
+  output <- model$runModel(times)
 
-    model$cleanup(deleteModel=T)
+  testthat::expect_true(all(dim(output) == c(length(times), 4)))
+  testthat::expect_true(all(colnames(output) == c("time", "A", "Bout", "Cout")))
+  testthat::expect_true(sum(output[, 2]) > 0)
+
+  model$cleanup(deleteModel = T)
 })

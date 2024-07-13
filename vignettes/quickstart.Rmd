@@ -67,5 +67,5 @@ plot(out[, "time"], out[, "A"],
 
 ```{r, include = FALSE}
 # cleanup required for vignette to pass
-model$cleanup(deleteModel=T)
+model$cleanup(deleteModel = T)
 ```
