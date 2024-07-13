@@ -64,3 +64,8 @@ plot(out[, "time"], out[, "A"],
   xlab = "Time (h)", ylab = "Amount (g)"
 )
 ```
+
+```{r, include = FALSE}
+# cleanup required for vignette to pass
+model$cleanup(deleteModel=T)
+```
