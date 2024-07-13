@@ -16,7 +16,7 @@ cleanup <- function(model) {
     }
 }
 
-testthat::test_that("Model", {
+testthat::test_that("Model$fromFile", {
     setwd("../data")
     testthat::expect_true(file.exists("exponential.model"))
 
@@ -39,8 +39,8 @@ testthat::test_that("Model", {
     cleanup(exp_mod)
 })
 
-testthat::test_that("fromString", {
-    model <- fromString("
+testthat::test_that("Model$fromString", {
+    modelString <- "
     States = {A};
     Outputs = {Bout, Cout};
     Inputs = {Bin, Cin};
@@ -58,7 +58,8 @@ testthat::test_that("fromString", {
     }
 
     End.
-    ")
+    "
+    model <- Model(mString = modelString)
     model$loadModel()
 
     model$updateParms(list(r = -0.5, A0 = 100))

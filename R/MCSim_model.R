@@ -6,9 +6,39 @@
 #' @import deSolve
 #' @export Model
   Model <- setRefClass("Model", 
-                             fields=list(mName='character', initParms='function', initStates='function', Outputs='character',
+                             fields=list(mName='character', mPath = "character", mString = "character", initParms='function', initStates='function', Outputs='character',
                                          parms='numeric', Y0='numeric'),
                              methods = list(
+                              initialize = function(...) {
+                                callSuper(...)
+                                if (length(mName) > 0 & length(mString) > 0) {
+                                  stop("Cannot both have a model file `mName` and a model string `mString`")
+                                }
+                                if (length(mName) > 0 & length(mPath) == 0) {
+                                  # default to current working directory
+                                  mPath <<- "."
+                                }
+                                if (length(mString) > 0) {
+                                  if (length(mPath) == 0) {
+                                    # mPath <<- tempdir(check = T)
+                                    mPath <<- "."
+                                  }
+                                  file <- tempfile(pattern = "mcsimmod_", tmpdir = mPath)
+                                  mName <<- basename(file)
+                                  writeLines(mString, paste0(file, ".model"))
+                                }
+                                mPath <<- normalizePath(mPath, mustWork = TRUE)
+                                paths <<- list(
+                                  dll_name = paste0(mName, "_model"),
+                                  c_file = paste0(mName, "_model.c"),
+                                  o_file = paste0(mName, "_model.o"),
+                                  dll_file = paste0(mName, "_model", .Platform$dynlib.ext),
+                                  inits_file = paste0(mName, "_model_inits.R"),
+                                  model_file = paste0(mName, ".model"),
+                                  abs_dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
+                                  abs_inits_file = file.path(mPath, paste0(mName, "_model", "_inits.R"))
+                                )
+                              },
                                
                                loadModel=function() {
                                  # Construct names of required files and objects from mName.
@@ -77,17 +107,3 @@
                              }
                                )
                              )
-  
-  #' Return an MCSimMod instance from a string-based model
-  #'
-  #' Convenience method to build a string-based method.
-  #'
-  #' @param string model string specifying a complete MCSim ODE model
-  #' @returns An MCSimMod model object
-  #' @export
-  fromString <- function(string){
-    file <- tempfile(pattern="tmp_mcsim", tmpdir='.')
-    writeLines(string, paste0(file, ".model"))
-    model = Model$new(mName=basename(file))
-    return(model)
-  }

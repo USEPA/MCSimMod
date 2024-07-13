@@ -8,6 +8,8 @@ MCSimMod.Rproj
 *.dll
 *.so
 
+mcsimmod_*.model
+
 coverage_html/
 docs/
 
