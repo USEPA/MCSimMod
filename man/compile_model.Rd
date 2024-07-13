@@ -18,6 +18,8 @@ compile_model(model_file, c_file, dll_name, dll_file)
 \item{dll_name}{dynamic library that has the "derivs" function from a previously compiled model}
 
 \item{dll_file}{Possible previously compiled dll}
+
+\item{path}{The compilation path}
 }
 \description{
 Inputs:
