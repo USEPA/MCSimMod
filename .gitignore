@@ -6,6 +6,7 @@ MCSimMod.Rproj
 *.o
 *.exe
 *.dll
+*.so
 
 coverage_html/
 docs/

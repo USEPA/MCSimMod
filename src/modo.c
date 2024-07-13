@@ -1659,7 +1659,7 @@ int Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
 
   if (!pinfo->pvmGloVars || (!pinfo->pvmDynEqns && !pinfo->pvmCalcOutEqns)) {
     Rprintf("Error: No Dynamics, outputs or global variables defined\n");
-    return;
+    return 1;
   }
 
   ReversePointers(&pinfo->pvmGloVars);
