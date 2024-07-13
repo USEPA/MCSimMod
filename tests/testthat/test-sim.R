@@ -1,42 +1,21 @@
-cleanup <- function(model) {
-    name <- model$mName
-    dll_name <- paste(name, "_model", sep = "")
-    dll_file <- paste(dll_name, .Platform$dynlib.ext, sep = "")
-    dyn.unload(dll_file)
-    rm(model)
-    file.remove(paste0(name, "_model.o"))
-    file.remove(paste0(name, "_model.c"))
-    file.remove(paste0(name, "_model_inits.R"))
-    file.remove(paste0(name, "_model.dll"))
-    file.remove(paste0(name, "_model.so"))
-
-    prefix <- "tmp_mcsim"
-    if (substr(name, 1, nchar(prefix)) == prefix) {
-        file.remove(paste0(name, ".model"))
-    }
-}
-
 testthat::test_that("Model$fromFile", {
     setwd("../data")
     testthat::expect_true(file.exists("exponential.model"))
 
-    exp_mod <- Model$new(mName = "exponential")
-    exp_mod$loadModel() # Default parms are loaded to exp_mod object
+    model <- Model$new(mName = "exponential")
 
-    # Update parms for user-defined parameters
-    exp_mod$updateParms(list(r = -0.5, A0 = 100))
-
-    # Update initial states
-    exp_mod$updateY0()
+    model$loadModel()
+    model$updateParms(list(r = -0.5, A0 = 100))
+    model$updateY0()
 
     times <- seq(from = 0, to = 10, by = 0.1)
-    exp_out <- exp_mod$runModel(times)
+    exp_out <- model$runModel(times)
 
     testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
     testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
     testthat::expect_true(sum(exp_out[, 2]) > 0)
 
-    cleanup(exp_mod)
+    model$cleanup()
 })
 
 testthat::test_that("Model$fromString", {
@@ -59,11 +38,11 @@ testthat::test_that("Model$fromString", {
 
     End.
     "
+    
     model <- Model(mString = modelString)
+
     model$loadModel()
-
     model$updateParms(list(r = -0.5, A0 = 100))
-
     model$updateY0()
 
     times <- seq(from = 0, to = 10, by = 0.1)
@@ -73,5 +52,5 @@ testthat::test_that("Model$fromString", {
     testthat::expect_true(all(colnames(output) == c("time", "A", "Bout", "Cout")))
     testthat::expect_true(sum(output[, 2]) > 0)
 
-    cleanup(model)
+    model$cleanup(deleteModel=T)
 })

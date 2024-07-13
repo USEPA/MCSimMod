@@ -104,6 +104,26 @@
                                  
                                  # Return the simulation output.
                                  return(out)
-                             }
+                             },
+
+                             cleanup = function(deleteModel=F) {
+                              # remove any model files created by compilation; unload library
+                              dyn.unload(paths$dll_file)
+                              if (file.exists(paths$o_file)) {
+                                file.remove(paths$o_file)
+                              }
+                              if (deleteModel & file.exists(paths$model_file)) {
+                                file.remove(paths$model_file)
+                              }
+                              if (file.exists(paths$c_file)) {
+                                file.remove(paths$c_file)
+                              }
+                              if (file.exists(paths$inits_file)) {
+                                file.remove(paths$inits_file)
+                              }
+                              if (file.exists(paths$dll_file)) {
+                                file.remove(paths$dll_file)
+                              }
+                            }
                                )
                              )
