@@ -7,7 +7,7 @@
 #' @export Model
   Model <- setRefClass("Model", 
                              fields=list(mName='character', mPath = "character", mString = "character", initParms='function', initStates='function', Outputs='character',
-                                         parms='numeric', Y0='numeric'),
+                                         parms='numeric', Y0='numeric', paths='list'),
                              methods = list(
                               initialize = function(...) {
                                 callSuper(...)
