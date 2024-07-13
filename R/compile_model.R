@@ -13,11 +13,10 @@
 #' @param c_file output c_file that is compiled by `c_mod`
 #' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
 #' @param dll_file Possible previously compiled dll
-#' @param path The compilation path
 #'
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
-compile_model <- function(model_file, c_file, dll_name, dll_file, path) {
+compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # Unload DLL if it has been loaded.
   if (is.loaded("derivs", PACKAGE = dll_name)) {
     dyn.unload(dll_file)

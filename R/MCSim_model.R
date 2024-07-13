@@ -6,7 +6,7 @@
 #' @import deSolve
 #' @export Model
   Model <- setRefClass("Model", 
-                             fields=list(mName='character', mPath = "character", mString = "character", initParms='function', initStates='function', Outputs='character',
+                             fields=list(mName='character', mString = "character", initParms='function', initStates='function', Outputs='character',
                                          parms='numeric', Y0='numeric', paths='list'),
                              methods = list(
                               initialize = function(...) {
@@ -14,36 +14,25 @@
                                 if (length(mName) > 0 & length(mString) > 0) {
                                   stop("Cannot both have a model file `mName` and a model string `mString`")
                                 }
-                                if (length(mName) > 0 & length(mPath) == 0) {
-                                  # default to current working directory
-                                  mPath <<- "."
-                                }
                                 if (length(mString) > 0) {
-                                  if (length(mPath) == 0) {
-                                    # mPath <<- tempdir(check = T)
-                                    mPath <<- "."
-                                  }
-                                  file <- tempfile(pattern = "mcsimmod_", tmpdir = mPath)
+                                  file <- tempfile(pattern = "mcsimmod_", tmpdir = ".")
                                   mName <<- basename(file)
                                   writeLines(mString, paste0(file, ".model"))
                                 }
-                                mPath <<- normalizePath(mPath, mustWork = TRUE)
                                 paths <<- list(
                                   dll_name = paste0(mName, "_model"),
                                   c_file = paste0(mName, "_model.c"),
                                   o_file = paste0(mName, "_model.o"),
                                   dll_file = paste0(mName, "_model", .Platform$dynlib.ext),
                                   inits_file = paste0(mName, "_model_inits.R"),
-                                  model_file = paste0(mName, ".model"),
-                                  abs_dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
-                                  abs_inits_file = file.path(mPath, paste0(mName, "_model", "_inits.R"))
+                                  model_file = paste0(mName, ".model")
                                 )
                               },
                                
                                loadModel=function() {
                                  
                                  if (!file.exists(paths$dll_file)) {
-                                   compile_model(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, mPath)
+                                   compile_model(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file)
                                  }
                                  
                                  # Load the compiled model (DLL).
