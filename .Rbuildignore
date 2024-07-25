@@ -6,3 +6,5 @@
 README.md
 CONTRIBUTING.md
 ^LICENSE\.md$
+^doc$
+^Meta$
