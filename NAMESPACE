@@ -2,7 +2,6 @@
 
 export(Model)
 export(compile_model)
-export(fromString)
 import(deSolve)
 import(methods)
 useDynLib(MCSimMod, .registration=TRUE)

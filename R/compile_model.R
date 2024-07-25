@@ -26,16 +26,11 @@ compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # initialization file (ending with "_inits.R") from the GNU MCSim model
   # definition file (ending with ".model"). Using the "-R" option generates
   # code compatible with functions in the R deSolve package.
-  # system(paste("mod -R ", model_file, " ", c_file, sep = ""))
-
-  # success <- .C("c_mod", model_file, c_file)[[1]]
-  # print("C model compiled successfully? " + success)
   if (.C("c_mod", model_file, c_file)[[1]] < 0) {
     stop("c_mod failed")
   }
-  # .C ("c_mod")
 
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   r_path <- file.path(R.home("bin"), "R")
-  system(paste(r_path, " CMD SHLIB ", c_file, sep = ""))
+  system(paste0(r_path, " CMD SHLIB ", c_file))
 }
