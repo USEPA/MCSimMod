@@ -7,7 +7,7 @@
 #' @export Model
 Model <- setRefClass("Model",
   fields = list(
-    mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "character",
+    mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "ANY",
     parms = "numeric", Y0 = "numeric", paths = "list"
   ),
   methods = list(
@@ -42,6 +42,7 @@ Model <- setRefClass("Model",
       source(paths$inits_file, local = TRUE)
       initParms <<- initParms
       initStates <<- initStates
+      
       Outputs <<- Outputs
 
       parms <<- initParms()
