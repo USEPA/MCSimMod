@@ -25,9 +25,9 @@ Model <- setRefClass("Model",
       components <- strsplit(mName, "/")[[1]]
       mName <<- components[length(components)] # mName is always the last entry
       mPath <- if (length(components) > 1) {
-        paste0(paste(components[-length(components)], collapse = '/'), '/')
+        normalizePath(paste0(paste(components[-length(components)], collapse = '/'), '/'))
       } else {
-        "./"
+        normalizePath("./")
       }
       
       paths <<- list(
