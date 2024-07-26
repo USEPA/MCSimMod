@@ -6,6 +6,9 @@ MCSimMod.Rproj
 *.o
 *.exe
 *.dll
+*.so
+
+mcsimmod_*.model
 
 coverage_html/
 docs/
@@ -14,3 +17,6 @@ tests/data/*.R
 tests/data/*.c
 tests/data/*.dll
 tests/data/*.o
+inst/doc
+/doc/
+/Meta/
