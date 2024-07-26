@@ -1,6 +1,7 @@
 ^MCSimMod\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^.*\.Rproj$
 .clang-format
 README.md
 CONTRIBUTING.md

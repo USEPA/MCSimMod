@@ -26,7 +26,9 @@ compile_model <- function(model_file, c_file, dll_name, dll_file) {
   # initialization file (ending with "_inits.R") from the GNU MCSim model
   # definition file (ending with ".model"). Using the "-R" option generates
   # code compatible with functions in the R deSolve package.
-  if (.C("c_mod", model_file, c_file)[[1]] < 0) {
+  
+  #if (.C("c_mod", model_file, c_file)[[1]] < 0) {
+  if (is.null(.C("c_mod", model_file, c_file)[[2]])) {
     stop("c_mod failed")
   }
 
