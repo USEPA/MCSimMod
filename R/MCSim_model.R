@@ -21,13 +21,22 @@ Model <- setRefClass("Model",
         mName <<- basename(file)
         writeLines(mString, paste0(file, ".model"))
       }
+      
+      components <- strsplit(mName, "/")[[1]]
+      mName <<- components[length(components)] # mName is always the last entry
+      mPath <- if (length(components) > 1) {
+        paste0(paste(components[-length(components)], collapse = '/'), '/')
+      } else {
+        "./"
+      }
+      
       paths <<- list(
         dll_name = paste0(mName, "_model"),
-        c_file = paste0(mName, "_model.c"),
-        o_file = paste0(mName, "_model.o"),
-        dll_file = paste0(mName, "_model", .Platform$dynlib.ext),
-        inits_file = paste0(mName, "_model_inits.R"),
-        model_file = paste0(mName, ".model")
+        c_file = paste0(mPath, mName, "_model.c"),
+        o_file = paste0(mPath, mName, "_model.o"),
+        dll_file = paste0(mPath, mName, "_model", .Platform$dynlib.ext),
+        inits_file = paste0(mPath, mName, "_model_inits.R"),
+        model_file = paste0(mPath, mName, ".model")
       )
     },
     loadModel = function() {
