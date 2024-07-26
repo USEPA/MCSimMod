@@ -49,7 +49,7 @@
                              },
                              
                              updateY0 = function(new_states=NULL) {
-                               Y0 <<- initStates(parms,new_states)
+                               Y0 <<- initStates(parms, new_states)
                              },
                              
                              runModel=function(times, method="lsoda", ...) {

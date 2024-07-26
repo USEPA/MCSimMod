@@ -20,7 +20,7 @@ States = {
 
 #-------------------------------------------------------------------------------
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
-# as analytic functions of state variables, inputs, and parameters).
+# as analytic functions of state variables, input variables, and parameters).
 
 Outputs = {};
 
@@ -55,7 +55,7 @@ Tamb = 20;      # Ambient temperature (C).
 # MODEL INITIALIZATION section.
 
 Initialize {
-    # Assign an initial value for each state.
+    # Assign an initial value for each state variable.
     T = T0;
 }
 
@@ -67,7 +67,7 @@ Initialize {
 # DYNAMICS section.
 
 Dynamics {
-    # Time rate of change of state variable.
+    # Time rate of change (ODE) for each state variable.
     dt(T) = -r * (T - Tamb);
 }
 

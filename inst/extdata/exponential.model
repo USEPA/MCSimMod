@@ -20,9 +20,11 @@ States = {
 
 #-------------------------------------------------------------------------------
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
-# as analytic functions of state variables, inputs, and parameters).
+# as analytic functions of state variables, input variables, and parameters).
 
-Outputs = {};
+Outputs = {
+    X,        # Output variable.
+};
 
 # End of OUTPUT VARIABLES.
 #-------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ r = 1.4;         # Exponential rate of change (time^-1).
 # MODEL INITIALIZATION section.
 
 Initialize {
-    # Assign an initial value for each state.
+    # Assign an initial value for each state variable.
     A = A0;
 }
 
@@ -65,7 +67,10 @@ Initialize {
 # DYNAMICS section.
 
 Dynamics {
-    # Time rate of change of state variable.
+    # Output variable.
+    X = A;
+
+    # Time rate of change (ODE) for each state variable.
     dt(A) = r * A;
 }
 

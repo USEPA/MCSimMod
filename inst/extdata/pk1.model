@@ -11,9 +11,9 @@
 # STATE VARIABLES for the model (for which ODEs are provided).
 
 States = {
-    A0,     # Mass in exposure compartment (mg).
-    A1,     # Mass in central compartment (mg).
-    A2,     # Mass cleared (mg).
+    A0,     # Amount in exposure compartment (mg).
+    A1,     # Amount in central compartment (mg).
+    A2,     # Amount cleared (mg).
     AUC,    # Area under concentration curve (mg*h/L).
 };
 
@@ -23,7 +23,7 @@ States = {
 
 #-------------------------------------------------------------------------------
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
-# as analytic functions of state variables, inputs, and parameters).
+# as analytic functions of state variables, input variables, and parameters).
 
 Outputs = {
     C,      # Concentration in central compartment (mg/L).
@@ -48,8 +48,8 @@ Inputs = {};
 # PARAMETERS for the model (which are independent of time).
 
 # Experimental parameters.
-A0_init = 100;      # Initial mass in exposure compartment (mg).
-A1_init = 0;        # Initial mass in central compartment (mg).
+A0_init = 100;      # Initial amount in exposure compartment (mg).
+A1_init = 0;        # Initial amount in central compartment (mg).
 A2_init = 0;        # Initial amount cleared (mg).
 AUC_init = 0;       # Initial area under the concentration curve (mg*h/L).
 Vd = 50;            # Volume of distribution (L).
@@ -64,7 +64,7 @@ k12 = 0.5;          # Clearance rate (h^{-1}).
 # MODEL INITIALIZATION section.
 
 Initialize {
-    # Assign an initial value for each state.
+    # Assign an initial value for each state variable.
     A0 = A0_init;
     A1 = A1_init;
     A2 = A2_init;
@@ -83,7 +83,7 @@ Dynamics {
     C = A1 / Vd;          # Concentration in central compartment (mg/L).
     Atot = A0 + A1 + A2;  # Total mass in system (mg).
 
-    # Time rates of change of state variables (ODEs).
+    # Time rate of change (ODE) for each state variable.
     dt(A0) = -k01 * A0;
     dt(A1) = k01 * A0 - k12 * A1;
     dt(A2) = k12 * A1;

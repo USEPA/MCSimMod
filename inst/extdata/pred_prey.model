@@ -21,7 +21,7 @@ States = {
 
 #-------------------------------------------------------------------------------
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
-# as analytic functions of state variables, inputs, and parameters).
+# as analytic functions of state variables, input variables, and parameters).
 
 Outputs = {};
 
@@ -69,7 +69,7 @@ Initialize {
 # DYNAMICS section.
 
 Dynamics {
-    # Time rates of change of state variables (ODEs).
+    # Time rate of change (ODE) for each state variable.
     dt(x) = alpha * x - beta * x * y;
     dt(y) = gamma * x * y - delta * y;
 }
