@@ -17,7 +17,7 @@ Model <- setRefClass("Model",
         stop("Cannot both have a model file `mName` and a model string `mString`")
       }
       if (length(mString) > 0) {
-        file <- tempfile(pattern = "mcsimmod_")#, tmpdir = '.')
+        file <- tempfile(pattern = "mcsimmod_")
         writeLines(mString, paste0(file, ".model"))
       } else {
         file <- normalizePath(mName)
