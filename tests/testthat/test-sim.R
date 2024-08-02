@@ -1,6 +1,6 @@
 testthat::test_that("Model$localModel", {
   current_dir <- getwd()
-  setwd("../data")
+  setwd("./data")
   testthat::expect_true(file.exists("exponential.model"))
 
   model <- Model$new(mName = "exponential")
@@ -20,24 +20,25 @@ testthat::test_that("Model$localModel", {
   setwd(current_dir)
 })
 
-# testthat::test_that("Model$relativeModel", {
-#   testthat::expect_true(file.exists("../../inst/extdata/exponential.model"))
-#   
-#   model <- Model$new(mName = "../../inst/extdata/exponential")
-#   
-#   model$loadModel()
-#   model$updateParms(list(r = -0.5, A0 = 100))
-#   model$updateY0()
-#   
-#   times <- seq(from = 0, to = 10, by = 0.1)
-#   exp_out <- model$runModel(times)
-#   
-#   testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
-#   testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
-#   testthat::expect_true(sum(exp_out[, 2]) > 0)
-#   
-#   model$cleanup()
-# })
+testthat::test_that("Model$relativeModel", {
+  mName <- file.path(testthat::test_path(), 'data', 'exponential')
+  testthat::expect_true(file.exists(paste0(mName, ".model")))
+
+  model <- Model$new(mName = mName)
+
+  model$loadModel()
+  model$updateParms(list(r = -0.5, A0 = 100))
+  model$updateY0()
+
+  times <- seq(from = 0, to = 10, by = 0.1)
+  exp_out <- model$runModel(times)
+
+  testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
+  testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
+  testthat::expect_true(sum(exp_out[, 2]) > 0)
+
+  model$cleanup()
+})
 
 testthat::test_that("Model$fromString", {
   modelString <- "
