@@ -19,12 +19,15 @@ Model <- setRefClass("Model",
       if (length(mString) > 0) {
         file <- tempfile(pattern = "mcsimmod_")
         writeLines(mString, paste0(file, ".model"))
+        mName <<- basename(file)
+        mPath <- dirname(file)
       } else {
-        file <- normalizePath(mName)
+        file <- normalizePath(paste0(mName, ".model"))
+        mPath <- dirname(file)
+        mName <<- strsplit(basename(file), "[.]")[[1]][1]
       }
       
-      mName <<- basename(file)
-      mPath <- dirname(file)
+      
       
       paths <<- list(
         dll_name = paste0(mName, "_model"),
