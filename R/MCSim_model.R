@@ -25,6 +25,9 @@ Model <- setRefClass("Model",
         file <- normalizePath(paste0(mName, ".model"))
         mPath <- dirname(file)
         mName <<- strsplit(basename(file), "[.]")[[1]][1]
+        if (.Platform$OS.type == 'windows') {
+          mPath <- gsub('\\\\', '/', shortPathName(mPath))
+        }
       }
       
       
