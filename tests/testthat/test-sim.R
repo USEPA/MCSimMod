@@ -40,6 +40,15 @@ testthat::test_that("Model$relativeModel", {
   model$cleanup()
 })
 
+#testthat::test_that('Model$absoluteModel', {
+  # copy exponential.model to temp file -> /tmp/dir/new_dir
+  # Use absolute path of temp directory,
+  # Put space in path by creating directory inside tmp
+  
+  
+                                        
+#})
+
 testthat::test_that("Model$fromString", {
   modelString <- "
     States = {A};

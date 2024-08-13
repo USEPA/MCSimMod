@@ -17,19 +17,15 @@ Model <- setRefClass("Model",
         stop("Cannot both have a model file `mName` and a model string `mString`")
       }
       if (length(mString) > 0) {
-        file <- tempfile(pattern = "mcsimmod_")
-        writeLines(mString, paste0(file, ".model"))
-        mName <<- basename(file)
-        mPath <- dirname(file)
+        tmp.path <- tempfile(pattern = "mcsimmod_")
+        file <- normalizePath(paste0(tmp.path, ".model"))
+        writeLines(mString, file)
       } else {
         file <- normalizePath(paste0(mName, ".model"))
-        mPath <- dirname(file)
-        mName <<- strsplit(basename(file), "[.]")[[1]][1]
-        if (.Platform$OS.type == 'windows') {
-          mPath <- gsub('\\\\', '/', shortPathName(mPath))
-        }
       }
-      
+      mList <- .fixPath(file)
+      mName <<- mList$mName
+      mPath <- mList$mPath
       
       
       paths <<- list(
