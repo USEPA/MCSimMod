@@ -40,14 +40,35 @@ testthat::test_that("Model$relativeModel", {
   model$cleanup()
 })
 
-#testthat::test_that('Model$absoluteModel', {
-  # copy exponential.model to temp file -> /tmp/dir/new_dir
+testthat::test_that('Model$absoluteModel', {
+  # copy exponential.model to temp file -> /tmp/dir/new dir
   # Use absolute path of temp directory,
   # Put space in path by creating directory inside tmp
   
+  dir.create(file.path(tempdir(), 'test spaces'))
+  mName <- tempfile(pattern = "mcsimmod_", tmpdir=file.path(tempdir(), 'test spaces'))
+  mString <- readLines(file.path(testthat::test_path(), 'data', 'exponential.model'))
+  writeLines(mString, paste0(mName, '.model'))
   
-                                        
-#})
+  testthat::expect_true(file.exists(paste0(mName, ".model")))
+  model <- Model$new(mName = mName)
+  
+  model$loadModel()
+  model$updateParms(list(r = -0.5, A0 = 100))
+  model$updateY0()
+  
+  times <- seq(from = 0, to = 10, by = 0.1)
+  exp_out <- model$runModel(times)
+  
+  testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
+  testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
+  testthat::expect_true(sum(exp_out[, 2]) > 0)
+  
+  model$cleanup()
+
+
+
+})
 
 testthat::test_that("Model$fromString", {
   modelString <- "
