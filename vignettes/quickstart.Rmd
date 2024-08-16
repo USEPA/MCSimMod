@@ -1,71 +1,72 @@
 ---
 title: "Quickstart"
-output: rmarkdown::html_vignette
+author: "MCSimMod Development Team"
+date: "`r Sys.Date()`"
+output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{demo}
+  %\VignetteIndexEntry{Quickstart}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo=TRUE,
+                      warning=FALSE,
+                      collapse=TRUE,
+                      comment="#>")
 ```
 
-## Solving an Initial Value Problem
-
-Next, we will use the **MCSimMod** package to solve an initial value problem. One might also call this process "peforming a simulation" with the model.
-
-Using the following commands, we create an exponential model using the model specification file `exponential.model` that is included in the **MCSimMod** package, set the model parameters to $A_0 = 100$ and $r = -0.5$, specify the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$), and perform a model simulation.
+The **MCSimMod** package can be used to define ordinary differential equation (ODE) models and solve initial value problems for such models. Models can be specified using text that that is supplied either as a string or in a file. The text is used to create a model object (i.e., an instance of the `MCSimMod` class). For example, the following commands create a model object that defines a simple ODE model,
+\begin{align}
+  \frac{\textrm{d}}{\textrm{d}t}y(t) &= m, \\
+  y(0) &= y_0,
+\end{align}
+using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
 ```{r, results='hide'}
-exponential <- "
-States = {A};
-Outputs = {Bout, Cout};
-Inputs = {Bin, Cin};
-A0 = 1e-6;
-r = 1.4;
+mod_string <- "
+States = {y};
+y0 = 2;
+m = 0.5;
 Initialize {
-    A = A0;
+    y = y0;
 }
 Dynamics {
-    Bout = Bin;
-    Cout = Cin;
-    dt(A) = r * A;
+    dt(y) = m;
 }
 End.
 "
-model <- MCSimMod::Model(mString = exponential)
+model <- MCSimMod::Model(mString=mod_string)
+```
+
+Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) and perform a simulation that provides results for the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
+```{r, results='hide'}
 model$loadModel()
-model$updateParms(c(A0 = 100, r = -0.5))
-model$updateY0()
 times <- seq(from = 0, to = 20, by = 0.1)
 out <- model$runModel(times)
 ```
 
-The the final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the exponential model, is always labeled "time" in the output data structure.
+The the final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the linear model we've created here, is always labeled "time" in the output data structure.
 ```{r, echo=FALSE, results='asis'}
 library(knitr)
-kable(out[1:5, ], caption = "Simulation Results")
+kable(out[1:5, ])
 ```
 
-We can examine the parameter values and initial conditions that were used for this simulation using the following commands. Note that executing the command `model$updateParms(c(A0=100, r=-0.5))` (in the previous block of code) updated the parameter values from those that were provided in the model specification file and that executing the command `model$updateY0()` updated the initial value of the state variable using the updated value of `A0`.
-```{r, echo=TRUE}
+We can examine the parameter values and initial conditions that were used for this simulation using the following commands.
+```{r}
 model$parms
 model$Y0
 ```
 
-Finally, we can create a visual representation of the simulation results. For example, we can plot the amount vs. time using the following command.
-```{r, echo=TRUE}
+Finally, we can create a visual representation of the simulation results. For example, we can plot the value of $y$ vs. time ($t$) using the following command.
+```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out[, "time"], out[, "A"],
+plot(out[, "time"], out[, "y"],
   type = "l", lty = 1, lwd = 2,
-  xlab = "Time (h)", ylab = "Amount (g)"
+  xlab = "Time", ylab = "y"
 )
 ```
 
 ```{r, include = FALSE}
-# cleanup required for vignette to pass
-model$cleanup(deleteModel = T)
+# Cleanup required for vignette to pass
+model$cleanup(deleteModel = TRUE)
 ```
