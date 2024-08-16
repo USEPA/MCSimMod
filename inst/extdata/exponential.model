@@ -42,8 +42,8 @@ Inputs = {};
 # PARAMETERS for the model (which are independent of time).
 
 # Experimental parameters.
-A0 = 1e-6;       # Initial amount or number.
-r = 1.4;         # Exponential rate of change (time^-1).
+A0 = 0;          # Initial amount or number.
+r = 0;           # Exponential rate of change (time^-1).
 
 # End of PARAMETERS.
 #-------------------------------------------------------------------------------
