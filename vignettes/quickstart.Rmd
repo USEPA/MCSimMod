@@ -45,13 +45,13 @@ times <- seq(from = 0, to = 20, by = 0.1)
 out <- model$runModel(times)
 ```
 
-The the final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the linear model we've created here, is always labeled "time" in the output data structure.
+The final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the linear model we've created here, is always labeled "time" in the output data structure.
 ```{r, echo=FALSE, results='asis'}
 library(knitr)
 kable(out[1:5, ])
 ```
 
-We can examine the parameter values and initial conditions that were used for this simulation using the following commands.
+We can examine the parameter values and initial conditions that were used for this simulation with the following commands.
 ```{r}
 model$parms
 model$Y0
@@ -66,7 +66,9 @@ plot(out[, "time"], out[, "y"],
 )
 ```
 
-```{r, include = FALSE}
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method. Using the argument `deleteModel=TRUE` causes the model file (with name ending in ".model") that was created from the model string to also be deleted.
+
+```{r, results='hide'}
 # Cleanup required for vignette to pass
-model$cleanup(deleteModel = TRUE)
+model$cleanup(deleteModel=TRUE)
 ```

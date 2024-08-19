@@ -1,0 +1,112 @@
+---
+title: "Implementing a Model for Newton's Law of Cooling"
+author: "MCSimMod Development Team"
+date: "`r Sys.Date()`"
+output: html_vignette
+vignette: >
+  %\VignetteIndexEntry{Implementing a Model for Newton's Law of Cooling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,
+                      warning=FALSE,
+                      collapse=TRUE,
+                      comment="#>")
+```
+
+## A Mathematical Model for Newton's Law of Cooling
+
+According to Newton's Law of Cooling, a the rate of change of the temperature of a body is proportional to the difference in the ambient temperature and the current temperature of the body. So, if $T(t)$ is the temperature of the body at time $t$, $T_\textrm{amb}$ is the ambient temperature, and $r>0$ is a constant of proportionality (with units of one over time), then
+\begin{equation}
+  \frac{\textrm{d}}{\textrm{d}t}T(t) = -r \left( T(t) - T_\textrm{amb} \right).
+\end{equation}
+
+In order to solve an initial value problem for the Newton's Law of Cooling model, one needs to provide the values of three parameters: the rate constant, $r$; the ambient temperature, $T_\textrm{amb}$; and the initial temperature of the body, $T_0$, such that $T(0) = T_0$.
+
+## MCSim Model Specification
+
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `newt_cool.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+
+In the model specification file, we used the text symbol `T` to represent the state variable $T$, and the text symbols `r`, `Tamb`, and `T0` to represent the parameters $r$, $T_\textrm{amb}$, and $T_0$, respectively.
+
+## Building the Model
+
+First, we load the **MCSimMod** package as follows.
+```{r}
+library(MCSimMod)
+```
+
+Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `newt_cool.model` that is included in the **MCSimMod** package.
+```{r, results='hide'}
+# Get the full name of the package directory that contains the example MCSim
+# model specification file.
+mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+
+# Create a model object using the example MCSim model specification file 
+# "exponential.model" included in the MCSimMod package.
+newt_mod_name = file.path(mod_path, "newt_cool")
+newt_mod = Model(mName=newt_mod_name)
+```
+
+Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
+```{r, results='hide'}
+# Load the model.
+newt_mod$loadModel()
+```
+
+## Predicting the Temperature of a Cup of Tea
+
+Suppose we want to predict the temperature of a cup of tea that has an initial temperature of 95$^\circ$C when the ambient air temperature is 22$^\circ$C and the rate constant parameter has a value of 0.7 (i.e., $T_0 = 95$, $T_\textrm{amb} = 22$, and $r = 0.7$). We can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for simulation of this scenario. 
+```{r, results='hide'}
+# Change the values of the model parameters from their default values.
+newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))
+
+# Update the initial value(s) of the state variable(s) based on the updated
+# parameter value(s).
+newt_mod$updateY0()
+```
+
+Note that executing the command `newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `next_mod$updateY0()` updated the initial value of the state variable `T` using the updated value of the parameter `T0`.
+
+Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 5.0$) using the following commands.
+```{r, results='hide'}
+# Define output times for simulation.
+times = seq(from=0, to=5, by=0.1)
+
+# Run simulation.
+out = newt_mod$runModel(times)
+```
+
+## Examining the Results
+
+The final command shown above, `out = newt_mod$runModel(times)`,  performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. There is one row for each output time, and one column for each state variable (and each output variable when such variables are included in the model). The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the Newton's Law of Cooling model, is always labeled "time" in the output data structure.
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+kable(out[1:5, ])
+```
+
+We can examine the parameter values and initial conditions that were used for this simulation using the following commands.
+```{r, echo=TRUE}
+newt_mod$parms
+newt_mod$Y0
+```
+
+Finally, we can create a visual representation of the simulation results. For example, we can plot the temperature vs. time using the following commands.
+```{r, fig.dim=c(6, 4), fig.align='center'}
+# Plot simulation results.
+plot(out[, "time"], out[, "T"], type="l", lty=1, lwd=2,
+     xlab="Time", ylab="Temperature (C)", ylim=c(0, 100))
+abline(h=newt_mod$parms[["Tamb"]], lty=2, lwd=2)
+legend("topright", c("Tea", "Ambient Air"), lty=c(1, 2),
+       lwd=c(2, 2))
+```
+
+## Remove Output Files
+
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
+```{r, results='hide'}
+# Remove output files that were created when building the model.
+newt_mod$cleanup()
+```
