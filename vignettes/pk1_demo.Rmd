@@ -159,7 +159,7 @@ out_oral[nrow(out_oral), "AUC"]
 out_IV[nrow(out_IV), "AUC"]
 ```
 
-## Remove Output Files
+## Removing Output Files
 
 We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
 ```{r, results='hide'}

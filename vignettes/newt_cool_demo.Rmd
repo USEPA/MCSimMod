@@ -103,7 +103,7 @@ legend("topright", c("Tea", "Ambient Air"), lty=c(1, 2),
        lwd=c(2, 2))
 ```
 
-## Remove Output Files
+## Removing Output Files
 
 We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
 ```{r, results='hide'}
