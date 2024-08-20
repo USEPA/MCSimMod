@@ -1,10 +1,10 @@
 ---
-title: "Implementing a Predator=Prey Model"
+title: "Implementing a Predator-Prey Model"
 author: "MCSimMod Development Team"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing a Predator=Prey Model}
+  %\VignetteIndexEntry{Implementing a Predator-Prey Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,7 +23,7 @@ Suppose there is a population of rabbits (prey) and a population of foxes (preda
   \frac{\textrm{d}x}{\textrm{d}t} &= \alpha x - \beta x y, \\
   \frac{\textrm{d}y}{\textrm{d}t} &= \gamma x y - \delta y, \\
 \end{align}
-where $\alpha$ (d$^{-1}$) is a parameter that determines the birth rate of rabbits, $\beta$ (d$^{-1}$ per 1000 foxes) is a parameter that determines the death rate of rabbits, $\gamma$ (d$^{-1}$ per 1000 rabbits) is a parameter that determines the birth rate of foxes, and $\delta$ (d$^{-1}$) is a parameter that determines the death rate of foxes. In order to solve an initial value problem for the predator-prey model, one needs to provide the values of $\alpha$, $\beta$, $\gamma$, and $\delta$, as well as initial values for $x$ and $y$.
+where $\alpha$ (day$^{-1}$) is a parameter that determines the birth rate of rabbits, $\beta$ (day$^{-1}$ per 1000 foxes) is a parameter that determines the death rate of rabbits, $\gamma$ (day$^{-1}$ per 1000 rabbits) is a parameter that determines the birth rate of foxes, and $\delta$ (day$^{-1}$) is a parameter that determines the death rate of foxes. In order to solve an initial value problem for the predator-prey model, one needs to provide the values of $\alpha$, $\beta$, $\gamma$, and $\delta$, as well as initial values for $x$ and $y$.
 
 ## MCSim Model Specification
 

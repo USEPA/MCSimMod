@@ -107,12 +107,12 @@ kable(out_oral[1:5, ])
 ```
 
 We can examine the parameter values and initial conditions that were used for this simulation using the following commands.
-```{r, echo=TRUE}
+```{r}
 pk1_mod$parms
 pk1_mod$Y0
 ```
 
-Finally, we can create a visual representation of the simulation results. For example, we can plot the temperature vs. time using the following commands.
+Finally, we can create a visual representation of the simulation results. For example, we can plot the concentration vs. time using the following commands.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
 plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
@@ -132,7 +132,7 @@ pk1_mod$updateY0()
 ```
 
 We can examine the parameter values and initial conditions that will be used for this simulation using the following commands.
-```{r, echo=TRUE}
+```{r}
 pk1_mod$parms
 pk1_mod$Y0
 ```
@@ -154,7 +154,7 @@ legend("topright", c("Oral", "IV"), lty=c(1, 2), lwd=2)
 ```
 
 Because the PK model we're using assumes that 100% of the substance in the exposure compartment (i.e., $A_0$) will eventually be transferred to the central compartment (i.e., 100% bioavailability for the oral exposure scenario) and 100% of an IV dose is delivered directly to the central compartment, the AUCs (at $t = \infty$) for the oral and IV exposure scenarios should be equal. We can verify that the AUCs at $t = 20$ hours (by which time most of the substance has been cleared) for both scenarios are approximately equal by examining the value of the $\textrm{AUC}$ output variable in the final row of the respective output matrices.
-```{r, echo=TRUE}
+```{r}
 out_oral[nrow(out_oral), "AUC"]
 out_IV[nrow(out_IV), "AUC"]
 ```
