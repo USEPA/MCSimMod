@@ -1,0 +1,104 @@
+#-------------------------------------------------------------------------------
+# pk1_input.model
+#
+# A one-compartment classical pharmacokinetic model that allows for changing
+# body mass.
+#
+# Author: Dustin Kapraun, U.S. EPA, August 2024
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# STATE VARIABLES for the model (for which ODEs are provided).
+
+States = {
+    A0,     # Amount in exposure compartment (mg).
+    A1,     # Amount in central compartment (mg).
+    A2,     # Amount cleared (mg).
+    AUC,    # Area under concentration curve (mg*h/L).
+};
+
+# End of STATE VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# OUTPUT VARIABLES for the model (which can be obtained at any point in time
+# as analytic functions of state variables, input variables, and parameters).
+
+Outputs = {
+    M,      # Body mass (kg).
+    Vd,     # Volume of distribution (L).
+    C,      # Concentration in central compartment (mg/L).
+    Atot,   # Total amount in system (mg).
+};
+
+# End of OUTPUT VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# INPUT VARIABLES for the model (which are independent of other variables, and
+# which may vary in time).
+
+Inputs = {
+    M_in,   # Body mass (kg).
+};
+
+# End of INPUT VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# PARAMETERS for the model (which are independent of time).
+
+# Experimental parameters.
+A0_init = 100;      # Initial amount in exposure compartment (mg).
+A1_init = 0;        # Initial amount in central compartment (mg).
+A2_init = 0;        # Initial amount cleared (mg).
+AUC_init = 0;       # Initial area under the concentration curve (mg*h/L).
+VdC = 0.1;          # Volume of distribution scaling constant (L/kg).
+k01 = 1.0;          # Absorption rate (h^{-1}).
+k12 = 0.5;          # Clearance rate (h^{-1}).
+
+# End of PARAMETERS.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# MODEL INITIALIZATION section.
+
+Initialize {
+    # Assign an initial value for each state variable.
+    A0 = A0_init;
+    A1 = A1_init;
+    A2 = A2_init;
+    AUC = AUC_init;
+}
+
+# End of MODEL INITIALIZATION.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# DYNAMICS section.
+
+Dynamics {
+    # Output variables.
+    M = M_in;             # Body mass (kg).
+    Vd = VdC * M;         # Volume of distribution (L).
+    C = A1 / Vd;          # Concentration in central compartment (mg/L).
+    Atot = A0 + A1 + A2;  # Total mass in system (mg).
+
+    # Time rate of change (ODE) for each state variable.
+    dt(A0) = -k01 * A0;
+    dt(A1) = k01 * A0 - k12 * A1;
+    dt(A2) = k12 * A1;
+    dt(AUC) = C;
+}
+
+# End of DYNAMICS.
+#-------------------------------------------------------------------------------
+
+
+End.

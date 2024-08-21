@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo=TRUE,
 
 ## Events
 
-The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes to state variables may occur at specific points in time. We call these discrete changes to state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. One can learn more about **deSolve** event handling in the **deSolve** package documentation, but here we will illustrate how to handle events that occur at known times during a simulation.
+The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes to state variables may occur at specific points in time. We call these discrete changes to state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. One can learn more about **deSolve** event handling in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf), but here we will illustrate how to handle events that occur at known times during a simulation.
 
 ## A Classical Pharmacokinetic Model
 
