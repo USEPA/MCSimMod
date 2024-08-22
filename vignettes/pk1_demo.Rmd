@@ -1,0 +1,168 @@
+---
+title: "Implementing a Classical Pharmacokinetic Model"
+author: "MCSimMod Development Team"
+date: "`r Sys.Date()`"
+output: html_vignette
+vignette: >
+  %\VignetteIndexEntry{Implementing a Classical Pharmacokinetic Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,
+                      warning=FALSE,
+                      collapse=TRUE,
+                      comment="#>")
+```
+
+## A Classical Pharmacokinetic Model
+
+A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
+```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
+knitr::include_graphics("pk1.png")
+```
+
+In this "one-compartment" model, there are actually three "compartments" (represented as rectangular boxes in the figure) for which amounts of substance are tracked as state variables: $A_0$ represents the amount of substance in the "exposure compartment" (e.g., the gut in an oral dosing scenario); $A_1$ represents the amount of substance in the "central compartment" (e.g., in the blood of the organism); and $A_2$ represents the amount that has been cleared from the body (e.g., via metabolism or excretion). Thus,
+\begin{align}
+  \frac{\textrm{d}}{\textrm{d}t}A_0(t) &= -k_{01} A_0(t), \\
+  \frac{\textrm{d}}{\textrm{d}t}A_1(t) &= k_{01} A_0(t) - k_{12} A_1(t), \textrm{ and} \\
+  \frac{\textrm{d}}{\textrm{d}t}A_2(t) &= k_{12} A_1(t), \\
+\end{align}
+where $k_{01}$ is the rate constant (with units of one over time) that, along with the value of $A_0$, determines the rate of delivery of the substance to the body and $k_{12}$ is the rate constant (with units of one over time) that, along with the value of $A_1$, determines the rate of clearance from the body. In addition to the state variables, the model includes an "output" variable, $C$, that represents the concentration in the central compartment. The value of this variable is computed as
+\begin{equation}
+  C(t) = \frac{A_1(t)}{V_\textrm{d}},
+\end{equation}
+where $V_\textrm{d}$ is a parameter representing the effective volume of the central compartment, or the "volume of distribution." The model includes another output variable,
+\begin{equation}
+  A_\textrm{tot} = A_0 + A_1 + A_2,
+\end{equation}
+that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and the state equation is
+\begin{equation}
+  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t),
+\end{equation}
+
+In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}$) as well as the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
+
+## MCSim Model Specification
+
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+
+The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateModel` method of the `Model` class) the initial conditions of the state variables.
+
+## Building the Model
+
+First, we load the **MCSimMod** package as follows.
+```{r}
+library(MCSimMod)
+```
+
+Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
+```{r, results='hide'}
+# Get the full name of the package directory that contains the example MCSim
+# model specification file.
+mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+
+# Create a model object using the example MCSim model specification file 
+# "exponential.model" included in the MCSimMod package.
+pk1_mod_name = file.path(mod_path, "pk1")
+pk1_mod = Model(mName=pk1_mod_name)
+```
+
+Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
+```{r, results='hide'}
+# Load the model.
+pk1_mod$loadModel()
+```
+
+## Predicting the Blood Concentration of a Substance Following an Oral Dose
+
+Suppose we want to predict the blood concentration of a substance during the 20-hour period following oral ingestion of 200 mg of the substance. Let's assume that the oral absorption rate constant ($k_{01}$) is 0.8 h$^{-1}$, the clearance rate constant ($k_{12}$) is 0.4 h$^{-1}$, and the volume of distribution ($V_\textrm{d}$) is 45 L. We can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for simulation of this scenario as follows.
+```{r, results='hide'}
+# Change the values of the model parameters from their default values.
+pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))
+
+# Update the initial value(s) of the state variable(s) based on the updated
+# parameter value(s).
+pk1_mod$updateY0()
+```
+
+Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updated the initial value of the state variables. (We did not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
+
+Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
+```{r, results='hide'}
+# Define output times for simulation.
+times = seq(from=0, to=20, by=0.1)
+
+# Run simulation.
+out_oral = pk1_mod$runModel(times)
+```
+
+## Examining the Results
+
+The final command shown above, `out_oral = pk1_mod$runModel(times)`, performs a model simulation and stores the simulation results in a "matrix" data structure called `out_oral`. There is one row for each output time, and one column for each state variable and each output variable. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the classical PK model, is always labeled "time" in the output data structure.
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+kable(out_oral[1:5, ])
+```
+
+We can examine the parameter values and initial conditions that were used for this simulation using the following commands.
+```{r}
+pk1_mod$parms
+pk1_mod$Y0
+```
+
+Finally, we can create a visual representation of the simulation results. For example, we can plot the concentration vs. time using the following commands.
+```{r, fig.dim=c(6, 4), fig.align='center'}
+# Plot simulation results.
+plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
+     xlab="Time (h)", ylab="Concentration (mg/L)")
+```
+
+## Predicting the Blood Concentration of a Substance Following an IV Dose
+
+Suppose we want to predict the blood concentration of a substance during the 10-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
+```{r, results='hide'}
+# Change the values of the model parameters.
+pk1_mod$updateParms(c(k12=0.4, Vd=45, A0_init=0, A1_init=200))
+
+# Update the initial value(s) of the state variable(s) based on the updated
+# parameter value(s).
+pk1_mod$updateY0()
+```
+
+We can examine the parameter values and initial conditions that will be used for this simulation using the following commands.
+```{r}
+pk1_mod$parms
+pk1_mod$Y0
+```
+(Note that $k_{01}$ was assigned it's default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms` method.)
+
+We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
+```{r, results='hide'}
+# Run simulation.
+out_IV = pk1_mod$runModel(times)
+```
+
+We can create a visual representation of the simulation results for both the oral dosing and IV dosing scenarios using the following commands.
+```{r, fig.dim=c(6, 4), fig.align='center'}
+# Plot simulation results.
+plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
+     xlab="Time (h)", ylab="Concentration (mg/L)", ylim=c(0, 5))
+lines(out_IV[, "time"], out_IV[, "C"], lty=2, lwd=2)
+legend("topright", c("Oral", "IV"), lty=c(1, 2), lwd=2)
+```
+
+Because the PK model we're using assumes that 100% of the substance in the exposure compartment (i.e., $A_0$) will eventually be transferred to the central compartment (i.e., 100% bioavailability for the oral exposure scenario) and 100% of an IV dose is delivered directly to the central compartment, the AUCs (at $t = \infty$) for the oral and IV exposure scenarios should be equal. We can verify that the AUCs at $t = 20$ hours (by which time most of the substance has been cleared) for both scenarios are approximately equal by examining the value of the $\textrm{AUC}$ output variable in the final row of the respective output matrices.
+```{r}
+out_oral[nrow(out_oral), "AUC"]
+out_IV[nrow(out_IV), "AUC"]
+```
+
+## Removing Output Files
+
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
+```{r, results='hide'}
+# Remove output files that were created when building the model.
+pk1_mod$cleanup()
+```
