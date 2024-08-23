@@ -1,13 +1,13 @@
 Package: MCSimMod
-Title: What the Package Does (One Line, Title Case)
+Title: MCSim MODeling Framework
 Version: 0.0.0.9000
-Authors@R:
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Dustin F", "Kapraun", role=c("aut", "cre"),
+	person("Todd J", "Zurlinden", role=c("aut", "cre"),
+	person("Andrew", "Shapiro", role=c("aut"),
+	person("Ryan", "Friese", role=c("aut")
+	)
+Description: MCSimMod converts  MCSim domain-specific language (DSL) models to create shared/dynamic libraries for solving ordinary differential equations.
 Depends:
 	methods
 Imports:
