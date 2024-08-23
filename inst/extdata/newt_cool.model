@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
-# exponential.model
+# newt_cool.model
 #
-# A one-state exponential growth/decay model.
+# A temperature model based on Newton's Law of Cooling.
 #
 # Author: Dustin Kapraun, U.S. EPA, July 2019
 #-------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 # STATE VARIABLES for the model (for which ODEs are provided).
 
 States = {
-    A,        # Amount of substance or number of individuals or items.
+    T,        # Temperature of body (C).
 };
 
 # End of STATE VARIABLES.
@@ -42,11 +42,13 @@ Inputs = {};
 # PARAMETERS for the model (which are independent of time).
 
 # Experimental parameters.
-A0 = 0;          # Initial amount or number.
-r = 0;           # Exponential rate of change (time^-1).
+T0 = 100;       # Initial temperature of body (C).
+r = 0.5;        # Exponential rate of change (min^-1).
+Tamb = 20;      # Ambient temperature (C).
 
 # End of PARAMETERS.
 #-------------------------------------------------------------------------------
+
 
 
 #-------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ r = 0;           # Exponential rate of change (time^-1).
 
 Initialize {
     # Assign an initial value for each state variable.
-    A = A0;
+    T = T0;
 }
 
 # End of MODEL INITIALIZATION.
@@ -65,9 +67,8 @@ Initialize {
 # DYNAMICS section.
 
 Dynamics {
-
     # Time rate of change (ODE) for each state variable.
-    dt(A) = r * A;
+    dt(T) = -r * (T - Tamb);
 }
 
 # End of DYNAMICS.
