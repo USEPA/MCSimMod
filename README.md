@@ -66,12 +66,16 @@ R -e "covr::report(file='coverage_html/index.html')"
 
 # Getting started (also available in "quickstart" vignette)
 
-$\frac{d}{t}y(t) &= m$,
-  
-y(0) = y_0,
+$$
+\begin{gather}
+  \frac{dy}{dt} = m, \\
+  y(0) = y_0,
+\end{gather}
+$$
+
 
 using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
-```{r, results='hide'}
+```r
 mod_string = "
 States = {y};
 y0 = 2;
@@ -88,7 +92,7 @@ model = MCSimMod::Model(mString=mod_string)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) and perform a simulation that provides results for the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
-```{r, results='hide'}
+```r
 model$loadModel()
 times = seq(from = 0, to = 20, by = 0.1)
 out = model$runModel(times)
@@ -101,7 +105,7 @@ kable(out[1:5, ])
 ```
 
 We can examine the parameter values and initial conditions that were used for this simulation with the following commands.
-```{r}
+```r
 model$parms
 model$Y0
 ```
@@ -115,7 +119,7 @@ plot(out[, "time"], out[, "y"], type = "l", lty = 1, lwd = 2, xlab = "Time",
 
 We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method. Using the argument `deleteModel=TRUE` causes the model file (with name ending in ".model") that was created from the model string to also be deleted.
 
-```{r, results='hide'}
+```r
 # Cleanup required for vignette to pass
 model$cleanup(deleteModel=TRUE)
 ```
