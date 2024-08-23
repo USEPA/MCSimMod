@@ -8,7 +8,7 @@ If you are interested in contributing or want to report a bug, please submit a i
 
 `install.packages("deSolve")`
 
-If installing from source, `devtools` is required:
+If installing from github, `devtools` is required:
 
 `install.packages("devtools")`
 
@@ -23,9 +23,10 @@ Once RTools is installed, install MCSimMod from github
 
 Or from source:
 
+Use the pre-built MCSimMod.tar.gz provided.
+
 ```
-setwd('path/to/MCSimMod')
-devtools::install_local()
+install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
 ```
 
 ## Linux install
@@ -34,10 +35,10 @@ Simply run:
 `devtools::install_github("https://github.com/USEPA/MCSimMod.git")`
 
 Or from source:
+Use the pre-built MCSimMod.tar.gz provided.
 
 ```
-setwd('path/to/MCSimMod')
-devtools::install_local()
+install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
 ```
 
 ## Developer installation
