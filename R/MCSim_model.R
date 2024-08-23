@@ -17,26 +17,23 @@ Model <- setRefClass("Model",
         stop("Cannot both have a model file `mName` and a model string `mString`")
       }
       if (length(mString) > 0) {
-        file <- tempfile(pattern = "mcsimmod_", tmpdir = '.')
-        mName <<- basename(file)
-        writeLines(mString, paste0(file, ".model"))
-      }
-      
-      components <- strsplit(mName, "/")[[1]]
-      mName <<- components[length(components)] # mName is always the last entry
-      mPath <- if (length(components) > 1) {
-        paste0(paste(components[-length(components)], collapse = '/'), '/')
+        file <- tempfile(pattern = "mcsimmod_", fileext='.model')
+        writeLines(mString, file)
       } else {
-        "./"
+        file <- normalizePath(paste0(mName, ".model"))
       }
+      mList <- .fixPath(file)
+      mName <<- mList$mName
+      mPath <- mList$mPath
+      
       
       paths <<- list(
         dll_name = paste0(mName, "_model"),
-        c_file = paste0(mPath, mName, "_model.c"),
-        o_file = paste0(mPath, mName, "_model.o"),
-        dll_file = paste0(mPath, mName, "_model", .Platform$dynlib.ext),
-        inits_file = paste0(mPath, mName, "_model_inits.R"),
-        model_file = paste0(mPath, mName, ".model")
+        c_file = file.path(mPath, paste0(mName, "_model.c")),
+        o_file = file.path(mPath, paste0(mName, "_model.o")),
+        dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
+        inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
+        model_file = file.path(mPath, paste0(mName, ".model"))
       )
     },
     loadModel = function() {
