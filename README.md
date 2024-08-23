@@ -65,6 +65,7 @@ R -e "covr::report(file='coverage_html/index.html')"
 ```
 
 # Getting started (also available in "quickstart" vignette)
+The following commands create a model object that defines a simple ODE model,
 
 $$
 \begin{gather}
