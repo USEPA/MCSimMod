@@ -10,7 +10,7 @@ If you are interested in contributing or want to report a bug, please submit a i
 
 If installing from source, `devtools` is required:
 
-`install.packages("devtools")
+`install.packages("devtools")`
 
 OS-specific installation instructions are available below.
 
