@@ -66,9 +66,9 @@ R -e "covr::report(file='coverage_html/index.html')"
 
 # Getting started (also available in "quickstart" vignette)
 
-\frac{\textrm{d}}{\textrm{d}t}y(t) &= m,
+$\frac{d}{t}y(t) &= m$,
   
-y(0) &= y_0,
+y(0) = y_0,
 
 using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
 ```{r, results='hide'}
