@@ -45,8 +45,8 @@ testthat::test_that('Model$absoluteModel', {
   # Use absolute path of temp directory,
   # Put space in path by creating directory inside tmp
   
-  dir.create(file.path(tempdir(), 'test spaces'))
-  mName <- tempfile(pattern = "mcsimmod_", tmpdir=file.path(tempdir(), 'test spaces'))
+  dir.create(file.path(tempdir(), 'testDir'))
+  mName <- tempfile(pattern = "mcsimmod_", tmpdir=file.path(tempdir(), 'testDir'))
   mString <- readLines(file.path(testthat::test_path(), 'data', 'exponential.model'))
   writeLines(mString, paste0(mName, '.model'))
   
@@ -67,6 +67,17 @@ testthat::test_that('Model$absoluteModel', {
   model$cleanup()
 
 
+
+})
+
+testthat::test_that('PathSetUp', {
+  mNameNoSpace <- 'path/to/my_model.model'
+  mNameWithSpace <- 'path/to/a spaced/my_model.model'
+  
+  mList <- .fixPath(mNameNoSpace)
+  testthat::expect_equal(mList$mName, 'my_model')
+  testthat::expect_equal(mList$mPath, 'path/to')
+  testthat::expect_error(.fixPath(mNameWithSpace), "Error: User-defined directory has space which will throw error for .dll/.so compilation")
 
 })
 
