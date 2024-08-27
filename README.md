@@ -1,28 +1,45 @@
-# MCSimMod package
-<Insert intro>
+# MCSimMod: Run MCSim MODels in R environment
+
+MCSimMod is an R package that converts the MCSim domain-specific language (DSL) into a dynamic library (windows) or shared object (linux) for use with the ordinary differential equation solver: `deSolve`
+
+If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. See [CONTRIBUTING](CONTRIBUTING.md) for more information. 
 
 `deSolve` needed for `MCSimMod`:
 
-`library.packages("deSolve")`
+`install.packages("deSolve")`
+
+If installing from github, `devtools` is required:
+
+`install.packages("devtools")`
+
+OS-specific installation instructions are available below.
 
 ## Windows Install
-Make sure RTools (https://cran.r-project.org/bin/windows/Rtools/) is installed prior to MCSimMod install.
+Make sure [RTools](https://cran.r-project.org/bin/windows/Rtools/) is installed prior to MCSimMod install.
 
-Before installing, add the appropriate RTools bins to the path. Each RTools base directory will be different depending on the version.
+Once RTools is installed, install MCSimMod from github
 
-For example, this would be the necessary paths for RTools 4.0:
-`Sys.setenv(PATH = paste("C:/Rtools40/usr/bin", "C:/Rtools40/mingw32/bin",Sys.getenv("PATH"), sep=";"))`
+`devtools::install_github("https://github.com/USEPA/MCSimMod.git")`
 
-Ultimately, the RTools usr/bin and mingw32/bin must be added to PATH before the install.
+Or from source:
 
-Once RTools is installed, run
+Use the pre-built MCSimMod.tar.gz provided.
 
-`install.packages(MCSimMod)` <Future: depending on how the install happens, this line might be different>
+```
+install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
+```
 
 ## Linux install
 Simply run:
 
-`install.packages(MCSimMod)` <Future: depending on how the install happens, this line might be different>
+`devtools::install_github("https://github.com/USEPA/MCSimMod.git")`
+
+Or from source:
+Use the pre-built MCSimMod.tar.gz provided.
+
+```
+install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
+```
 
 ## Developer installation
 
@@ -46,4 +63,65 @@ R -e "devtools::build()"
 R -e "devtools::install()"
 R -e "devtools::test()"
 R -e "covr::report(file='coverage_html/index.html')"
+```
+
+# Getting started (also available in "quickstart" vignette)
+The following commands create a model object that defines a simple ODE model,
+
+$$
+\begin{gather}
+  \frac{dy}{dt} = m, \\
+  y(0) = y_0,
+\end{gather}
+$$
+
+
+using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
+```r
+mod_string = "
+States = {y};
+y0 = 2;
+m = 0.5;
+Initialize {
+    y = y0;
+}
+Dynamics {
+    dt(y) = m;
+}
+End.
+"
+model = MCSimMod::Model(mString=mod_string)
+```
+
+Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) and perform a simulation that provides results for the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
+```r
+model$loadModel()
+times = seq(from = 0, to = 20, by = 0.1)
+out = model$runModel(times)
+```
+
+The final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the linear model we've created here, is always labeled "time" in the output data structure.
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+kable(out[1:5, ])
+```
+
+We can examine the parameter values and initial conditions that were used for this simulation with the following commands.
+```r
+model$parms
+model$Y0
+```
+
+Finally, we can create a visual representation of the simulation results. For example, we can plot the value of $y$ vs. time ($t$) using the following command.
+```{r, fig.dim=c(6, 4), fig.align='center'}
+# Plot simulation results.
+plot(out[, "time"], out[, "y"], type = "l", lty = 1, lwd = 2, xlab = "Time",
+     ylab = "y")
+```
+
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method. Using the argument `deleteModel=TRUE` causes the model file (with name ending in ".model") that was created from the model string to also be deleted.
+
+```r
+# Cleanup required for vignette to pass
+model$cleanup(deleteModel=TRUE)
 ```
