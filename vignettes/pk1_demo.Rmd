@@ -37,9 +37,9 @@ where $V_\textrm{d}$ is a parameter representing the effective volume of the cen
 \begin{equation}
   A_\textrm{tot} = A_0 + A_1 + A_2,
 \end{equation}
-that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and the state equation is
+that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
-  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t),
+  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t).
 \end{equation}
 
 In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}$) as well as the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
