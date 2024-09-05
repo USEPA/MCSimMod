@@ -45,7 +45,7 @@ Using the following commands, we create a model object (i.e., an instance of the
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "newt_cool.model" included in the MCSimMod package.
 newt_mod_name = file.path(mod_path, "newt_cool")
 newt_mod = Model(mName=newt_mod_name)
 ```

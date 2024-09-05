@@ -72,7 +72,7 @@ Using the following commands, we create a model object (i.e., an instance of the
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pk1_input.model" included in the MCSimMod package.
 pk1_mod_name = file.path(mod_path, "pk1_input")
 pk1_mod = Model(mName=pk1_mod_name)
 ```

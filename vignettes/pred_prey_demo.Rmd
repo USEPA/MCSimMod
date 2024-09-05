@@ -45,7 +45,7 @@ Using the following commands, we create a model object (i.e., an instance of the
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pred_prey.model" included in the MCSimMod package.
 pp_mod_name = file.path(mod_path, "pred_prey")
 pp_mod = Model(mName=pp_mod_name)
 ```
