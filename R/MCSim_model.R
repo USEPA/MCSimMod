@@ -4,7 +4,6 @@
 #'
 #' @import methods
 #' @import deSolve
-#' @export Model
 Model <- setRefClass("Model",
   fields = list(
     mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "ANY",
@@ -38,7 +37,7 @@ Model <- setRefClass("Model",
     },
     loadModel = function() {
       if (!file.exists(paths$dll_file)) {
-        compile_model(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file)
+        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file)
       }
 
       # Load the compiled model (DLL).

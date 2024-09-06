@@ -16,7 +16,7 @@
 #'
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
-compile_model <- function(model_file, c_file, dll_name, dll_file) {
+compileModel <- function(model_file, c_file, dll_name, dll_file) {
   # Unload DLL if it has been loaded.
   if (is.loaded("derivs", PACKAGE = dll_name)) {
     dyn.unload(dll_file)
