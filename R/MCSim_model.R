@@ -16,7 +16,7 @@ Model <- setRefClass("Model",
         stop("Cannot both have a model file `mName` and a model string `mString`")
       }
       if (length(mString) > 0) {
-        file <- tempfile(pattern = "mcsimmod_", fileext='.model')
+        file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
       } else {
         file <- normalizePath(paste0(mName, ".model"))
@@ -24,20 +24,22 @@ Model <- setRefClass("Model",
       mList <- .fixPath(file)
       mName <<- mList$mName
       mPath <- mList$mPath
-      
-      
+
+
       paths <<- list(
         dll_name = paste0(mName, "_model"),
         c_file = file.path(mPath, paste0(mName, "_model.c")),
         o_file = file.path(mPath, paste0(mName, "_model.o")),
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
-        model_file = file.path(mPath, paste0(mName, ".model"))
+        model_file = file.path(mPath, paste0(mName, ".model")),
+        hash_file = file.path(mPath, paste0(mName, "_model.md5"))
       )
     },
-    loadModel = function() {
-      if (!file.exists(paths$dll_file)) {
-        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file)
+    loadModel = function(force = FALSE) {
+      # If now checks force=T or if the hashes don't match
+      if (!file.exists(paths$dll_file) | (force <- TRUE) | ("hash exists and doesnt match")) {
+        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file)
       }
 
       # Load the compiled model (DLL).
@@ -47,7 +49,7 @@ Model <- setRefClass("Model",
       source(paths$inits_file, local = TRUE)
       initParms <<- initParms
       initStates <<- initStates
-      
+
       Outputs <<- Outputs
 
       parms <<- initParms()

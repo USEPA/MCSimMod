@@ -10,10 +10,12 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE,
-                      warning=FALSE,
-                      collapse=TRUE,
-                      comment="#>")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 ## A Mathematical Model for Newton's Law of Cooling
@@ -42,12 +44,12 @@ Using the following commands, we create a model object (i.e., an instance of the
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
-mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 
-# Create a model object using the example MCSim model specification file 
+# Create a model object using the example MCSim model specification file
 # "exponential.model" included in the MCSimMod package.
-newt_mod_name = file.path(mod_path, "newt_cool")
-newt_mod = Model(mName=newt_mod_name)
+newt_mod_name <- file.path(mod_path, "newt_cool")
+newt_mod <- Model(mName = newt_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
@@ -61,7 +63,7 @@ newt_mod$loadModel()
 Suppose we want to predict the temperature of a cup of tea that has an initial temperature of 95$^\circ$C when the ambient air temperature is 22$^\circ$C and the rate constant parameter has a value of 0.7 (i.e., $T_0 = 95$, $T_\textrm{amb} = 22$, and $r = 0.7$). We can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for simulation of this scenario. 
 ```{r, results='hide'}
 # Change the values of the model parameters from their default values.
-newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))
+newt_mod$updateParms(c(T0 = 95, Tamb = 22, r = 0.7))
 
 # Update the initial value(s) of the state variable(s) based on the updated
 # parameter value(s).
@@ -73,10 +75,10 @@ Note that executing the command `newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))`
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 5.0$) using the following commands.
 ```{r, results='hide'}
 # Define output times for simulation.
-times = seq(from=0, to=5, by=0.1)
+times <- seq(from = 0, to = 5, by = 0.1)
 
 # Run simulation.
-out = newt_mod$runModel(times)
+out <- newt_mod$runModel(times)
 ```
 
 ## Examining the Results
@@ -96,11 +98,15 @@ newt_mod$Y0
 Finally, we can create a visual representation of the simulation results. For example, we can plot the temperature vs. time using the following commands.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out[, "time"], out[, "T"], type="l", lty=1, lwd=2,
-     xlab="Time", ylab="Temperature (C)", ylim=c(0, 100))
-abline(h=newt_mod$parms[["Tamb"]], lty=2, lwd=2)
-legend("topright", c("Tea", "Ambient Air"), lty=c(1, 2),
-       lwd=c(2, 2))
+plot(out[, "time"], out[, "T"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time", ylab = "Temperature (C)", ylim = c(0, 100)
+)
+abline(h = newt_mod$parms[["Tamb"]], lty = 2, lwd = 2)
+legend("topright", c("Tea", "Ambient Air"),
+  lty = c(1, 2),
+  lwd = c(2, 2)
+)
 ```
 
 ## Removing Output Files

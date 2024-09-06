@@ -10,10 +10,12 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE,
-                      warning=FALSE,
-                      collapse=TRUE,
-                      comment="#>")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 ## Input Variables
@@ -69,12 +71,12 @@ Using the following commands, we create a model object (i.e., an instance of the
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
-mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 
-# Create a model object using the example MCSim model specification file 
+# Create a model object using the example MCSim model specification file
 # "exponential.model" included in the MCSimMod package.
-pk1_mod_name = file.path(mod_path, "pk1_input")
-pk1_mod = Model(mName=pk1_mod_name)
+pk1_mod_name <- file.path(mod_path, "pk1_input")
+pk1_mod <- Model(mName = pk1_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
@@ -94,26 +96,26 @@ pk1_mod$Y0
 Suppose the animal being dosed has a body mass of 0.25 kg initially (i.e., at the beginning of the simulation) and a body mass of 1.0 kg 20 hours later. (Admittedly, this is a large relative increase in body mass over a 20-hour period, but serves to illustrate the diluting effect of increased body mass on concentration, as we shall see.) We can define a matrix that lists the values of the body mass at various times. The default behavior of the **deSolve** integrators is to use linear interpolation to determine values of input variables at times that are not listed, but other options are available. We can create an appropriate input variable matrix for our simulation (and examine it) using the following commands.
 ```{r}
 # Define body mass input.
-M_table = cbind(times=c(0, 20), M_in=c(0.25, 1.0))
+M_table <- cbind(times = c(0, 20), M_in = c(0.25, 1.0))
 head(M_table)
 ```
 
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
 # Define output times for simulation.
-times = seq(from=0, to=20, by=0.1)
+times <- seq(from = 0, to = 20, by = 0.1)
 
 # Run simulation.
-out = pk1_mod$runModel(times, forcing=list(data=M_table))
+out <- pk1_mod$runModel(times, forcing = list(data = M_table))
 ```
 
 We can perform a second simulation for which body mass remains constant at 0.25 kg using the following commands.
 ```{r}
 # Define body mass input.
-M_table2 = cbind(times=c(0, 20), M_in=c(0.25, 0.25))
+M_table2 <- cbind(times = c(0, 20), M_in = c(0.25, 0.25))
 
 # Run simulation.
-out2 = pk1_mod$runModel(times, forcing=list(data=M_table2))
+out2 <- pk1_mod$runModel(times, forcing = list(data = M_table2))
 ```
 
 ## Examining the Results
@@ -127,11 +129,15 @@ kable(out[1:5, ])
 We can create a visual representation of the simulation results. For example, we can plot the concentration vs. time using the following commands.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out[, "time"], out[, "C"], type="l", lty=1, lwd=2, xlab="Time (h)",
-     ylab="Concentration (mg/L)", ylim=c(0, 2500))
-lines(out2[, "time"], out2[, "C"], lty=2, lwd=2)
-legend("topright", legend=c("Varying Body Mass", "Constant Body Mass"),
-       lty=c(1, 2), lwd=2)
+plot(out[, "time"], out[, "C"],
+  type = "l", lty = 1, lwd = 2, xlab = "Time (h)",
+  ylab = "Concentration (mg/L)", ylim = c(0, 2500)
+)
+lines(out2[, "time"], out2[, "C"], lty = 2, lwd = 2)
+legend("topright",
+  legend = c("Varying Body Mass", "Constant Body Mass"),
+  lty = c(1, 2), lwd = 2
+)
 ```
 Note that for the "varying body mass" simulation, the increase in body mass had a diluting effect on concentration. That is, concentrations tended to be less for the "varying body mass" scenario than for the "constant body mass" scenario because increases in body mass ($M$) and corresponding increases in volume of distribution ($V_\textrm{d}$) caused concentration ($C$) to decrease more rapidly than would be the case for a constant body mass scenario in which clearance processes alone effect reductions in concentration.
 
