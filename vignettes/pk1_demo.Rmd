@@ -1,10 +1,10 @@
 ---
-title: "Implementing a Classical Pharmacokinetic Model"
-author: "MCSimMod Development Team"
+title: "(5) A Classical Pharmacokinetic Model"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing a Classical Pharmacokinetic Model}
+  %\VignetteIndexEntry{(5) A Classical Pharmacokinetic Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo=TRUE,
                       comment="#>")
 ```
 
-## A Classical Pharmacokinetic Model
+## Model Description
 
 A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
 ```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
