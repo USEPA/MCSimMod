@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo=TRUE,
 
 ## Input Variables
 
-The **MCSimMod** package allows one to solve initial value problems for ordinary differential equation (ODE) models that include input variables. These are variables that may vary in time, but which are not state variables and which are independent of other model variables (including parameters). The authors of the **deSolve** package use the term "forcing function" to such input variables. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and so we use **deSolve** forcing funtions to implement input variables. One can learn more about **deSolve** forcing functions in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf). Here we will demonstrate how to perform simulations with a model that includes a single input variable. 
+The **MCSimMod** package allows one to solve initial value problems for ordinary differential equation (ODE) models that include input variables. These are variables that may vary in time, but which are not state variables and which are independent of other model variables (including parameters). The authors of the **deSolve** package use the term "forcing function" to describe such input variables. Because the **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, it uses **deSolve** forcing funtions to implement input variables. One can learn more about **deSolve** forcing functions in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf). Here we will demonstrate how to perform simulations with a model that includes a single input variable. 
 
 ## A Classical Pharmacokinetic Model
 

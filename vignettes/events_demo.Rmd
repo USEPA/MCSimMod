@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo=TRUE,
 
 ## Events
 
-The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes in state variables may occur at specific points in time. We call these discrete changes in state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. Here we will demonstrate how to perform a simulation that involves a few simple events, but one can learn more about **deSolve** event handling in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf).
+The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes in state variables may occur at specific points in time. We call these discrete changes in state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. One can learn more about **deSolve** event handling in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf). Here we will demonstrate how to perform a simulation that involves a few simple events.
 
 ## A Classical Pharmacokinetic Model
 
@@ -79,7 +79,7 @@ Once the model object is created, we can "load" the model (so that it's ready fo
 pk1_mod$loadModel()
 ```
 
-## Predicting the Blood Concentration of a Substance During Repeated Oral Dosing
+## Predicting the Blood Concentration of a Substance During Repeated Oral Dosing using Events
 
 Suppose we want to predict the blood concentration of a substance during a 48-hour period when oral doses of 50 mg are provided every 12 hours. Let's assume that the oral absorption rate constant ($k_{01}$) is 1.0 h$^{-1}$, the clearance rate constant ($k_{12}$) is 0.5 h$^{-1}$, and the volume of distribution ($V_\textrm{d}$) is 50 L. These are the default values of those model parameters given in the model specification file. We can change the initial condition for the state variable $A_0$ to zero using the following commands. (Note that all other state variables have default initial conditions of zero based on the model specification file.)
 ```{r, results='hide'}
