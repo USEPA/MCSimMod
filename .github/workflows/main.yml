@@ -37,6 +37,7 @@ jobs:
         run: Rscript scripts/coverage.R
       - name: Build documentation
         if: runner.os == 'Linux'
+        shell: Rscript {0}
         run: |
           devtools::build_site(preview = F, new_process = F)
           devtools::build_manual(pkg = ".", path = "dist")
