@@ -11,13 +11,12 @@ MCSimMod.Rproj
 
 mcsimmod_*.model
 
-coverage_html/
-docs/
-
 tests/data/*.R
 tests/data/*.c
 tests/data/*.dll
 tests/data/*.o
-inst/doc
+/coverage/
 /doc/
+/docs/
+/inst/doc
 /Meta/

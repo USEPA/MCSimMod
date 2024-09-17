@@ -1,0 +1,5 @@
+url: usepa.github.io/mcsimmod/
+template:
+  bootstrap: 5
+  light-switch: true
+  bootswatch: flatly
