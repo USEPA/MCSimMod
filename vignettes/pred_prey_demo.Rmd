@@ -49,7 +49,7 @@ mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 # Create a model object using the example MCSim model specification file
 # "exponential.model" included in the MCSimMod package.
 pp_mod_name <- file.path(mod_path, "pred_prey")
-pp_mod <- Model(mName = pp_mod_name)
+pp_mod <- createModel(pp_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.

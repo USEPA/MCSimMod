@@ -98,7 +98,7 @@ mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 # Create a model object using the example MCSim model specification file
 # "exponential.model" included in the MCSimMod package.
 exp_mod_name <- file.path(mod_path, "exponential")
-exp_mod <- Model(mName = exp_mod_name)
+exp_mod <- createModel(exp_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows. If necessary (e.g., when the model has not previously been "built"), this step will create output files (with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") in the same directory that contains the model specification file (with a name ending in ".model"). Some of these model files (the ones with names ending in "_inits.R" and ".dll" or ".so") are used to perform simulations with the model.
