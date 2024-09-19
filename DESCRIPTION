@@ -4,7 +4,7 @@ Version: 0.1
 Authors@R: c(
     person("Dustin F.", "Kapraun", role=c("aut", "cre"), email = "kapraun.dustin@epa.gov"),
 	person("Todd J.", "Zurlinden", role="aut"),
-	person("Andrew", "Shapiro", role="aut"),
+	person("Andrew", "Shapiro", role="aut", comment = c(ORCID = "0000-0002-5233-8092")),
 	person("Ryan", "Friese", role="aut")
 	)
 Description: MCSimMod converts MCSim domain-specific language (DSL) models to create shared/dynamic libraries for solving ordinary differential equations.
@@ -12,6 +12,7 @@ Depends:
 	methods
 Imports:
     deSolve
+URL: https://github.com/USEPA/MCSimMod
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -25,5 +26,7 @@ Config/Needs/dev:
     devtools,
     testthat,
     covr
+Config/Needs/website:
+    r-lib/pkgdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
