@@ -38,7 +38,19 @@ Model <- setRefClass("Model",
     },
     loadModel = function(force = FALSE) {
       # If now checks force=T or if the hashes don't match
-      if (!file.exists(paths$dll_file) | (force <- TRUE) | ("hash exists and doesnt match")) {
+      hash_exists <- file.exists(paths$hash_file)
+      if (hash_exists) {
+        hash_has_changed <- .compareHash(paths$model_file, paths$hash_file)
+      } else {
+        hash_has_changed <- TRUE
+      }
+      
+      # Conditions for compiling a model:
+      # 1. The dll file does not exist
+      # 2. force = T indicating the user wants to recompile
+      # 3. The hash file does not exist
+      # 4. The hash file exists, but does not match the previously saved hash indicating the model file has changed
+      if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
         compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file)
       }
 
@@ -89,6 +101,9 @@ Model <- setRefClass("Model",
       }
       if (file.exists(paths$dll_file)) {
         file.remove(paths$dll_file)
+      }
+      if (file.exists(paths$hash_file)) {
+        file.remove(paths$hash_file)
       }
     }
   )

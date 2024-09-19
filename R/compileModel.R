@@ -13,7 +13,9 @@
 #' @param c_file output c_file that is compiled by `c_mod`
 #' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
 #' @param dll_file Possible previously compiled dll
+#' @param hash_file Location of hash key for determining if .model file has changed
 #'
+#' @import tools
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
 compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL) {
@@ -36,8 +38,10 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   r_path <- file.path(R.home("bin"), "R")
   system(paste0(r_path, " CMD SHLIB ", c_file))
 
-  if (~ is.null(hash_file)) {
-    hash <- md5sum(model_file)
+  if (!is.null(hash_file)) {
+    file_hash <- as.character(md5sum(model_file))
+    write(file_hash, file=hash_file)
+    cat("Hash calculated and saved to", hash_file, "\n")
   }
-  # Write to hash_file
+
 }

@@ -9,7 +9,8 @@ Authors@R: c(
 	)
 Description: MCSimMod converts MCSim domain-specific language (DSL) models to create shared/dynamic libraries for solving ordinary differential equations.
 Depends:
-	methods
+	methods,
+	tools
 Imports:
     deSolve
 License: MIT + file LICENSE

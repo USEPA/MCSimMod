@@ -4,7 +4,12 @@
 \alias{createModel}
 \title{MCSimMod class to run a model}
 \usage{
-createModel(mName = NULL, mString = NULL)
+createModel(mName = character(0), mString = character(0))
+}
+\arguments{
+\item{mName}{path to model file (without .model extension)}
+
+\item{mString}{string for creating model without .model file}
 }
 \description{
 A class for managing MCSimMod models
