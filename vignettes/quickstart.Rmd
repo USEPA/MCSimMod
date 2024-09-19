@@ -24,6 +24,13 @@ The **MCSimMod** package can be used to define ordinary differential equation (O
   y(0) &= y_0,
 \end{align}
 using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
+
+First, we load the **MCSimMod** package as follows.
+```{r}
+library(MCSimMod)
+```
+
+Then we define the model string as follows.
 ```{r, results='hide'}
 mod_string <- "
 States = {y};

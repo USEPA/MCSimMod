@@ -18,6 +18,8 @@ compileModel(model_file, c_file, dll_name, dll_file, hash_file = NULL)
 \item{dll_name}{dynamic library that has the "derivs" function from a previously compiled model}
 
 \item{dll_file}{Possible previously compiled dll}
+
+\item{hash_file}{Location of hash key for determining if .model file has changed}
 }
 \description{
 Inputs:
