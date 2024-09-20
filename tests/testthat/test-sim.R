@@ -43,7 +43,7 @@ testthat::test_that("Model$relativeModel", {
 testthat::test_that("Model$absoluteModel", {
   # copy exponential.model to temp file -> /tmp/dir/new dir
   # Use absolute path of temp directory,
-  # Put space in path by creating directory inside tmp
+  # Test to make sure changing the file returns a changed path
 
   dir.create(file.path(tempdir(), "testDir"))
   mName <- tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir"))
@@ -54,6 +54,7 @@ testthat::test_that("Model$absoluteModel", {
   model <- createModel(mName)
 
   model$loadModel()
+  testthat::expect_true(file.exists(model$paths$hash_file)) # Check if hash was created
   model$updateParms(list(r = -0.5, A0 = 100))
   model$updateY0()
 
@@ -63,6 +64,13 @@ testthat::test_that("Model$absoluteModel", {
   testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
   testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
   testthat::expect_true(sum(exp_out[, 2]) > 0)
+  
+  # File hasn't changed so hash should be the same
+  testthat::expect_false(.compareHash(model$paths$model_file, model$paths$hash_file))
+  # Add a new line to the temp model to change it
+  line = '# Changed model file'
+  write(line, file = model$paths$model_file, append = T, sep = '\n')
+  testthat::expect_true(.compareHash(model$paths$model_file, model$paths$hash_file))
 
   model$cleanup()
 })
