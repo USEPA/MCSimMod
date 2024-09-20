@@ -1,10 +1,10 @@
 ---
-title: "Implementing a Classical Pharmacokinetic Model"
-author: "MCSimMod Development Team"
+title: "(5) A Classical Pharmacokinetic Model"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing a Classical Pharmacokinetic Model}
+  %\VignetteIndexEntry{(5) A Classical Pharmacokinetic Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo=TRUE,
                       comment="#>")
 ```
 
-## A Classical Pharmacokinetic Model
+## Model Description
 
 A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
 ```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
@@ -37,16 +37,16 @@ where $V_\textrm{d}$ is a parameter representing the effective volume of the cen
 \begin{equation}
   A_\textrm{tot} = A_0 + A_1 + A_2,
 \end{equation}
-that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and the state equation is
+that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
-  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t),
+  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t).
 \end{equation}
 
 In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}$) as well as the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
 
 ## MCSim Model Specification
 
-We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
 
 The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateModel` method of the `Model` class) the initial conditions of the state variables.
 
@@ -57,14 +57,14 @@ First, we load the **MCSimMod** package as follows.
 library(MCSimMod)
 ```
 
-Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pk1.model" included in the MCSimMod package.
 pk1_mod_name = file.path(mod_path, "pk1")
 pk1_mod = Model(mName=pk1_mod_name)
 ```

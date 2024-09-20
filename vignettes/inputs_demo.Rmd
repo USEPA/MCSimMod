@@ -1,10 +1,10 @@
 ---
-title: "Using Input Variables"
-author: "MCSimMod Development Team"
+title: "(6) Using Input Variables"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using Input Variables}
+  %\VignetteIndexEntry{(6) Using Input Variables}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,11 +18,11 @@ knitr::opts_chunk$set(echo=TRUE,
 
 ## Input Variables
 
-The **MCSimMod** package allows one to solve initial value problems for ordinary differential equation (ODE) models that include input variables. These are variables that may vary in time, but which are not state variables and which are independent of other model variables (including parameters). The authors of the **deSolve** package use the term "forcing function" to such input variables. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and so we use **deSolve** forcing funtions to implement input variables. One can learn more about **deSolve** forcing functions in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf), but here we will illustrate how to perform simulations with a model that includes a single input variable.
+The **MCSimMod** package allows one to solve initial value problems for ordinary differential equation (ODE) models that include input variables. These are variables that may vary in time, but which are not state variables and which are independent of other model variables (including parameters). The authors of the **deSolve** package use the term "forcing function" to describe such input variables. Because the **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, it uses **deSolve** forcing funtions to implement input variables. One can learn more about **deSolve** forcing functions in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf). Here we will demonstrate how to perform simulations with a model that includes a single input variable. 
 
 ## A Classical Pharmacokinetic Model
 
-To demonstrate events, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
+For this demonstration, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
 ```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
 knitr::include_graphics("pk1.png")
 ```
@@ -45,16 +45,16 @@ where $V_\textrm{d}^\textrm{C}$ is a scaling constant (parameter) and $M(t)$ is 
 \begin{equation}
   A_\textrm{tot} = A_0 + A_1 + A_2,
 \end{equation}
-that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and the state equation is
+that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
-  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t),
+  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t).
 \end{equation}
 
 In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$), an input variable ($M(t)$), and the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
 
 ## MCSim Model Specification
 
-We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `pk1_input.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1_input.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
 
 The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `VdC` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$, respectively. The text symbol `M_in` is used to represent the input variable $M$ and the text symbol `M` is used to represent an output variable that is equal to $M$ at all times. (Including this "output" variable in the model allows one to obtain values of $M$ at various times once a simulation has been performed.) The text symbols `C` and `Atot` represent the output variables $C$ and $A_\textrm{tot}$. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateModel` method of the `Model` class) the initial conditions of the state variables.
 
@@ -65,14 +65,14 @@ First, we load the **MCSimMod** package as follows.
 library(MCSimMod)
 ```
 
-Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pk1_input.model" included in the MCSimMod package.
 pk1_mod_name = file.path(mod_path, "pk1_input")
 pk1_mod = Model(mName=pk1_mod_name)
 ```

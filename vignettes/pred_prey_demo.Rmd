@@ -1,10 +1,10 @@
 ---
-title: "Implementing a Predator-Prey Model"
-author: "MCSimMod Development Team"
+title: "(4) A Predator-Prey Model"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing a Predator-Prey Model}
+  %\VignetteIndexEntry{(4) A Predator-Prey Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo=TRUE,
                       comment="#>")
 ```
 
-## A Mathematical Model for Prey and Predator Population Dynamics
+## Model Description
 
 Suppose there is a population of rabbits (prey) and a population of foxes (predators) that inhabit the same area. The sizes of these two populations can be modeled as a system of ordinary differential equations (ODEs). In particular, if $x$ and $y$ represent the numbers (in thousands) of rabbits and foxes, respectively, the rates of change of these numbers can be estimated as  
 \begin{align}
@@ -38,14 +38,14 @@ First, we load the **MCSimMod** package as follows.
 library(MCSimMod)
 ```
 
-Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `pred_prey.model` that is included in the **MCSimMod** package.
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pred_prey.model` that is included in the **MCSimMod** package.
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pred_prey.model" included in the MCSimMod package.
 pp_mod_name = file.path(mod_path, "pred_prey")
 pp_mod = Model(mName=pp_mod_name)
 ```

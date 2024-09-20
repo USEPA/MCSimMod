@@ -1,10 +1,10 @@
 ---
-title: "Incorporating Events into a Simulation"
-author: "MCSimMod Development Team"
+title: "(7) Incorporating Events into a Simulation"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Incorporating Events into a Simulation}
+  %\VignetteIndexEntry{(7) Incorporating Events into a Simulation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,11 +18,11 @@ knitr::opts_chunk$set(echo=TRUE,
 
 ## Events
 
-The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes to state variables may occur at specific points in time. We call these discrete changes to state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. One can learn more about **deSolve** event handling in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf), but here we will illustrate how to handle events that occur at known times during a simulation.
+The **MCSimMod** package allows one to solve ordinary differential equation (ODE) initial value problems in which discrete changes in state variables may occur at specific points in time. We call these discrete changes in state variables "events," which is the same term used by the authors of the **deSolve** package. The **MCSimMod** package uses functions from the **deSolve** package to solve ODE initial value problems, and these functions have a built-in mechanism for handling events. One can learn more about **deSolve** event handling in the [deSolve package documentation](https://cran.r-project.org/web/packages/deSolve/deSolve.pdf). Here we will demonstrate how to perform a simulation that involves a few simple events.
 
 ## A Classical Pharmacokinetic Model
 
-To demonstrate events, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
+For this demonstration, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
 ```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
 knitr::include_graphics("pk1.png")
 ```
@@ -41,9 +41,9 @@ where $V_\textrm{d}$ is a parameter representing the effective volume of the cen
 \begin{equation}
   A_\textrm{tot} = A_0 + A_1 + A_2,
 \end{equation}
-that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and the state equation is
+that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
-  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t),
+  \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t).
 \end{equation}
 
 In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}$) as well as the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$). One can also provide a data structure that describes discrete changes to state variables at specific points in time. Details about how to define and use an "events" data structure are provided below.
@@ -61,14 +61,14 @@ First, we load the **MCSimMod** package as follows.
 library(MCSimMod)
 ```
 
-Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file 
-# "exponential.model" included in the MCSimMod package.
+# "pk1.model" included in the MCSimMod package.
 pk1_mod_name = file.path(mod_path, "pk1")
 pk1_mod = Model(mName=pk1_mod_name)
 ```
@@ -79,7 +79,7 @@ Once the model object is created, we can "load" the model (so that it's ready fo
 pk1_mod$loadModel()
 ```
 
-## Predicting the Blood Concentration of a Substance During Repeated Oral Dosing
+## Predicting the Blood Concentration of a Substance During Repeated Oral Dosing using Events
 
 Suppose we want to predict the blood concentration of a substance during a 48-hour period when oral doses of 50 mg are provided every 12 hours. Let's assume that the oral absorption rate constant ($k_{01}$) is 1.0 h$^{-1}$, the clearance rate constant ($k_{12}$) is 0.5 h$^{-1}$, and the volume of distribution ($V_\textrm{d}$) is 50 L. These are the default values of those model parameters given in the model specification file. We can change the initial condition for the state variable $A_0$ to zero using the following commands. (Note that all other state variables have default initial conditions of zero based on the model specification file.)
 ```{r, results='hide'}
