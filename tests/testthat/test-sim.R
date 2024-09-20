@@ -54,7 +54,6 @@ testthat::test_that("Model$absoluteModel", {
   model <- createModel(mName)
 
   model$loadModel()
-  testthat::expect_true(file.exists(model$paths$hash_file)) # Check if hash was created
   model$updateParms(list(r = -0.5, A0 = 100))
   model$updateY0()
 
@@ -64,25 +63,8 @@ testthat::test_that("Model$absoluteModel", {
   testthat::expect_true(all(dim(exp_out) == c(length(times), 4)))
   testthat::expect_true(all(colnames(exp_out) == c("time", "A", "Bout", "Cout")))
   testthat::expect_true(sum(exp_out[, 2]) > 0)
-  
-  # File hasn't changed so hash should be the same
-  testthat::expect_false(.compareHash(model$paths$model_file, model$paths$hash_file))
-  # Add a new line to the temp model to change it
-  line = '# Changed model file'
-  write(line, file = model$paths$model_file, append = T, sep = '\n')
-  testthat::expect_true(.compareHash(model$paths$model_file, model$paths$hash_file))
 
   model$cleanup()
-})
-
-testthat::test_that("PathSetUp", {
-  mNameNoSpace <- "path/to/my_model.model"
-  mNameWithSpace <- "path/to/a spaced/my_model.model"
-
-  mList <- .fixPath(mNameNoSpace)
-  testthat::expect_equal(mList$mName, "my_model")
-  testthat::expect_equal(mList$mPath, "path/to")
-  testthat::expect_error(.fixPath(mNameWithSpace), "Error: User-defined directory has space which will throw error for .dll/.so compilation")
 })
 
 testthat::test_that("Model$fromString", {

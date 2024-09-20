@@ -3,7 +3,7 @@
 #----------------
 # Private function to determine if the .model file has changed
 
-.compareHash <- function(model_file, hash_file) {
+.fileHasChanged <- function(model_file, hash_file) {
   
   # Calculate hash for current model file
   current_hash <- as.character(md5sum(model_file))

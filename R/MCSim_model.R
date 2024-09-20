@@ -40,7 +40,7 @@ Model <- setRefClass("Model",
       # If now checks force=T or if the hashes don't match
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
-        hash_has_changed <- .compareHash(paths$model_file, paths$hash_file)
+        hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
       } else {
         hash_has_changed <- TRUE
       }
