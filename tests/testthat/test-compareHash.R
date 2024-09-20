@@ -14,11 +14,11 @@ testthat::test_that("test_compareHash", {
   model$loadModel()
   testthat::expect_true(file.exists(model$paths$hash_file)) # Check if hash was created
   # File hasn't changed so hash should be the same
-  testthat::expect_false(.compareHash(model$paths$model_file, model$paths$hash_file))
+  testthat::expect_false(.fileHasChanged(model$paths$model_file, model$paths$hash_file))
   # Add a new line to the temp model to change it
   line = '# Changed model file'
   write(line, file = model$paths$model_file, append = T, sep = '\n')
-  testthat::expect_true(.compareHash(model$paths$model_file, model$paths$hash_file))
+  testthat::expect_true(.fileHasChanged(model$paths$model_file, model$paths$hash_file))
 
   model$cleanup()
 })
