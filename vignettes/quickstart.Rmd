@@ -1,10 +1,10 @@
 ---
-title: "Quickstart"
-author: "MCSimMod Development Team"
+title: "(1) Introduction to MCSimMod"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Quickstart}
+  %\VignetteIndexEntry{(1) Introduction to MCSimMod}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The **MCSimMod** package can be used to define ordinary differential equation (ODE) models and solve initial value problems for such models. Models can be specified using text that that is supplied either as a string or in a file. The text is used to create a model object (i.e., an instance of the `MCSimMod` class). For example, the following commands create a model object that defines a simple ODE model,
+The **MCSimMod** package can be used to define ordinary differential equation (ODE) models and solve initial value problems for such models. Models can be specified using text that that is supplied either as a string or in a file. The text is used to create a model object (i.e., an instance of the **MCSimMod** `Model` class). For example, the following commands create a model object that defines a simple ODE model,
 \begin{align}
   \frac{\textrm{d}}{\textrm{d}t}y(t) &= m, \\
   y(0) &= y_0,

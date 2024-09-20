@@ -1,10 +1,10 @@
 ---
-title: "Implementing a Model for Newton's Law of Cooling"
-author: "MCSimMod Development Team"
+title: "(3) A Model for Newton's Law of Cooling"
+author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing a Model for Newton's Law of Cooling}
+  %\VignetteIndexEntry{(3) A Model for Newton's Law of Cooling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## A Mathematical Model for Newton's Law of Cooling
+## Model Description
 
 According to Newton's Law of Cooling, a the rate of change of the temperature of a body is proportional to the difference in the ambient temperature and the current temperature of the body. So, if $T(t)$ is the temperature of the body at time $t$, $T_\textrm{amb}$ is the ambient temperature, and $r>0$ is a constant of proportionality (with units of one over time), then
 \begin{equation}
@@ -40,14 +40,14 @@ First, we load the **MCSimMod** package as follows.
 library(MCSimMod)
 ```
 
-Using the following commands, we create a model object (i.e., an instance of the `MCSimMod` class) using the model specification file `newt_cool.model` that is included in the **MCSimMod** package.
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `newt_cool.model` that is included in the **MCSimMod** package.
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 
 # Create a model object using the example MCSim model specification file
-# "exponential.model" included in the MCSimMod package.
+# "newt_cool.model" included in the MCSimMod package.
 newt_mod_name <- file.path(mod_path, "newt_cool")
 newt_mod <- createModel(newt_mod_name)
 ```
