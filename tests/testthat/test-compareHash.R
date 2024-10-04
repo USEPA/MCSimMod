@@ -16,8 +16,8 @@ testthat::test_that("test_compareHash", {
   # File hasn't changed so hash should be the same
   testthat::expect_false(.fileHasChanged(model$paths$model_file, model$paths$hash_file))
   # Add a new line to the temp model to change it
-  line = '# Changed model file'
-  write(line, file = model$paths$model_file, append = T, sep = '\n')
+  line <- "# Changed model file"
+  write(line, file = model$paths$model_file, append = T, sep = "\n")
   testthat::expect_true(.fileHasChanged(model$paths$model_file, model$paths$hash_file))
 
   model$cleanup()

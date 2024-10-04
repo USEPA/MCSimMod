@@ -44,7 +44,7 @@ Model <- setRefClass("Model",
       } else {
         hash_has_changed <- TRUE
       }
-      
+
       # Conditions for compiling a model:
       # 1. The dll file does not exist
       # 2. force = T indicating the user wants to recompile
