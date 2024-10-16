@@ -10,10 +10,12 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo=TRUE,
-                      warning=FALSE,
-                      collapse=TRUE,
-                      comment="#>")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 The **MCSimMod** package can be used to define ordinary differential equation (ODE) models and solve initial value problems for such models. Models can be specified using text that that is supplied either as a string or in a file. The text is used to create a model object (i.e., an instance of the **MCSimMod** `Model` class). For example, the following commands create a model object that defines a simple ODE model,
@@ -22,8 +24,15 @@ The **MCSimMod** package can be used to define ordinary differential equation (O
   y(0) &= y_0,
 \end{align}
 using a string that both provides the ODE for the state variable, $y$, and sets the (default) values of the model parameters to $y_0 = 2$ and $m = 0.5$. (More details about the structure of the model specification text are provided in a separate tutorial.)
+
+First, we load the **MCSimMod** package as follows.
+```{r}
+library(MCSimMod)
+```
+
+Then we define the model string as follows.
 ```{r, results='hide'}
-mod_string = "
+mod_string <- "
 States = {y};
 y0 = 2;
 m = 0.5;
@@ -35,14 +44,14 @@ Dynamics {
 }
 End.
 "
-model = MCSimMod::Model(mString=mod_string)
+model <- createModel(mString = mod_string)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) and perform a simulation that provides results for the desired output times ($t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
 model$loadModel()
-times = seq(from = 0, to = 20, by = 0.1)
-out = model$runModel(times)
+times <- seq(from = 0, to = 20, by = 0.1)
+out <- model$runModel(times)
 ```
 
 The final command shown above performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the linear model we've created here, is always labeled "time" in the output data structure.
@@ -60,13 +69,15 @@ model$Y0
 Finally, we can create a visual representation of the simulation results. For example, we can plot the value of $y$ vs. time ($t$) using the following command.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out[, "time"], out[, "y"], type = "l", lty = 1, lwd = 2, xlab = "Time",
-     ylab = "y")
+plot(out[, "time"], out[, "y"],
+  type = "l", lty = 1, lwd = 2, xlab = "Time",
+  ylab = "y"
+)
 ```
 
 We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method. Using the argument `deleteModel=TRUE` causes the model file (with name ending in ".model") that was created from the model string to also be deleted.
 
 ```{r, results='hide'}
 # Cleanup required for vignette to pass
-model$cleanup(deleteModel=TRUE)
+model$cleanup(deleteModel = TRUE)
 ```

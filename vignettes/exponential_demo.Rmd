@@ -10,10 +10,12 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE,
-                      warning=FALSE,
-                      collapse=TRUE,
-                      comment="#>")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 ## A Mathematical Model for Exponential Growth or Decay
@@ -91,12 +93,12 @@ Using the following commands, we create an exponential model object (i.e., an in
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
-mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 
-# Create a model object using the example MCSim model specification file 
+# Create a model object using the example MCSim model specification file
 # "exponential.model" included in the MCSimMod package.
-exp_mod_name = file.path(mod_path, "exponential")
-exp_mod = Model(mName=exp_mod_name)
+exp_mod_name <- file.path(mod_path, "exponential")
+exp_mod <- createModel(exp_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows. If necessary (e.g., when the model has not previously been "built"), this step will create output files (with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") in the same directory that contains the model specification file (with a name ending in ".model"). Some of these model files (the ones with names ending in "_inits.R" and ".dll" or ".so") are used to perform simulations with the model.
@@ -109,9 +111,9 @@ exp_mod$loadModel()
 
 Next, we can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for our simulation (i.e., $A_0 = 100$ and $r = -0.5$). 
 ```{r, results='hide'}
-# Change the values of the model parameters from their default values: set the 
+# Change the values of the model parameters from their default values: set the
 # initial amount (A0) to 100 and the exponential rate (r) to -0.5.
-exp_mod$updateParms(c(A0=100, r=-0.5))
+exp_mod$updateParms(c(A0 = 100, r = -0.5))
 
 # Update the initial value(s) of the state variable(s) based on the updated
 # parameter value(s).
@@ -123,10 +125,10 @@ Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updated
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
 # Define output times for simulation.
-times = seq(from=0, to=20, by=0.1)
+times <- seq(from = 0, to = 20, by = 0.1)
 
 # Run simulation.
-out = exp_mod$runModel(times)
+out <- exp_mod$runModel(times)
 ```
 
 ## Examining the Results
@@ -146,8 +148,10 @@ exp_mod$Y0
 Finally, we can create a visual representation of the simulation results. For example, we can plot the amount vs. time using the following command.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out[, "time"], out[, "A"], type="l", lty=1, lwd=2,
-     xlab="Time", ylab="Amount")
+plot(out[, "time"], out[, "A"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time", ylab = "Amount"
+)
 ```
 
 ## Removing Output Files

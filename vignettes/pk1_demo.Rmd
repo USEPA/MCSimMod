@@ -10,10 +10,12 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE,
-                      warning=FALSE,
-                      collapse=TRUE,
-                      comment="#>")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 ## Model Description
@@ -61,12 +63,12 @@ Using the following commands, we create a model object (i.e., an instance of the
 ```{r, results='hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
-mod_path = file.path(system.file(package = "MCSimMod"), "extdata")
+mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 
-# Create a model object using the example MCSim model specification file 
+# Create a model object using the example MCSim model specification file
 # "pk1.model" included in the MCSimMod package.
-pk1_mod_name = file.path(mod_path, "pk1")
-pk1_mod = Model(mName=pk1_mod_name)
+pk1_mod_name <- file.path(mod_path, "pk1")
+pk1_mod <- createModel(pk1_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
@@ -80,7 +82,7 @@ pk1_mod$loadModel()
 Suppose we want to predict the blood concentration of a substance during the 20-hour period following oral ingestion of 200 mg of the substance. Let's assume that the oral absorption rate constant ($k_{01}$) is 0.8 h$^{-1}$, the clearance rate constant ($k_{12}$) is 0.4 h$^{-1}$, and the volume of distribution ($V_\textrm{d}$) is 45 L. We can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for simulation of this scenario as follows.
 ```{r, results='hide'}
 # Change the values of the model parameters from their default values.
-pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))
+pk1_mod$updateParms(c(k01 = 0.8, k12 = 0.4, Vd = 45, A0_init = 200))
 
 # Update the initial value(s) of the state variable(s) based on the updated
 # parameter value(s).
@@ -92,10 +94,10 @@ Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
 # Define output times for simulation.
-times = seq(from=0, to=20, by=0.1)
+times <- seq(from = 0, to = 20, by = 0.1)
 
 # Run simulation.
-out_oral = pk1_mod$runModel(times)
+out_oral <- pk1_mod$runModel(times)
 ```
 
 ## Examining the Results
@@ -115,8 +117,10 @@ pk1_mod$Y0
 Finally, we can create a visual representation of the simulation results. For example, we can plot the concentration vs. time using the following commands.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
-     xlab="Time (h)", ylab="Concentration (mg/L)")
+plot(out_oral[, "time"], out_oral[, "C"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time (h)", ylab = "Concentration (mg/L)"
+)
 ```
 
 ## Predicting the Blood Concentration of a Substance Following an IV Dose
@@ -124,7 +128,7 @@ plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
 Suppose we want to predict the blood concentration of a substance during the 10-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
 ```{r, results='hide'}
 # Change the values of the model parameters.
-pk1_mod$updateParms(c(k12=0.4, Vd=45, A0_init=0, A1_init=200))
+pk1_mod$updateParms(c(k12 = 0.4, Vd = 45, A0_init = 0, A1_init = 200))
 
 # Update the initial value(s) of the state variable(s) based on the updated
 # parameter value(s).
@@ -141,16 +145,18 @@ pk1_mod$Y0
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
 # Run simulation.
-out_IV = pk1_mod$runModel(times)
+out_IV <- pk1_mod$runModel(times)
 ```
 
 We can create a visual representation of the simulation results for both the oral dosing and IV dosing scenarios using the following commands.
 ```{r, fig.dim=c(6, 4), fig.align='center'}
 # Plot simulation results.
-plot(out_oral[, "time"], out_oral[, "C"], type="l", lty=1, lwd=2,
-     xlab="Time (h)", ylab="Concentration (mg/L)", ylim=c(0, 5))
-lines(out_IV[, "time"], out_IV[, "C"], lty=2, lwd=2)
-legend("topright", c("Oral", "IV"), lty=c(1, 2), lwd=2)
+plot(out_oral[, "time"], out_oral[, "C"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time (h)", ylab = "Concentration (mg/L)", ylim = c(0, 5)
+)
+lines(out_IV[, "time"], out_IV[, "C"], lty = 2, lwd = 2)
+legend("topright", c("Oral", "IV"), lty = c(1, 2), lwd = 2)
 ```
 
 Because the PK model we're using assumes that 100% of the substance in the exposure compartment (i.e., $A_0$) will eventually be transferred to the central compartment (i.e., 100% bioavailability for the oral exposure scenario) and 100% of an IV dose is delivered directly to the central compartment, the AUCs (at $t = \infty$) for the oral and IV exposure scenarios should be equal. We can verify that the AUCs at $t = 20$ hours (by which time most of the substance has been cleared) for both scenarios are approximately equal by examining the value of the $\textrm{AUC}$ output variable in the final row of the respective output matrices.
