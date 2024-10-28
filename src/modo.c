@@ -1300,7 +1300,7 @@ ForAllVarwSep
 */
 int ForAllVarwSep(PFILE pfile, PVMMAPSTRCT pvm, PFI_CALLBACK pfiFunc, HANDLE hType, PVOID pinfo) {
   int iTotal = 0;
-  long End = -1;
+  int64_t End = -1;
   int iCount = 0;
 
   while (pvm) {
