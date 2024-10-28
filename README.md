@@ -64,17 +64,3 @@ R -e "devtools::install()"
 R -e "devtools::test()"
 R -e "covr::report(file='coverage_html/index.html')"
 ```
-
-### Code formatting
-
-To keep the source code consistent, we use the [styler](https://styler.r-lib.org/) package to format R code. A specific version of the package is installed to ensure that results are consistent.
-
-```R
-# install the pinned version
-install.packages("styler",version="1.10.3")
-
-# style all files in the package, including vignettes and tests
-styler::style_pkg(".")
-```
-
-A check is added in continuous integration that the code is formatted correctly. If the code is not formatted correctly, the build will fail.
