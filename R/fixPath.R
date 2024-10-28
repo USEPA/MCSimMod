@@ -13,7 +13,15 @@
 
   has_space <- grepl(" ", new.mPath)
   if (has_space == T) {
-    stop("Error: User-defined directory has space which will throw error for .dll/.so compilation")
+
+
+
+
+    stop(
+      "Error: User-defined directory has space which will throw error for .dll/.so compilation"
+
+
+    )
   }
 
   return(list("mPath" = new.mPath, "mName" = new.mName))
