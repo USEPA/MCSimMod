@@ -1438,7 +1438,7 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
   PSTR *pszFileNames = NULL;
   INPUTBUF ibInLocal;
   InitINPUTBUF(&ibInLocal);
-  int iSBML_level;
+  int iSBML_level =0; //assign 0 by default (based on ReadSBMLLevel)
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* read the SBML model file names from current buffer */

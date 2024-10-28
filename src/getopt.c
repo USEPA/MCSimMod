@@ -163,14 +163,14 @@ static int last_nonopt;
 
 __attribute__((warn_unused_result)) static int exchange(char **argv) {
   int nonopts_size = (last_nonopt - first_nonopt) * sizeof(char *);
-  char **temp;
+  char *temp;
 
   if (nonopts_size == 0) {
     Rprintf("Error: zero length array allocation in exchange - Exiting\n");
     return EXIT_ERROR;
   }
 
-  temp = (char **)malloc(nonopts_size);
+  temp = (char *)malloc(nonopts_size);
 
   if (temp == NULL) {
     PROPAGATE_EXIT(ReportError(NULL, RE_OUTOFMEM | RE_FATAL, "exchange", NULL));
@@ -178,9 +178,9 @@ __attribute__((warn_unused_result)) static int exchange(char **argv) {
 
   /* Interchange the two blocks of data in ARGV.  */
 
-  my_bcopy(&argv[first_nonopt][0], temp[0], nonopts_size);
+  my_bcopy(&argv[first_nonopt][0], temp, nonopts_size);
   my_bcopy(&argv[last_nonopt][0], &argv[first_nonopt][0], (optind - last_nonopt) * sizeof(char *));
-  my_bcopy(temp[0], &argv[first_nonopt + optind - last_nonopt][0], nonopts_size);
+  my_bcopy(temp, &argv[first_nonopt + optind - last_nonopt][0], nonopts_size);
 
   /* Update records for the slots the non-options now occupy.  */
 
