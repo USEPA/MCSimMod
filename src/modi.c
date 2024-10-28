@@ -131,7 +131,7 @@ int GetVarList(PINPUTBUF pibIn, PSTR szLex, int iKWCode) {
         }
       } else { /* simple var */
         /* push back szPunct */
-        *pibIn->pbufCur--;
+        pibIn->pbufCur--;
         PROPAGATE_EXIT(DeclareModelVar(pibIn, szLex, iKWCode));
       }
     } else { /* not an identifier, should be ',' or '}' */

@@ -1337,7 +1337,6 @@ int ForAllVarwSep(PFILE pfile, PVMMAPSTRCT pvm, PFI_CALLBACK pfiFunc, HANDLE hTy
    0 otherwise.
 */
 int Is_numeric(PSTR str) {
-  double val;
   char *ptr;
 
   if (str) {
@@ -1347,7 +1346,7 @@ int Is_numeric(PSTR str) {
        be the same, but if str is something like 2 * Vblood,
        ptr will point to the '*'. In both these cases, strlen will
        return a non-zero value (I think). */
-    val = strtod((char *)str, &ptr);
+    strtod((char *)str, &ptr);
     if (strlen(ptr) > 0) {
       return (0);
     } else {
@@ -1357,8 +1356,7 @@ int Is_numeric(PSTR str) {
     return (2);
   }
 
-} /* Is_numeric
-
+} /* Is_numeric */
 
 /* ----------------------------------------------------------------------------
    WriteOne_R_ParmDecl
@@ -1720,7 +1718,7 @@ int Write_R_Model(PINPUTINFO pinfo, PSTR szFileOut) {
   /* Length of buffer for new file name: includes terminating null */
   nRout = nbase + strlen(Rappend) + 1;
   Rfile = (PSTR)malloc(nRout);
-  Rfile = strncpy(Rfile, szFileOut, nbase+1);
+  Rfile = strncpy(Rfile, szFileOut, nbase + 1);
   Rfile[nbase] = '\0';
   Rfile = strcat(Rfile, Rappend);
   pfile = fopen(Rfile, "w");

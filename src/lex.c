@@ -1059,7 +1059,7 @@ int GetStatement(PINPUTBUF pibIn, PSTR szStmt, int iKWCode) {
         if (*pibIn->pbufCur == '\\') {
           /* the next character must be a # for C directive and will not
              be treated as a comment, but passed verbatim */
-          *pibIn->pbufCur++;
+          pibIn->pbufCur++;
           if (*pibIn->pbufCur != CH_COMMENT) {
             char szTmp[3]; // 2 chars + '\0' for terminating the string
             snprintf(szTmp, 3, "\\%c", *pibIn->pbufCur);
