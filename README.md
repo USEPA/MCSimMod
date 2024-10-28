@@ -71,7 +71,7 @@ To keep the source code consistent, we use the [styler](https://styler.r-lib.org
 
 ```R
 # install the pinned version
-install.packages("styler",version="1.10.3")
+install.packages("styler", version="1.10.3")
 
 # style all files in the package, including vignettes and tests
 styler::style_pkg(".")

@@ -33,6 +33,7 @@ jobs:
           extra-packages: any::rcmdcheck, any::covr, any::DT, any::devtools
       - name: Check R Code Style
         run: |
+          R -e "install.packages("styler", version="1.10.3")"
           R -e "styler::style_pkg('.')"
           git diff --exit-code
       - name: Check Package
