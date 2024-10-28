@@ -34,6 +34,7 @@ jobs:
             dev
             website
       - name: Check R Code Style
+        shell: bash
         run: |
           R -e "styler::style_pkg('.')"
           git diff --exit-code
