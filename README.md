@@ -1,8 +1,8 @@
 # MCSimMod: Run MCSim MODels in R environment
 
-MCSimMod is an R package that converts the MCSim domain-specific language (DSL) into a dynamic library (windows) or shared object (linux) for use with the ordinary differential equation solver: `deSolve`
+MCSimMod is an R package that converts the [GNU MCSim](https://www.gnu.org/software/mcsim/) domain-specific language (DSL) into a dynamic library (windows) or shared object (linux) for use with the [desolve](https://cran.r-project.org/web/packages/deSolve/index.html) ordinary differential equation solver.
 
-If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. See [CONTRIBUTING](CONTRIBUTING.md) for more information. 
+If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 `deSolve` needed for `MCSimMod`:
 
