@@ -14,7 +14,7 @@ Depends:
 Imports:
     deSolve
 URL: https://github.com/USEPA/MCSimMod
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -25,6 +25,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/Needs/dev:
     devtools,
+    styler (== 1.10.3),
     testthat,
     covr
 Config/Needs/website:
