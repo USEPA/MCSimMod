@@ -121,7 +121,7 @@
   }
 
 #define PROPAGATE_EXIT_OR_RETURN_RESULT(func)                                                                          \
-  ({                                                                                                                   \
+  __extension__({                                                                                                      \
     int ret = (func);                                                                                                  \
     if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
       Rprintf("PROPAGATE_EXIT_OR_RETURN_RESULT at line %d in file %s\n", __LINE__, __FILE__);                          \
@@ -141,7 +141,7 @@
   }
 
 #define CLEANUP_AND_PROPAGATE_EXIT_OR_RETURN_RESULT(cleanup, func)                                                     \
-  ({                                                                                                                   \
+  __extension__({                                                                                                      \
     int ret = (func);                                                                                                  \
     if (ret == EXIT_NOERROR || ret == EXIT_ERROR) {                                                                    \
       (cleanup);                                                                                                       \

@@ -211,10 +211,10 @@ __attribute__((warn_unused_result)) int ConstructEqn(PINPUTBUF pibIn, PSTR szRNa
   /* get the stoichiometry if it is there, otherwise assume 1 */
   *pibIn->pbufCur = *pibIn->pbufCur + 1; /* pass closing '"' of name */
   while ((*pibIn->pbufCur != '"') && (*pibIn->pbufCur != '>')) {
-    *pibIn->pbufCur++;
+    pibIn->pbufCur++;
   }
   if (*pibIn->pbufCur == '"') {
-    *pibIn->pbufCur++;
+    pibIn->pbufCur++;
     GetNumber(pibIn, szStoichio, &iLexType);
   } else {
     snprintf(szStoichio, MAX_LEX, "1");
@@ -269,15 +269,25 @@ long CountLines(PFILE pFileIn) {
   char szDummy[2];
 
   /* skip the first line of comments in pFileIn */
-  int ret = fscanf(pFileIn, "%*[^\n]");
+  if (fscanf(pFileIn, "%*[^\n]") < 0) {
+    Rprintf("Error Counting Lines.Exiting...\n\n");
+    return EXIT_ERROR;
+  }
   getc(pFileIn);
 
   /* keep reading lines as long as we have not reached eof */
   while (!(feof(pFileIn))) {
-    if (fscanf(pFileIn, "%1s", szDummy) > 0) {
+    int ret = fscanf(pFileIn, "%1s", szDummy);
+    if (ret > 0) {
       nLines++;
+    } else if (ret < 0) {
+      Rprintf("Error Counting Lines.Exiting...\n\n");
+      return EXIT_ERROR;
     }
-    ret = fscanf(pFileIn, "%*[^\n]");
+    if (fscanf(pFileIn, "%*[^\n]") < 0) {
+      Rprintf("Error Counting Lines.Exiting...\n\n");
+      return EXIT_ERROR;
+    };
     getc(pFileIn); /* throw away rest of line */
   }
 
@@ -490,7 +500,8 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) <
+          0) { // truncated--should never happen with the above check.
         return EXIT_ERROR;
       }
       strncpy(szTmpEq, szTmpEqSwap, len);
@@ -575,7 +586,8 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) < 0) { // truncated--should never happen with the above check.
+      if (snprintf(szTmpEqSwap, len, "%s%s", szTmpEq, szLex) <
+          0) { // truncated--should never happen with the above check.
         return EXIT_ERROR;
       }
       strncpy(szTmpEq, szTmpEqSwap, len);
@@ -771,7 +783,7 @@ __attribute__((warn_unused_result)) int ReadParameter(PINPUTBUF pibIn) {
   PSTRLEX szName;
   PSTREQN szEqn;
   int iLexType;
-  PVMMAPSTRCT pvm;
+  PVMMAPSTRCT pvm = NULL;
   HANDLE hType;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
@@ -921,8 +933,6 @@ int ReadApply(PINPUTBUF pibIn, PINT bInited, PSTR szEqn) {
   BOOL bDone = FALSE;
   char c;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
-
-  
 
   /* write an opening '(' to szEqn */
   if (*bInited) { /* we are somewhere in an "apply" section: concatenate */
@@ -1210,7 +1220,7 @@ __attribute__((warn_unused_result)) int Read1Species(PINPUTBUF pibIn, BOOL bProc
   HANDLE hType;
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
   PINPUTINFO ptempinfo = (PINPUTINFO)pibIn->pTempInfo;
-  PVMMAPSTRCT pvm;
+  PVMMAPSTRCT pvm = NULL;
 
   pinfo->wContext = CN_GLOBAL;
 
@@ -1255,10 +1265,11 @@ __attribute__((warn_unused_result)) int Read1Species(PINPUTBUF pibIn, BOOL bProc
           Rprintf("Exiting...\n\n");
           return EXIT_ERROR;
         }
-        if (snprintf(szNameSwap, len, "%s_%s", szName, szCpt) < 0) { // truncated--should never happen with the above check.
+        if (snprintf(szNameSwap, len, "%s_%s", szName, szCpt) <
+            0) { // truncated--should never happen with the above check.
           return EXIT_ERROR;
         }
-        strncpy(szName, szNameSwap,len);
+        strncpy(szName, szNameSwap, len);
       }
 
       if (bBoundary) {
@@ -1427,7 +1438,7 @@ int ReadSBMLModels(PINPUTBUF pibIn) {
   PSTR *pszFileNames = NULL;
   INPUTBUF ibInLocal;
   InitINPUTBUF(&ibInLocal);
-  int iSBML_level;
+  int iSBML_level =0; //assign 0 by default (based on ReadSBMLLevel)
   PINPUTINFO pinfo = (PINPUTINFO)pibIn->pInfo;
 
   /* read the SBML model file names from current buffer */
