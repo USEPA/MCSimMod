@@ -1,10 +1,14 @@
 ^MCSimMod\.Rproj$
 ^\.Rproj\.user$
+^\.covrignore$
 ^\.github$
 ^.*\.Rproj$
+^\_pkgdown.yml$
 .clang-format
 README.md
 CONTRIBUTING.md
 ^LICENSE\.md$
 ^doc$
+^dist$
 ^Meta$
+^scripts$
