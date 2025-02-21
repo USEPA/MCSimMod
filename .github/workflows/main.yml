@@ -11,7 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  R-CMD-check:
+
+  check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     strategy:
@@ -30,7 +31,7 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, any::covr, any::DT, any::devtools          
+          extra-packages: any::rcmdcheck, any::covr, any::DT, any::devtools
           needs: |
             dev
             website
@@ -59,3 +60,26 @@ jobs:
             docs
             dist
           retention-days: 90
+      - name: Upload Pages
+        uses: actions/upload-pages-artifact@v3
+        if: runner.os == 'Linux'
+        with:
+          path: docs
+
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    needs: check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
