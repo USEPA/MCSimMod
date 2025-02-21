@@ -11,7 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  R-CMD-check:
+
+  check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     strategy:
@@ -67,7 +68,7 @@ jobs:
 
   deploy-docs:
     name: Deploy to GitHub Pages
-    needs: build
+    needs: check
     runs-on: ubuntu-24.04
     permissions:
       contents: read
