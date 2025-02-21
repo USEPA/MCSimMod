@@ -50,7 +50,7 @@ In order to solve an initial value problem for the classical PK model, one needs
 
 We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
 
-The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateModel` method of the `Model` class) the initial conditions of the state variables.
+The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateY0` method of the `Model` class) the initial conditions of the state variables.
 
 ## Building the Model
 
@@ -89,7 +89,7 @@ pk1_mod$updateParms(c(k01 = 0.8, k12 = 0.4, Vd = 45, A0_init = 200))
 pk1_mod$updateY0()
 ```
 
-Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updated the initial value of the state variables. (We did not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
+Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updated the initial values of the state variables. (We did not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
@@ -125,7 +125,7 @@ plot(out_oral[, "time"], out_oral[, "C"],
 
 ## Predicting the Blood Concentration of a Substance Following an IV Dose
 
-Suppose we want to predict the blood concentration of a substance during the 10-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
+Suppose we want to predict the blood concentration of a substance during the 20-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
 ```{r, results='hide'}
 # Change the values of the model parameters.
 pk1_mod$updateParms(c(k12 = 0.4, Vd = 45, A0_init = 0, A1_init = 200))
