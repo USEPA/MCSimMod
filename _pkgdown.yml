@@ -2,3 +2,14 @@ url: usepa.github.io/mcsimmod/
 template:
   bootstrap: 5
   light-switch: true
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - quickstart
+  - exponential_demo
+  - newt_cool_demo
+  - pred_prey_demo
+  - pk1_demo
+  - inputs_demo
+  - events_demo
