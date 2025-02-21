@@ -70,7 +70,7 @@ newt_mod$updateParms(c(T0 = 95, Tamb = 22, r = 0.7))
 newt_mod$updateY0()
 ```
 
-Note that executing the command `newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `next_mod$updateY0()` updated the initial value of the state variable `T` using the updated value of the parameter `T0`.
+Note that executing the command `newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `newt_mod$updateY0()` updated the initial value of the state variable `T` using the updated value of the parameter `T0`.
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 5.0$) using the following commands.
 ```{r, results='hide'}
@@ -83,7 +83,7 @@ out <- newt_mod$runModel(times)
 
 ## Examining the Results
 
-The final command shown above, `out = newt_mod$runModel(times)`,  performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. There is one row for each output time, and one column for each state variable (and each output variable when such variables are included in the model). The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the Newton's Law of Cooling model, is always labeled "time" in the output data structure.
+The final command shown above, `out <- newt_mod$runModel(times)`,  performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. There is one row for each output time, and one column for each state variable (and each output variable when such variables are included in the model). The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the Newton's Law of Cooling model, is always labeled "time" in the output data structure.
 ```{r, echo=FALSE, results='asis'}
 library(knitr)
 kable(out[1:5, ])
