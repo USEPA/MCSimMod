@@ -1,53 +1,42 @@
-# MCSimMod: Run MCSim MODels in R environment
+# MCSimMod: An R Package for Working with MCSim Models
 
-MCSimMod is an R package that converts the [GNU MCSim](https://www.gnu.org/software/mcsim/) domain-specific language (DSL) into a dynamic library (windows) or shared object (linux) for use with the [desolve](https://cran.r-project.org/web/packages/deSolve/index.html) ordinary differential equation solver.
+MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
 
-If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
+If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
 
-`deSolve` needed for `MCSimMod`:
-
-`install.packages("deSolve")`
-
-If installing from github, `devtools` is required:
-
-`install.packages("devtools")`
-
-OS-specific installation instructions are available below.
-
-## Windows Install
-Make sure [RTools](https://cran.r-project.org/bin/windows/Rtools/) is installed prior to MCSimMod install.
-
-Once RTools is installed, install MCSimMod from github
-
-`devtools::install_github("https://github.com/USEPA/MCSimMod.git")`
-
-Or from source:
-
-Use the pre-built MCSimMod.tar.gz provided.
-
-```
-install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
-```
-
-## Linux install
-Simply run:
-
-`devtools::install_github("https://github.com/USEPA/MCSimMod.git")`
-
-Or from source:
-Use the pre-built MCSimMod.tar.gz provided.
-
-```
-install.packages('path/to/MCSimMod.tar.gz', repos=NULL, type='source')
-```
-
-## Developer installation
-
-Git clone the repository. Within an R session in the working directory:
-
+To work with `MCSimMod`, the package `deSolve` must be installed.
 ```R
-install.packages(c('devtools'))
+install.packages("deSolve")
+```
 
+To install `MCSimMod` directly from GitHub, `devtools` is required.
+```R
+install.packages("devtools")
+```
+
+## Installation
+When working in a Windows operating system, make sure [RTools](https://cran.r-project.org/bin/windows/Rtools/) is installed before attempting to install `MCSimMod`.
+
+To install `MCSimMod` directly from GitHub, use the following command.
+```R
+devtools::install_github("https://github.com/USEPA/MCSimMod.git")
+```
+
+Alternatively, install `MCSimMod` from a compressed "tarball" file using the following command.
+```R
+install.packages("path/to/MCSimMod.tar.gz", repos=NULL, type="source")
+```
+
+## Getting Started
+To learn about the `MCSimMod` package and how to use it, check out the vignettes.
+```R
+browseVignettes(package="MCSimMod")
+```
+
+## Developer Installation
+
+If you wish to contribute to development of `MCSimMod`, first clone the [MCSimMod repository](https://github.com/USEPA/MCSimMod.git) Then, start an R session and set the current working directory to a directory within the repository. To document, build, install, and test the package, use the following commands.
+```R
 devtools::document()
 devtools::build()
 devtools::install()
@@ -55,8 +44,7 @@ devtools::test()
 covr::report(file='coverage_html/index.html')
 ```
 
-You can also call from the command-line:
-
+You can also issue these commands from a Windows or Unix command line terminal as follows.
 ```bash
 R -e "devtools::document()"
 R -e "devtools::build()"
@@ -65,10 +53,8 @@ R -e "devtools::test()"
 R -e "covr::report(file='coverage_html/index.html')"
 ```
 
-### Code formatting
-
-To keep the source code consistent, we use the [styler](https://styler.r-lib.org/) package to format R code. A specific version of the package is installed to ensure that results are consistent.
-
+## Code Formatting
+To maintain a consistent format for all `MCSimMod` source code, we use the [styler](https://styler.r-lib.org/) package to format R code. Note that we use a specific version of the package.
 ```R
 # install the pinned version
 install.packages("styler", version="1.10.3")
@@ -77,4 +63,4 @@ install.packages("styler", version="1.10.3")
 styler::style_pkg(".")
 ```
 
-A check is added in continuous integration that the code is formatted correctly. If the code is not formatted correctly, the build will fail.
+A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the build will fail.
