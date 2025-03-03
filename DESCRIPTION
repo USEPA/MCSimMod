@@ -1,13 +1,13 @@
 Package: MCSimMod
-Title: MCSim MODeling Framework
-Version: 0.2
+Title: An R Package for Working with MCSim Models
+Version: 0.3
 Authors@R: c(
     person("Dustin F.", "Kapraun", role=c("aut", "cre"), email = "kapraun.dustin@epa.gov", comment = c(ORCID = "0000-0001-5570-6383")),
 	person("Todd J.", "Zurlinden", role="aut", comment = c(ORCID = "0000-0003-1372-3913")),
 	person("Andrew", "Shapiro", role="aut", comment = c(ORCID = "0000-0002-5233-8092")),
 	person("Ryan", "Friese", role="aut", comment = c(ORCID = "0000-0002-4121-2195"))
 	)
-Description: MCSimMod converts MCSim domain-specific language (DSL) models to create shared/dynamic libraries for solving ordinary differential equations.
+Description: MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the GNU MCSim model specification language using ODE solvers from the R package deSolve.
 Depends:
 	methods,
 	tools
