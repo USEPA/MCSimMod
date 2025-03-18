@@ -2,11 +2,7 @@
 % Please edit documentation in R/compileModel.R
 \name{compileModel}
 \alias{compileModel}
-\title{This function translates a model that has been defined in an MCSim model
-(".model") file into the C language (i.e., a ".c" file). It then compiles the
-model to create an object code (".o") file and a dynamic linked library
-(".dll") file, as well as an R script ("_inits.R") containing several R
-functions that can be used for initializing model states and parameters.}
+\title{Compiles a model file into an executable dynamic linked library}
 \usage{
 compileModel(model_file, c_file, dll_name, dll_file, hash_file = NULL)
 }
@@ -22,6 +18,13 @@ compileModel(model_file, c_file, dll_name, dll_file, hash_file = NULL)
 \item{hash_file}{Location of hash key for determining if .model file has changed}
 }
 \description{
+This function translates a model that has been defined in an MCSim model
+(".model") file into the C language (i.e., a ".c" file). It then compiles the
+model to create an object code (".o") file and a dynamic linked library
+(".dll") file, as well as an R script ("_inits.R") containing several R
+functions that can be used for initializing model states and parameters.
+}
+\details{
 Inputs:
 mName: String containing the name of the MCSim model. Exclude the file name
 suffix ".model". If the function is called from a working directory other

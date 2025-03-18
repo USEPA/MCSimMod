@@ -5,7 +5,44 @@
 \alias{Model-class}
 \alias{Model}
 \title{MCSimMod class to run a model}
-\description{
-A class for managing MCSimMod models
+\arguments{
+\item{mName}{Definition for mName}
+
+\item{mString}{Definition for mString}
 }
+\description{
+A class for managing MCSimMod models.
+}
+\details{
+Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta.
+Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices
+dolor convallis ac. Quisque dolor ligula, placerat non dui quis, consectetur vestibulum tortor.
+Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus,
+dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed
+vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla
+facilisi.
+}
+\section{Fields}{
+
+\describe{
+\item{\code{nMame}}{my favorite color is green}
+
+\item{\code{parms}}{my favorite color is blue}
+}}
+
+\section{Methods}{
+
+\describe{
+\item{\code{cleanup(deleteModel = F)}}{Docstring for cleanup}
+
+\item{\code{initialize(...)}}{Docstring for initialize. Can also define above for the class definition.}
+
+\item{\code{loadModel(force = FALSE)}}{Docstring for loadModel}
+
+\item{\code{runModel(times, method = "lsoda", ...)}}{Docstring for runModel}
+
+\item{\code{updateParms(new_parms = NULL)}}{Docstring for updateParms}
+
+\item{\code{updateY0(new_states = NULL)}}{Docstring for updateY0.}
+}}
 

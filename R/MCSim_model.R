@@ -1,16 +1,30 @@
 #' MCSimMod class to run a model
 #'
-#' A class for managing MCSimMod models
+#' A class for managing MCSimMod models. 
+#' 
+#' Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta. 
+#' Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices 
+#' dolor convallis ac. Quisque dolor ligula, placerat non dui quis, consectetur vestibulum tortor.
+#' Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus, 
+#' dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed 
+#' vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla 
+#' facilisi.
 #'
+#' @param mName Definition for mName
+#' @param mString Definition for mString
+#' 
 #' @import methods
 #' @import deSolve
 Model <- setRefClass("Model",
   fields = list(
+    #' @field nMame my favorite color is green
+    #' @field parms my favorite color is blue
     mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "ANY",
     parms = "numeric", Y0 = "numeric", paths = "list"
   ),
   methods = list(
     initialize = function(...) {
+      "Docstring for initialize. Can also define above for the class definition."
       callSuper(...)
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot both have a model file `mName` and a model string `mString`")
@@ -37,7 +51,7 @@ Model <- setRefClass("Model",
       )
     },
     loadModel = function(force = FALSE) {
-      # If now checks force=T or if the hashes don't match
+      "Docstring for loadModel"
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
         hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
@@ -68,12 +82,15 @@ Model <- setRefClass("Model",
       Y0 <<- initStates(parms)
     },
     updateParms = function(new_parms = NULL) {
+      "Docstring for updateParms"
       parms <<- initParms(new_parms)
     },
     updateY0 = function(new_states = NULL) {
+      "Docstring for updateY0."
       Y0 <<- initStates(parms, new_states)
     },
     runModel = function(times, method = "lsoda", ...) {
+      "Docstring for runModel"
       # Solve the ODE system using the "ode" function from the package "deSolve".
       out <- ode(Y0, times,
         func = "derivs", parms = parms, dllname = paths$dll_name,
@@ -85,6 +102,7 @@ Model <- setRefClass("Model",
       return(out)
     },
     cleanup = function(deleteModel = F) {
+      "Docstring for cleanup"
       # remove any model files created by compilation; unload library
       dyn.unload(paths$dll_file)
       if (file.exists(paths$o_file)) {
