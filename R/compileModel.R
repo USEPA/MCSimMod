@@ -1,5 +1,5 @@
 #' Compiles a model file into an executable dynamic linked library
-#' 
+#'
 #' This function translates a model that has been defined in an MCSim model
 #' (".model") file into the C language (i.e., a ".c" file). It then compiles the
 #' model to create an object code (".o") file and a dynamic linked library

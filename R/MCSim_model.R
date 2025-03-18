@@ -1,18 +1,18 @@
 #' MCSimMod class to run a model
 #'
-#' A class for managing MCSimMod models. 
-#' 
-#' Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta. 
-#' Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices 
+#' A class for managing MCSimMod models.
+#'
+#' Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta.
+#' Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices
 #' dolor convallis ac. Quisque dolor ligula, placerat non dui quis, consectetur vestibulum tortor.
-#' Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus, 
-#' dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed 
-#' vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla 
+#' Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus,
+#' dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed
+#' vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla
 #' facilisi.
 #'
 #' @param mName Definition for mName
 #' @param mString Definition for mString
-#' 
+#'
 #' @import methods
 #' @import deSolve
 Model <- setRefClass("Model",
