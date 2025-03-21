@@ -6,7 +6,7 @@
 #' @examples
 #' \dontrun{
 #' # Simple model
-#' mod <- createModel(/path/to/model)
+#' mod <- createModel('path/to/model')
 #' 
 #' # Load/compile the model
 #' mod$loadModel()
