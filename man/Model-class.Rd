@@ -4,55 +4,63 @@
 \name{Model-class}
 \alias{Model-class}
 \alias{Model}
-\title{MCSimMod class to run a model}
+\title{MCSimMod Model class}
 \arguments{
-\item{mName}{Name (with relative path if needed) of MCSim model file (without .model extension)}
+\item{mName}{Name of an MCSim model specification file, excluding the file name extension \code{.model}.}
 
-\item{mString}{MCSim model string defining model}
+\item{mString}{A character string containing MCSim model specification text.}
 }
 \description{
 A class for managing MCSimMod models.
 }
 \details{
-Compile and run systems of ordinary differential equations (ODEs) models
-written in the MCSim model specification language. Once compiled, model
-simulations are run using the \code{deSolve} package. All model parameters
-(\code{parms}) and initial conditions (\code{Y0}) are handled by the \code{Model} class and
-passed to the ODE solver. Simulation events and forcing functions can also
-be definted as attribtues of the \code{Model} class. Use the \code{createModel()}
-function as a wrapper for creating \code{Model} objects.
+Instances of this class represent ordinary differential equation (ODE)
+models. A \code{Model} object has both attributes (i.e., things the object “knows”
+about itself) and methods (i.e., things the object can “do”). Model
+attributes include: the name of the model (\code{mName}); a vector of parameter
+names and values (\code{parms}); and a vector of initial conditions (\code{Y0}). Model
+methods include functions for: translating, compiling, and loading the model
+(\code{loadModel}); updating parameter values (\code{updateParms}); updating initial
+conditions (\code{updateY0}); and running model simulations (\code{runModel}). So, for
+example, if \code{mod} is a Model object, it will have an attribute called \code{parms}
+that can be accessed using the R expression \code{mod$parms}. Similarly, \code{mod}
+will have a method called \code{updateParms} that can be accessed using the R
+expression \code{mod$updateParms()}. Use the \code{createModel()} function to create
+\code{Model} objects.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{nName}}{Name (with relative path if needed) of MCSim model file (without .model extension)}
+\item{\code{mName}}{Name of an MCSim model specification file, excluding the file name extension \code{.model}.}
 
-\item{\code{parms}}{List of model parameters assigned as Model attribute}
+\item{\code{mString}}{Character string containing MCSim model specification text.}
 
-\item{\code{mString}}{MCSim model string defining model}
+\item{\code{initParms}}{Function that initializes values of parameters defined for the associated MCSim model.}
 
-\item{\code{initParms}}{R function to initialize parameters as attributes created during model compilation and assigned as method for Model}
+\item{\code{initStates}}{Function that initializes values of state variables defined for teh associated MCSim model..}
 
-\item{\code{initStates}}{R function to initialize state variables as attributes created during model compilation and assigned as method for Model}
+\item{\code{Outputs}}{Names of output variables defined for the associated MCSim model.}
 
-\item{\code{Outputs}}{Outputs defined in MCSim model}
+\item{\code{parms}}{Named vector of parameter values for the associated MCSim model.}
 
-\item{\code{Y0}}{List of model initial conditions assigned as Model attribute}
+\item{\code{Y0}}{Named vector of initial conditions for the state variables of the associated MCSim model.}
+
+\item{\code{paths}}{List of character strings that are names of files associated with the model.}
 }}
 
 \section{Methods}{
 
 \describe{
-\item{\code{cleanup(deleteModel = F)}}{Cleanup the intermediate files. If \code{deleteModel = T}, delete the MCSim model}
+\item{\code{cleanup(deleteModel = FALSE)}}{Delete files created during the translation and compilation steps performed by \code{loadModel}. If \code{deleteModel = TRUE}, delete the MCSim model specification file, as well.}
 
-\item{\code{initialize(...)}}{Initialize the model using the model name (mName) or model string (mString).}
+\item{\code{initialize(...)}}{Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString).}
 
-\item{\code{loadModel(force = FALSE)}}{Load the model using the MCSim model specification language. If the compiled model does not exist or the model text has been edited, a new model is compiled}
+\item{\code{loadModel(force = FALSE)}}{Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session).}
 
-\item{\code{runModel(times, method = "lsoda", ...)}}{Run the model using \code{deSolve} for the specifies \code{times}}
+\item{\code{runModel(times, ...)}}{Perform a simulation for the Model object using the \code{deSolve} function \code{ode} for the specified \code{times}.}
 
-\item{\code{updateParms(new_parms = NULL)}}{Update parameters within the MCSimModel and assign them as an attribute to the class.}
+\item{\code{updateParms(new_parms = NULL)}}{Update values of parameters for the Model object.}
 
-\item{\code{updateY0(new_states = NULL)}}{Update initital conditions for the MCSimModel and assign them as an attribute to the class.}
+\item{\code{updateY0(new_states = NULL)}}{Update values of initital conditions of state variables for the Model object.}
 }}
 

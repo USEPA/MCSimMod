@@ -2,36 +2,35 @@
 % Please edit documentation in R/createModel.R
 \name{createModel}
 \alias{createModel}
-\title{MCSimMod class to run a model}
+\title{Function to create an MCSimMod Model object}
 \usage{
 createModel(mName = character(0), mString = character(0))
 }
 \arguments{
-\item{mName}{path to model file (without .model extension)}
+\item{mName}{Name of an MCSim model specification file, excluding the file name extension \code{.model}.}
 
-\item{mString}{string for creating model without .model file}
+\item{mString}{A character string containing MCSim model specification text.}
 }
 \description{
-A class for managing MCSimMod models. This wrapper returns a \code{Model}
-object to compile and run MCSim models.
+This function creates a \code{Model} object using an MCSim model specification
+file or an MCSim model specification string.
 }
 \examples{
 \dontrun{
 # Simple model
-mod <- createModel(/path/to/model)
+mod <- createModel("path/to/model")
 
 # Load/compile the model
 mod$loadModel()
 
 # Update parameters (P1 and P2)
-mod$updateParms(c(P1=3, P2=1))
+mod$updateParms(c(P1 = 3, P2 = 1))
 
 # Define times for ODE simulation
-times <- seq(from=0, to=24, by=0.1)
+times <- seq(from = 0, to = 24, by = 0.1)
 
 # Run the simulation
 out <- mod$runModel(times)
-
 }
 
 }

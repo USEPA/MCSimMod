@@ -1,40 +1,46 @@
-#' MCSimMod class to run a model
+#' MCSimMod Model class
 #'
 #' A class for managing MCSimMod models.
 #'
-#' Compile and run systems of ordinary differential equations (ODEs) models
-#' written in the MCSim model specification language. Once compiled, model
-#' simulations are run using the `deSolve` package. All model parameters
-#' (`parms`) and initial conditions (`Y0`) are handled by the `Model` class and
-#' passed to the ODE solver. Simulation events and forcing functions can also
-#' be definted as attribtues of the `Model` class. Use the `createModel()`
-#' function as a wrapper for creating `Model` objects.
+#' Instances of this class represent ordinary differential equation (ODE)
+#' models. A `Model` object has both attributes (i.e., things the object “knows”
+#' about itself) and methods (i.e., things the object can “do”). Model
+#' attributes include: the name of the model (`mName`); a vector of parameter
+#' names and values (`parms`); and a vector of initial conditions (`Y0`). Model
+#' methods include functions for: translating, compiling, and loading the model
+#' (`loadModel`); updating parameter values (`updateParms`); updating initial
+#' conditions (`updateY0`); and running model simulations (`runModel`). So, for
+#' example, if `mod` is a Model object, it will have an attribute called `parms`
+#' that can be accessed using the R expression `mod$parms`. Similarly, `mod`
+#' will have a method called `updateParms` that can be accessed using the R
+#' expression `mod$updateParms()`. Use the `createModel()` function to create
+#' `Model` objects.
 #'
-#'
-#' @param mName Name (with relative path if needed) of MCSim model file (without .model extension)
-#' @param mString MCSim model string defining model
+#' @param mName Name of an MCSim model specification file, excluding the file name extension `.model`.
+#' @param mString A character string containing MCSim model specification text.
 #'
 #' @import methods
 #' @import deSolve
 Model <- setRefClass("Model",
   fields = list(
-    #' @field nName Name (with relative path if needed) of MCSim model file (without .model extension)
-    #' @field parms List of model parameters assigned as Model attribute
-    #' @field mString MCSim model string defining model
-    #' @field initParms R function to initialize parameters as attributes created during model compilation and assigned as method for Model
-    #' @field initStates R function to initialize state variables as attributes created during model compilation and assigned as method for Model
-    #' @field Outputs Outputs defined in MCSim model
-    #' @field Y0 List of model initial conditions assigned as Model attribute
-    #' @paths List of paths used throughout model compilation and loading
-    mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "ANY",
-    parms = "numeric", Y0 = "numeric", paths = "list"
+    #' @field mName Name of an MCSim model specification file, excluding the file name extension `.model`.
+    #' @field mString Character string containing MCSim model specification text.
+    #' @field initParms Function that initializes values of parameters defined for the associated MCSim model.
+    #' @field initStates Function that initializes values of state variables defined for teh associated MCSim model..
+    #' @field Outputs Names of output variables defined for the associated MCSim model.
+    #' @field parms Named vector of parameter values for the associated MCSim model.
+    #' @field Y0 Named vector of initial conditions for the state variables of the associated MCSim model.
+    #' @field paths List of character strings that are names of files associated with the model.
+    mName = "character", mString = "character", initParms = "function",
+    initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
+    paths = "list"
   ),
   methods = list(
     initialize = function(...) {
-      "Initialize the model using the model name (mName) or model string (mString)."
+      "Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString)."
       callSuper(...)
       if (length(mName) > 0 & length(mString) > 0) {
-        stop("Cannot both have a model file `mName` and a model string `mString`")
+        stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
       }
       if (length(mString) > 0) {
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
@@ -58,7 +64,7 @@ Model <- setRefClass("Model",
       )
     },
     loadModel = function(force = FALSE) {
-      "Load the model using the MCSim model specification language. If the compiled model does not exist or the model text has been edited, a new model is compiled"
+      "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
         hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
@@ -67,10 +73,15 @@ Model <- setRefClass("Model",
       }
 
       # Conditions for compiling a model:
-      # 1. The dll file does not exist
-      # 2. force = T indicating the user wants to recompile
-      # 3. The hash file does not exist
-      # 4. The hash file exists, but does not match the previously saved hash indicating the model file has changed
+      # 1. The DLL (on Windows) or SO (on Unix) associated with the model
+      #    specification file cannot be found.
+      # 2. force = TRUE, indicating the user wants to recompile.
+      # 3. The hash file associated with the model specification file cannot be
+      #    found
+      # 4. The hash file can be found, but the contents of that file do not
+      #    match the previously saved hash, indicating that the model
+      #    specification file has been changed since the last translation and
+      #    compiling.
       if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
         compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file)
       }
@@ -89,27 +100,27 @@ Model <- setRefClass("Model",
       Y0 <<- initStates(parms)
     },
     updateParms = function(new_parms = NULL) {
-      "Update parameters within the MCSimModel and assign them as an attribute to the class."
+      "Update values of parameters for the Model object."
       parms <<- initParms(new_parms)
     },
     updateY0 = function(new_states = NULL) {
-      "Update initital conditions for the MCSimModel and assign them as an attribute to the class."
+      "Update values of initital conditions of state variables for the Model object."
       Y0 <<- initStates(parms, new_states)
     },
-    runModel = function(times, method = "lsoda", ...) {
-      "Run the model using \\code{deSolve} for the specifies \\code{times}"
+    runModel = function(times, ...) {
+      "Perform a simulation for the Model object using the \\code{deSolve} function \\code{ode} for the specified \\code{times}."
       # Solve the ODE system using the "ode" function from the package "deSolve".
       out <- ode(Y0, times,
         func = "derivs", parms = parms, dllname = paths$dll_name,
         initforc = "initforc", initfunc = "initmod", nout = length(Outputs),
-        outnames = Outputs, method = method, ...
+        outnames = Outputs, ...
       )
 
       # Return the simulation output.
       return(out)
     },
-    cleanup = function(deleteModel = F) {
-      "Cleanup the intermediate files. If \\code{deleteModel = T}, delete the MCSim model"
+    cleanup = function(deleteModel = FALSE) {
+      "Delete files created during the translation and compilation steps performed by \\code{loadModel}. If \\code{deleteModel = TRUE}, delete the MCSim model specification file, as well."
       # remove any model files created by compilation; unload library
       dyn.unload(paths$dll_file)
       if (file.exists(paths$o_file)) {

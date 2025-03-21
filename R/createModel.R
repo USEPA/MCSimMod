@@ -1,7 +1,7 @@
-#' MCSimMod class to run a model
+#' Function to create an MCSimMod Model object
 #'
-#' A class for managing MCSimMod models. This wrapper returns a `Model`
-#' object to compile and run MCSim models.
+#' This function creates a `Model` object using an MCSim model specification
+#' file or an MCSim model specification string.
 #'
 #' @examples
 #' \dontrun{
@@ -21,8 +21,8 @@
 #' out <- mod$runModel(times)
 #' }
 #'
-#' @param mName path to model file (without .model extension)
-#' @param mString string for creating model without .model file
+#' @param mName Name of an MCSim model specification file, excluding the file name extension `.model`.
+#' @param mString A character string containing MCSim model specification text.
 #' @export
 createModel <- function(mName = character(0), mString = character(0)) {
   return(Model(mName = mName, mString = mString))
