@@ -2,7 +2,7 @@
 #'
 #' This function translates MCSim model specification text to C and then
 #' compiles the resulting C file to create a dynamic link library (DLL) file (on
-#' Windows) or a shared object (SO) file (on Unix),
+#' Windows) or a shared object (SO) file (on Unix).
 #'
 #' @param model_file Name of an MCSim model specification file.
 #' @param c_file Name of a C source code file to be created by compiling the MCSim model specification file.
