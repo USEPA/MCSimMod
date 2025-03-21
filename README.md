@@ -58,4 +58,4 @@ install.packages("styler", version="1.10.3")
 styler::style_pkg(".")
 ```
 
-A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the build will fail.
+A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the style check will fail.
