@@ -2,29 +2,36 @@
 #'
 #' A class for managing MCSimMod models.
 #'
-#' Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta.
-#' Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices
-#' dolor convallis ac. Quisque dolor ligula, placerat non dui quis, consectetur vestibulum tortor.
-#' Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus,
-#' dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed
-#' vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla
-#' facilisi.
+#' Compile and run systems of ordinary differential equations (ODEs) models 
+#' written in the MCSim model specification language. Once compiled, model
+#' simulations are run using the `deSolve` package. All model parameters 
+#' (`parms`) and initial conditions (`Y0`) are handled by the `Model` class and
+#' passed to the ODE solver. Simulation events and forcing functions can also 
+#' be definted as attribtues of the `Model` class. Use the `createModel()` 
+#' function as a wrapper for creating `Model` objects.
+#' 
 #'
-#' @param mName Definition for mName
-#' @param mString Definition for mString
+#' @param mName Name (with relative path if needed) of MCSim model file (without .model extension)
+#' @param mString MCSim model string defining model
 #'
 #' @import methods
 #' @import deSolve
 Model <- setRefClass("Model",
   fields = list(
-    #' @field nMame my favorite color is green
-    #' @field parms my favorite color is blue
+    #' @field nName Name (with relative path if needed) of MCSim model file (without .model extension)
+    #' @field parms List of model parameters assigned as Model attribute
+    #' @field mString MCSim model string defining model 
+    #' @field initParms R function to initialize parameters as attributes created during model compilation and assigned as method for Model
+    #' @field initStates R function to initialize state variables as attributes created during model compilation and assigned as method for Model
+    #' @field Outputs Outputs defined in MCSim model
+    #' @field Y0 List of model initial conditions assigned as Model attribute
+    #' @paths List of paths used throughout model compilation and loading
     mName = "character", mString = "character", initParms = "function", initStates = "function", Outputs = "ANY",
     parms = "numeric", Y0 = "numeric", paths = "list"
   ),
   methods = list(
     initialize = function(...) {
-      "Docstring for initialize. Can also define above for the class definition."
+      "Initialize the model using the model name (mName) or model string (mString)."
       callSuper(...)
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot both have a model file `mName` and a model string `mString`")
@@ -51,7 +58,7 @@ Model <- setRefClass("Model",
       )
     },
     loadModel = function(force = FALSE) {
-      "Docstring for loadModel"
+      "Load the model using the MCSim model specification language. If the compiled model does not exist or the model text has been edited, a new model is compiled"
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
         hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
@@ -82,15 +89,15 @@ Model <- setRefClass("Model",
       Y0 <<- initStates(parms)
     },
     updateParms = function(new_parms = NULL) {
-      "Docstring for updateParms"
+      "Update parameters within the MCSimModel and assign them as an attribute to the class."
       parms <<- initParms(new_parms)
     },
     updateY0 = function(new_states = NULL) {
-      "Docstring for updateY0."
+      "Update initital conditions for the MCSimModel and assign them as an attribute to the class."
       Y0 <<- initStates(parms, new_states)
     },
     runModel = function(times, method = "lsoda", ...) {
-      "Docstring for runModel"
+      "Run the model using \code{deSolve} for the specifies \code{times}"
       # Solve the ODE system using the "ode" function from the package "deSolve".
       out <- ode(Y0, times,
         func = "derivs", parms = parms, dllname = paths$dll_name,
@@ -102,7 +109,7 @@ Model <- setRefClass("Model",
       return(out)
     },
     cleanup = function(deleteModel = F) {
-      "Docstring for cleanup"
+      "Cleanup the intermediate files. If \code{deleteModel = T}, delete the MCSim model"
       # remove any model files created by compilation; unload library
       dyn.unload(paths$dll_file)
       if (file.exists(paths$o_file)) {
