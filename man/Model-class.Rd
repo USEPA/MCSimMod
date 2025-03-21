@@ -6,43 +6,53 @@
 \alias{Model}
 \title{MCSimMod class to run a model}
 \arguments{
-\item{mName}{Definition for mName}
+\item{mName}{Name (with relative path if needed) of MCSim model file (without .model extension)}
 
-\item{mString}{Definition for mString}
+\item{mString}{MCSim model string defining model}
 }
 \description{
 A class for managing MCSimMod models.
 }
 \details{
-Morbi condimentum vulputate ipsum. Ut vulputate sem nec nulla consectetur, ac commodo purus porta.
-Integer ultrices purus eu lacus pharetra varius. Mauris sagittis facilisis dolor, consequat ultrices
-dolor convallis ac. Quisque dolor ligula, placerat non dui quis, consectetur vestibulum tortor.
-Maecenas magna elit, euismod id condimentum sed, rutrum eu sapien. Morbi bibendum vehicula lectus,
-dapibus dapibus diam pharetra eu. Etiam vestibulum aliquet justo, nec interdum lectus cursus ut. Sed
-vitae tincidunt risus. Vestibulum pharetra tellus dolor, et venenatis libero imperdiet in. Nulla
-facilisi.
+Compile and run systems of ordinary differential equations (ODEs) models
+written in the MCSim model specification language. Once compiled, model
+simulations are run using the \code{deSolve} package. All model parameters
+(\code{parms}) and initial conditions (\code{Y0}) are handled by the \code{Model} class and
+passed to the ODE solver. Simulation events and forcing functions can also
+be definted as attribtues of the \code{Model} class. Use the \code{createModel()}
+function as a wrapper for creating \code{Model} objects.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{nMame}}{my favorite color is green}
+\item{\code{nName}}{Name (with relative path if needed) of MCSim model file (without .model extension)}
 
-\item{\code{parms}}{my favorite color is blue}
+\item{\code{parms}}{List of model parameters assigned as Model attribute}
+
+\item{\code{mString}}{MCSim model string defining model}
+
+\item{\code{initParms}}{R function to initialize parameters as attributes created during model compilation and assigned as method for Model}
+
+\item{\code{initStates}}{R function to initialize state variables as attributes created during model compilation and assigned as method for Model}
+
+\item{\code{Outputs}}{Outputs defined in MCSim model}
+
+\item{\code{Y0}}{List of model initial conditions assigned as Model attribute}
 }}
 
 \section{Methods}{
 
 \describe{
-\item{\code{cleanup(deleteModel = F)}}{Docstring for cleanup}
+\item{\code{cleanup(deleteModel = F)}}{Cleanup the intermediate files. If \code{deleteModel = T}, delete the MCSim model}
 
-\item{\code{initialize(...)}}{Docstring for initialize. Can also define above for the class definition.}
+\item{\code{initialize(...)}}{Initialize the model using the model name (mName) or model string (mString).}
 
-\item{\code{loadModel(force = FALSE)}}{Docstring for loadModel}
+\item{\code{loadModel(force = FALSE)}}{Load the model using the MCSim model specification language. If the compiled model does not exist or the model text has been edited, a new model is compiled}
 
-\item{\code{runModel(times, method = "lsoda", ...)}}{Docstring for runModel}
+\item{\code{runModel(times, method = "lsoda", ...)}}{Run the model using \code{deSolve} for the specifies \code{times}}
 
-\item{\code{updateParms(new_parms = NULL)}}{Docstring for updateParms}
+\item{\code{updateParms(new_parms = NULL)}}{Update parameters within the MCSimModel and assign them as an attribute to the class.}
 
-\item{\code{updateY0(new_states = NULL)}}{Docstring for updateY0.}
+\item{\code{updateY0(new_states = NULL)}}{Update initital conditions for the MCSimModel and assign them as an attribute to the class.}
 }}
 

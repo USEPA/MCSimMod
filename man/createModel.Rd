@@ -12,5 +12,26 @@ createModel(mName = character(0), mString = character(0))
 \item{mString}{string for creating model without .model file}
 }
 \description{
-A class for managing MCSimMod models
+A class for managing MCSimMod models. This wrapper returns a \code{Model}
+object to compile and run MCSim models.
+}
+\examples{
+\dontrun{
+# Simple model
+mod <- createModel(/path/to/model)
+
+# Load/compile the model
+mod$loadModel()
+
+# Update parameters (P1 and P2)
+mod$updateParms(c(P1=3, P2=1))
+
+# Define times for ODE simulation
+times <- seq(from=0, to=24, by=0.1)
+
+# Run the simulation
+out <- mod$runModel(times)
+
+}
+
 }

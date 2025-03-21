@@ -97,7 +97,7 @@ Model <- setRefClass("Model",
       Y0 <<- initStates(parms, new_states)
     },
     runModel = function(times, method = "lsoda", ...) {
-      "Run the model using \code{deSolve} for the specifies \code{times}"
+      "Run the model using \\code{deSolve} for the specifies \\code{times}"
       # Solve the ODE system using the "ode" function from the package "deSolve".
       out <- ode(Y0, times,
         func = "derivs", parms = parms, dllname = paths$dll_name,
@@ -109,7 +109,7 @@ Model <- setRefClass("Model",
       return(out)
     },
     cleanup = function(deleteModel = F) {
-      "Cleanup the intermediate files. If \code{deleteModel = T}, delete the MCSim model"
+      "Cleanup the intermediate files. If \\code{deleteModel = T}, delete the MCSim model"
       # remove any model files created by compilation; unload library
       dyn.unload(paths$dll_file)
       if (file.exists(paths$o_file)) {
