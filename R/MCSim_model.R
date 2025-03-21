@@ -2,14 +2,14 @@
 #'
 #' A class for managing MCSimMod models.
 #'
-#' Compile and run systems of ordinary differential equations (ODEs) models 
+#' Compile and run systems of ordinary differential equations (ODEs) models
 #' written in the MCSim model specification language. Once compiled, model
-#' simulations are run using the `deSolve` package. All model parameters 
+#' simulations are run using the `deSolve` package. All model parameters
 #' (`parms`) and initial conditions (`Y0`) are handled by the `Model` class and
-#' passed to the ODE solver. Simulation events and forcing functions can also 
-#' be definted as attribtues of the `Model` class. Use the `createModel()` 
+#' passed to the ODE solver. Simulation events and forcing functions can also
+#' be definted as attribtues of the `Model` class. Use the `createModel()`
 #' function as a wrapper for creating `Model` objects.
-#' 
+#'
 #'
 #' @param mName Name (with relative path if needed) of MCSim model file (without .model extension)
 #' @param mString MCSim model string defining model
@@ -20,7 +20,7 @@ Model <- setRefClass("Model",
   fields = list(
     #' @field nName Name (with relative path if needed) of MCSim model file (without .model extension)
     #' @field parms List of model parameters assigned as Model attribute
-    #' @field mString MCSim model string defining model 
+    #' @field mString MCSim model string defining model
     #' @field initParms R function to initialize parameters as attributes created during model compilation and assigned as method for Model
     #' @field initStates R function to initialize state variables as attributes created during model compilation and assigned as method for Model
     #' @field Outputs Outputs defined in MCSim model
