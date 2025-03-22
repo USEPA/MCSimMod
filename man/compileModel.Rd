@@ -20,5 +20,5 @@ compileModel(model_file, c_file, dll_name, dll_file, hash_file = NULL)
 \description{
 This function translates MCSim model specification text to C and then
 compiles the resulting C file to create a dynamic link library (DLL) file (on
-Windows) or a shared object (SO) file (on Unix),
+Windows) or a shared object (SO) file (on Unix).
 }
