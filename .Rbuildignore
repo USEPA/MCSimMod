@@ -11,5 +11,6 @@ CONTRIBUTING.md
 ^doc$
 ^docs$
 ^dist$
+^pkgdown$
 ^Meta$
 ^scripts$
