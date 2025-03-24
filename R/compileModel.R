@@ -1,19 +1,14 @@
-#' This function translates a model that has been defined in an MCSim model
-#' (".model") file into the C language (i.e., a ".c" file). It then compiles the
-#' model to create an object code (".o") file and a dynamic linked library
-#' (".dll") file, as well as an R script ("_inits.R") containing several R
-#' functions that can be used for initializing model states and parameters.
+#' Function to translate and compile MCSim model specification text
 #'
-#' Inputs:
-#'   mName: String containing the name of the MCSim model. Exclude the file name
-#'   suffix ".model". If the function is called from a working directory other
-#'   than the one containing the ".model" file, the full path of the ".model"
-#'   file should be provided.
-#' @param model_file model file name that needs to be compiled
-#' @param c_file output c_file that is compiled by `c_mod`
-#' @param dll_name dynamic library that has the "derivs" function from a previously compiled model
-#' @param dll_file Possible previously compiled dll
-#' @param hash_file Location of hash key for determining if .model file has changed
+#' This function translates MCSim model specification text to C and then
+#' compiles the resulting C file to create a dynamic link library (DLL) file (on
+#' Windows) or a shared object (SO) file (on Unix).
+#'
+#' @param model_file Name of an MCSim model specification file.
+#' @param c_file Name of a C source code file to be created by compiling the MCSim model specification file.
+#' @param dll_name Name of a DLL or SO file without the extension (".dll" or ".so").
+#' @param dll_file Name of the same DLL or SO file with the appropriate extension (".dll" or ".so").
+#' @param hash_file Name of a file containing a hash key for determining if `model_file` has changed since the previous translation and compilation.
 #'
 #' @import tools
 #' @useDynLib MCSimMod, .registration=TRUE

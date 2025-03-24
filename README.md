@@ -2,20 +2,13 @@
 
 MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
 
-If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
-
 To work with `MCSimMod`, the package `deSolve` must be installed.
 ```R
 install.packages("deSolve")
 ```
 
-To install `MCSimMod` directly from GitHub, `devtools` is required.
-```R
-install.packages("devtools")
-```
-
 ## Installation
-When working in a Windows operating system, make sure [RTools](https://cran.r-project.org/bin/windows/Rtools/) is installed before attempting to install `MCSimMod`.
+Before installing `MCSimMod` for use on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
 
 To install `MCSimMod` directly from GitHub, use the following command.
 ```R
@@ -32,6 +25,8 @@ To learn about the `MCSimMod` package and how to use it, check out the vignettes
 ```R
 browseVignettes(package="MCSimMod")
 ```
+
+If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
 
 ## Developer Installation
 
@@ -63,4 +58,4 @@ install.packages("styler", version="1.10.3")
 styler::style_pkg(".")
 ```
 
-A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the build will fail.
+A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the style check will fail.

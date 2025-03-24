@@ -106,7 +106,7 @@ We can perform a simulation that provides results for the desired output times (
 times <- seq(from = 0, to = 20, by = 0.1)
 
 # Run simulation.
-out <- pk1_mod$runModel(times, forcings = list(data = M_table))
+out <- pk1_mod$runModel(times, forcings = list(M_table))
 ```
 
 We can perform a second simulation for which body mass remains constant at 0.25 kg using the following commands.
@@ -115,7 +115,7 @@ We can perform a second simulation for which body mass remains constant at 0.25 
 M_table2 <- cbind(times = c(0, 20), M_in = c(0.25, 0.25))
 
 # Run simulation.
-out2 <- pk1_mod$runModel(times, forcings = list(data = M_table2))
+out2 <- pk1_mod$runModel(times, forcings = list(M_table2))
 ```
 
 ## Examining the Results

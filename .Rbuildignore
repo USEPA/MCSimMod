@@ -9,6 +9,8 @@ README.md
 CONTRIBUTING.md
 ^LICENSE\.md$
 ^doc$
+^docs$
 ^dist$
+^pkgdown$
 ^Meta$
 ^scripts$
