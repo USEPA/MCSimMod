@@ -12,18 +12,18 @@ Before installing `MCSimMod` for use on a Windows operating system, be sure to i
 
 To install `MCSimMod` directly from GitHub, use the following command.
 ```R
-devtools::install_github("https://github.com/USEPA/MCSimMod.git")
+devtools::install_github("https://github.com/USEPA/MCSimMod.git", build_vignettes = TRUE)
 ```
 
 Alternatively, install `MCSimMod` from a compressed "tarball" file using the following command.
 ```R
-install.packages("path/to/MCSimMod.tar.gz", repos=NULL, type="source")
+install.packages("path/to/MCSimMod.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Getting Started
 To learn about the `MCSimMod` package and how to use it, check out the vignettes.
 ```R
-browseVignettes(package="MCSimMod")
+browseVignettes(package = "MCSimMod")
 ```
 
 If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
@@ -52,7 +52,7 @@ R -e "covr::report(file='coverage_html/index.html')"
 To maintain a consistent format for all `MCSimMod` source code, we use the [styler](https://styler.r-lib.org/) package to format R code. Note that we use a specific version of the package.
 ```R
 # install the pinned version
-install.packages("styler", version="1.10.3")
+install.packages("styler", version = "1.10.3")
 
 # style all files in the package, including vignettes and tests
 styler::style_pkg(".")

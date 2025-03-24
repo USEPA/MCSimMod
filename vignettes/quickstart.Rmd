@@ -81,6 +81,6 @@ plot(out[, "time"], out[, "y"],
 We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method. Using the argument `deleteModel=TRUE` causes the model file (with name ending in ".model") that was created from the model string to also be deleted.
 
 ```{r, results='hide'}
-# Cleanup required for vignette to pass
+# Remove temporary files that were created when building the model.
 model$cleanup(deleteModel = TRUE)
 ```
