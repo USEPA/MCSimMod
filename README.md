@@ -15,9 +15,9 @@ One can install `MCSimMod` directly from GitHub using `devtools::install_github(
 devtools::install_github("https://github.com/USEPA/MCSimMod.git", build_vignettes = TRUE)
 ```
 
-Alternatively, one can install `MCSimMod` from a compressed "tarball" file. For example, if you have a compressed tarball file named `MCSimMod_1.0.tar.gz`, use the following command.
+Alternatively, one can install `MCSimMod` from a compressed "tarball" file. For example, if you have a compressed tarball file named `MCSimMod.tar.gz`, use the following command.
 ```R
-install.packages("MCSimMod_1.0.tar.gz", repos = NULL, type = "source")
+install.packages("MCSimMod.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Getting Started
