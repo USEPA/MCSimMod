@@ -1,6 +1,14 @@
 # MCSimMod: An R Package for Working with MCSim Models
 
+
+[![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
+[![GitHub Release](https://img.shields.io/github/v/release/USEPA/BMDS)](https://github.com/USEPA/MCSimMod/releases)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
+[![GitHub License](https://img.shields.io/github/license/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
+
 MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
+
+Documentation is available at https://usepa.github.io/MCSimMod.
 
 To work with `MCSimMod`, the package `deSolve` must be installed.
 ```R
