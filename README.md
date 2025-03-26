@@ -1,6 +1,14 @@
 # MCSimMod: An R Package for Working with MCSim Models
 
+
+[![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
+[![GitHub Release](https://img.shields.io/github/v/release/USEPA/BMDS)](https://github.com/USEPA/MCSimMod/releases)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
+[![GitHub License](https://img.shields.io/github/license/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
+
 MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
+
+Documentation is available at https://usepa.github.io/MCSimMod.
 
 To work with `MCSimMod`, the package `deSolve` must be installed.
 ```R
@@ -10,14 +18,14 @@ install.packages("deSolve")
 ## Installation
 Before installing `MCSimMod` for use on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
 
-To install `MCSimMod` directly from GitHub, use the following command.
+One can install `MCSimMod` directly from GitHub using `devtools::install_github()`. If the package `devtools` has not already been installed, use `install.packages("devtools")`. Then, install `MCSimMod` using the following command.
 ```R
 devtools::install_github("https://github.com/USEPA/MCSimMod.git", build_vignettes = TRUE)
 ```
 
-Alternatively, install `MCSimMod` from a compressed "tarball" file using the following command.
+Alternatively, one can install `MCSimMod` from a compressed "tarball" file. For example, if you have a compressed tarball file named `MCSimMod.tar.gz`, use the following command.
 ```R
-install.packages("path/to/MCSimMod.tar.gz", repos = NULL, type = "source")
+install.packages("MCSimMod.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Getting Started
@@ -30,7 +38,7 @@ If you are interested in contributing or want to report a bug, please start a di
 
 ## Developer Installation
 
-If you wish to contribute to development of `MCSimMod`, first clone the [MCSimMod repository](https://github.com/USEPA/MCSimMod.git) Then, start an R session and set the current working directory to a directory within the repository. To document, build, install, and test the package, use the following commands.
+If you wish to contribute to development of `MCSimMod`, first clone the [MCSimMod repository](https://github.com/USEPA/MCSimMod.git). Then, start an R session and set the current working directory to a directory within the repository. To document, build, install, and test the package, use the following commands.
 ```R
 devtools::document()
 devtools::build()

@@ -70,6 +70,7 @@ jobs:
     name: Deploy to GitHub Pages
     needs: check
     runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/main'  # only run on push to main
     permissions:
       contents: read
       pages: write
