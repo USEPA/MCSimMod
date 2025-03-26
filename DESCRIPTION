@@ -7,7 +7,7 @@ Authors@R: c(
 	person("Andrew", "Shapiro", role="aut", comment = c(ORCID = "0000-0002-5233-8092")),
 	person("Ryan", "Friese", role="aut", comment = c(ORCID = "0000-0002-4121-2195"))
 	)
-Description: MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the GNU MCSim model specification language using ODE solvers from the R package deSolve.
+Description: Tools that facilitate ordinary differential equation (ODE) modeling in R. This package allows one to perform simulations for ODE models that are encoded in the GNU MCSim model specification language using ODE solvers from the R package deSolve.
 Depends:
 	methods,
 	tools

@@ -10,7 +10,7 @@ install.packages("deSolve")
 ## Installation
 Before installing `MCSimMod` for use on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
 
-To install `MCSimMod` directly from GitHub, use the following command.
+To install `MCSimMod` directly from GitHub, use the following command. (The package `devtools` must be installed.)
 ```R
 devtools::install_github("https://github.com/USEPA/MCSimMod.git", build_vignettes = TRUE)
 ```
