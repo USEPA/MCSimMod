@@ -2,7 +2,7 @@
 
 
 [![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
-[![GitHub Release](https://img.shields.io/github/v/release/USEPA/BMDS)](https://github.com/USEPA/MCSimMod/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
 [![GitHub License](https://img.shields.io/github/license/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
 
