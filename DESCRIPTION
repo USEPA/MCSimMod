@@ -14,8 +14,8 @@ Depends:
 	tools
 Imports:
     deSolve
-URL: https://github.com/USEPA/MCSimMod
-License: GPL-3 + file LICENSE
+URL: https://cran.r-project.org/package=MCSimMod, https://github.com/USEPA/MCSimMod
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
