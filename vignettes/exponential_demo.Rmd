@@ -120,7 +120,7 @@ exp_mod$updateParms(c(A0 = 100, r = -0.5))
 exp_mod$updateY0()
 ```
 
-Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `exp_mod$updateY0()` updated the initial value of the state variable `A` using the updated value of the parameter `A0`. (The class methods `updateParms` and `updateY0` implement any logic provided in the "Initialize" section of the model specification file.)
+Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `exp_mod$updateY0()` updated the initial value of the state variable `A` using the updated value of the parameter `A0`. (The class methods `updateParms()` and `updateY0()` implement any logic provided in the "Initialize" section of the model specification file.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results='hide'}
@@ -156,7 +156,7 @@ plot(out[, "time"], out[, "A"],
 
 ## Removing Output Files
 
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
 ```{r, results='hide'}
 # Remove output files that were created when building the model.
 exp_mod$cleanup()

@@ -58,7 +58,7 @@ In order to solve an initial value problem for the classical PK model, one needs
 
 We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1_input.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
 
-The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `VdC` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$, respectively. The text symbol `M_in` is used to represent the input variable $M$ and the text symbol `M` is used to represent an output variable that is equal to $M$ at all times. (Including this "output" variable in the model allows one to obtain values of $M$ at various times once a simulation has been performed.) The text symbols `C` and `Atot` represent the output variables $C$ and $A_\textrm{tot}$. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateY0` method of the `Model` class) the initial conditions of the state variables.
+The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `VdC` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$, respectively. The text symbol `M_in` is used to represent the input variable $M$ and the text symbol `M` is used to represent an output variable that is equal to $M$ at all times. (Including this "output" variable in the model allows one to obtain values of $M$ at various times once a simulation has been performed.) The text symbols `C` and `Atot` represent the output variables $C$ and $A_\textrm{tot}$. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateY0()` method of the `Model` class) the initial conditions of the state variables.
 
 ## Building the Model
 
@@ -143,7 +143,7 @@ Note that for the "varying body mass" simulation, the increase in body mass had 
 
 ## Removing Output Files
 
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
 ```{r, results='hide'}
 # Remove output files that were created when building the model.
 pk1_mod$cleanup()
