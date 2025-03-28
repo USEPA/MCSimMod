@@ -107,7 +107,7 @@ plot(out[, "x"], out[, "y"],
 
 ## Removing Output Files
 
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
+We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
 ```{r, results='hide'}
 # Remove output files that were created when building the model.
 pp_mod$cleanup()
