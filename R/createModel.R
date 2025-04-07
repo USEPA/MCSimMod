@@ -23,8 +23,9 @@
 #'
 #' @param mName Name of an MCSim model specification file, excluding the file name extension `.model`.
 #' @param mString A character string containing MCSim model specification text.
+#' @param writeTmp A boolean to write compiled files to tmp (writeTmp = TRUE) or to directory with `.model` file (writeTmp = FALSE).
 #' @returns Model object.
 #' @export
-createModel <- function(mName = character(0), mString = character(0)) {
-  return(Model(mName = mName, mString = mString))
+createModel <- function(mName = character(0), mString = character(0), writeTmp = TRUE) {
+  return(Model(mName = mName, mString = mString, writeTmp = writeTmp))
 }

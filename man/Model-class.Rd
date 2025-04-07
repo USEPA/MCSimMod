@@ -46,6 +46,8 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 \item{\code{Y0}}{Named vector of initial conditions for the state variables of the associated MCSim model.}
 
 \item{\code{paths}}{List of character strings that are names of files associated with the model.}
+
+\item{\code{writeTmp}}{Boolean to write files to temporary directory. TRUE: Write to tmp. FALSE: Write to local directory.}
 }}
 
 \section{Methods}{
