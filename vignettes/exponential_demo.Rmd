@@ -101,7 +101,7 @@ exp_mod_name <- file.path(mod_path, "exponential")
 exp_mod <- createModel(exp_mod_name)
 ```
 
-Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows. If necessary (e.g., when the model has not previously been "built"), this step will create output files (with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") in the same directory that contains the model specification file (with a name ending in ".model"). Some of these model files (the ones with names ending in "_inits.R" and ".dll" or ".so") are used to perform simulations with the model.
+Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows. If necessary (e.g., when the model has not previously been "built"), this step will create output files (with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") in a temporary directory. Some of these model files (the ones with names ending in "_inits.R" and ".dll" or ".so") are used to perform simulations with the model.
 ```{r, results='hide'}
 # Load the model.
 exp_mod$loadModel()
@@ -152,12 +152,4 @@ plot(out[, "time"], out[, "A"],
   type = "l", lty = 1, lwd = 2,
   xlab = "Time", ylab = "Amount"
 )
-```
-
-## Removing Output Files
-
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
-```{r, results='hide'}
-# Remove output files that were created when building the model.
-exp_mod$cleanup()
 ```

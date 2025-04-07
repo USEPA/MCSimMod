@@ -31,10 +31,10 @@ Model <- setRefClass("Model",
     #' @field parms Named vector of parameter values for the associated MCSim model.
     #' @field Y0 Named vector of initial conditions for the state variables of the associated MCSim model.
     #' @field paths List of character strings that are names of files associated with the model.
-    #' @field writeTmp Boolean to write files to temporary directory. TRUE: Write to tmp. FALSE: Write to local directory.
+    #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
-    paths = "list", writeTmp = "logical"
+    paths = "list", writeTemp = "logical"
   ),
   methods = list(
     initialize = function(...) {
@@ -47,7 +47,7 @@ Model <- setRefClass("Model",
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
       } else {
-        if (writeTmp == T) {
+        if (writeTemp == TRUE) {
           source_file <- normalizePath(paste0(mName, ".model"))
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(source_file))

@@ -47,7 +47,7 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 
 \item{\code{paths}}{List of character strings that are names of files associated with the model.}
 
-\item{\code{writeTmp}}{Boolean to write files to temporary directory. TRUE: Write to tmp. FALSE: Write to local directory.}
+\item{\code{writeTemp}}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
 }}
 
 \section{Methods}{
