@@ -24,7 +24,9 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # definition file (ending with ".model"). Using the "-R" option generates
   # code compatible with functions in the R deSolve package.
 
-  translate_output <- .C("c_mod", model_file, c_file) # DFK: Pipe output to file.
+  sink(nullfile())
+  translate_output <- .C("c_mod", model_file, c_file)
+  sink()
   if (is.null(translate_output[[2]])) {
     stop("Translation from MCSim model specification text to C failed.")
     # DFK: Figure out what component of translate_output contains verbose translator results and write to a file.
@@ -32,7 +34,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   r_path <- file.path(R.home("bin"), "R")
-  system(paste0(r_path, " CMD SHLIB ", c_file)) # DFK: How to suppress output, but perhaps also verify success?
+  system(paste0(r_path, " CMD SHLIB ", c_file), ignore.stdout = TRUE, ignore.stderr = TRUE)
 
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
