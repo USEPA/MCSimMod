@@ -47,11 +47,13 @@ Model <- setRefClass("Model",
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
       } else {
-        file <- normalizePath(paste0(mName, ".model"))
         if (writeTmp == T) {
-          mod.mString <- readLines(file)
-          file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
-          writeLines(mod.mString, file)
+          source_file <- normalizePath(paste0(mName, ".model"))
+          temp_directory <- tempdir()
+          file <- file.path(temp_directory, basename(source_file))
+          file_copied <- file.copy(from = source_file, to = file)
+        } else {
+          file <- normalizePath(paste0(mName, ".model"))
         }
       }
       mList <- .fixPath(file)
