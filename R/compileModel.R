@@ -37,6 +37,6 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
     write(file_hash, file = hash_file)
-    message("Hash calculated and saved to '", hash_file, "'.\n", sep="")
+    message("Hash calculated and saved to '", hash_file, "'.\n", sep = "")
   }
 }
