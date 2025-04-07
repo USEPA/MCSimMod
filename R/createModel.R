@@ -23,6 +23,7 @@
 #'
 #' @param mName Name of an MCSim model specification file, excluding the file name extension `.model`.
 #' @param mString A character string containing MCSim model specification text.
+#' @returns Model object.
 #' @export
 createModel <- function(mName = character(0), mString = character(0)) {
   return(Model(mName = mName, mString = mString))

@@ -9,7 +9,7 @@
 #' @param dll_name Name of a DLL or SO file without the extension (".dll" or ".so").
 #' @param dll_file Name of the same DLL or SO file with the appropriate extension (".dll" or ".so").
 #' @param hash_file Name of a file containing a hash key for determining if `model_file` has changed since the previous translation and compilation.
-#'
+#' @returns No return value. Creates files and saves them in locations specified by function arguments.
 #' @import tools
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
@@ -24,18 +24,19 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # definition file (ending with ".model"). Using the "-R" option generates
   # code compatible with functions in the R deSolve package.
 
-  # if (.C("c_mod", model_file, c_file)[[1]] < 0) {
-  if (is.null(.C("c_mod", model_file, c_file)[[2]])) {
-    stop("c_mod failed")
+  translate_output <- .C("c_mod", model_file, c_file) # DFK: Pipe output to file.
+  if (is.null(translate_output[[2]])) {
+    stop("Translation from MCSim model specification text to C failed.")
+    # DFK: Figure out what component of translate_output contains verbose translator results and write to a file.
   }
 
   # Compile the C model to obtain "mName_model.o" and "mName_model.dll".
   r_path <- file.path(R.home("bin"), "R")
-  system(paste0(r_path, " CMD SHLIB ", c_file))
+  system(paste0(r_path, " CMD SHLIB ", c_file)) # DFK: How to suppress output, but perhaps also verify success?
 
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
     write(file_hash, file = hash_file)
-    cat("Hash calculated and saved to", hash_file, "\n")
+    message("Hash calculated and saved to '", hash_file, "'.\n", sep="")
   }
 }

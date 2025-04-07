@@ -11,6 +11,9 @@ createModel(mName = character(0), mString = character(0))
 
 \item{mString}{A character string containing MCSim model specification text.}
 }
+\value{
+Model object.
+}
 \description{
 This function creates a \code{Model} object using an MCSim model specification
 file or an MCSim model specification string.
