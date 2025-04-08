@@ -11,7 +11,7 @@ createModel(mName = character(0), mString = character(0), writeTemp = TRUE)
 
 \item{mString}{A character string containing MCSim model specification text.}
 
-\item{writeTemp}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
+\item{writeTemp}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE (the default), model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
 }
 \value{
 Model object.

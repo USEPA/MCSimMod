@@ -40,10 +40,16 @@ Model <- setRefClass("Model",
     initialize = function(...) {
       "Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString)."
       callSuper(...)
+      if (length(mName) == 0 & length(mString) == 0) {
+        stop("To create a Model object, supply either a file name (mName) or a model specification string (mString).")
+      }
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
       }
       if (length(mString) > 0) {
+        if (writeTemp == FALSE) {
+          stop("The value of writeTemp must be TRUE when creating a Model object using a model specification string (mstring).")
+        }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
       } else {
