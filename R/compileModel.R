@@ -62,7 +62,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
   # Compile the C model to obtain an object file (ending with ".o") and a
   # machine code file (ending with ".dll" or ".so"). Write compiler output
-  # to a character string..
+  # to a character string.
   r_path <- file.path(R.home("bin"), "R")
   compiler_output <- system(paste(shQuote(r_path), "CMD SHLIB", shQuote(c_file)), intern = TRUE)
 
