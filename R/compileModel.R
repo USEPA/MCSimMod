@@ -35,8 +35,9 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   mod_output <- paste(mod_output, collapse = "\n")
 
 
-  # Check to see if there was an error during translation. If so, print the
-  # translator output and stop execution.
+  # Check to see if there was an error during translation. If so, save the
+  # translator output to a file, print a message about its location, and stop\
+  # execution.
   if (grepl("Error", mod_output)) {
     temp_directory <- tempdir()
     out_file <- file.path(temp_directory, "mod_output.txt")
@@ -47,19 +48,30 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
       normalizePath(out_file), "."
     )
   }
-
+  
   # Compile the C model to obtain an object file (ending with ".o") and a
-  # machine code file (ending with ".dll" or ".so").
+  # machine code file (ending with ".dll" or ".so"). Write compiler output
+  # to a character string..
   r_path <- file.path(R.home("bin"), "R")
-  system(paste0(r_path, " CMD SHLIB ", c_file),
-    ignore.stdout = TRUE,
-    ignore.stderr = TRUE
+  compiler_output <- system(paste(r_path, "CMD SHLIB", c_file), intern = TRUE)
+  
+  # Save the compiler output to a file and print a message about its location.
+  temp_directory <- tempdir()
+  out_file <- file.path(temp_directory, "compiler_output.txt")
+  write(compiler_output, file = out_file)
+  message(
+    "C compilation complete. Full details are available in the file ",
+    normalizePath(out_file), "."
   )
-  message("Compiled model file created: ", normalizePath(dll_file))
-
+  
+  # If hash file name was provided, create a hash (md5 sum) for the model file
+  # and print a message about its location.
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
     write(file_hash, file = hash_file)
-    message("Hash file created: ", normalizePath(hash_file))
+    message(
+      "Hash created and saved in the file ", normalizePath(hash_file),
+      "."
+    )
   }
 }
