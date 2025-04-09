@@ -38,18 +38,24 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # Check to see if there was an error during translation. If so, print the
   # translator output and stop execution.
   if (grepl("Error", mod_output)) {
-    stop("There was a problem with translating the MCSim model specification text to C. Full details are available in the file ...")
+    temp_directory <- tempdir()
+    out_file <- file.path(temp_directory, "mod_output.txt")
+    write(mod_output, file = out_file)
+    stop("There was a problem with translating the MCSim model specification ",
+         "text to C. Full details are available in the file ",
+         normalizePath(out_file), ".")
   }
 
   # Compile the C model to obtain an object file (ending with ".o") and a
-  # machine code file (ending with ".dll" or ".so")..
+  # machine code file (ending with ".dll" or ".so").
   r_path <- file.path(R.home("bin"), "R")
-  # system(paste0(r_path, " CMD SHLIB ", c_file), ignore.stdout = TRUE, ignore.stderr = TRUE)
-  system(paste0(r_path, " CMD SHLIB ", c_file))
+  system(paste0(r_path, " CMD SHLIB ", c_file), ignore.stdout = TRUE,
+         ignore.stderr = TRUE)
+  message("Compiled model file created: ", normalizePath(dll_file))
   
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
     write(file_hash, file = hash_file)
-    message("Hash calculated and saved to '", hash_file, "'.", sep = "")
+    message("Hash file created: ", normalizePath(hash_file))
   }
 }
