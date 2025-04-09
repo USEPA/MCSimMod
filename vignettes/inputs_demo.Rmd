@@ -140,11 +140,3 @@ legend("topright",
 )
 ```
 Note that for the "varying body mass" simulation, the increase in body mass had a diluting effect on concentration. That is, concentrations tended to be less for the "varying body mass" scenario than for the "constant body mass" scenario because increases in body mass ($M$) and corresponding increases in volume of distribution ($V_\textrm{d}$) caused concentration ($C$) to decrease more rapidly than would be the case for a constant body mass scenario in which clearance processes alone effect reductions in concentration.
-
-## Removing Output Files
-
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
-```{r, results='hide'}
-# Remove output files that were created when building the model.
-pk1_mod$cleanup()
-```

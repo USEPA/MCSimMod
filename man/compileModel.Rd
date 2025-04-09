@@ -17,6 +17,9 @@ compileModel(model_file, c_file, dll_name, dll_file, hash_file = NULL)
 
 \item{hash_file}{Name of a file containing a hash key for determining if \code{model_file} has changed since the previous translation and compilation.}
 }
+\value{
+No return value. Creates files and saves them in locations specified by function arguments.
+}
 \description{
 This function translates MCSim model specification text to C and then
 compiles the resulting C file to create a dynamic link library (DLL) file (on

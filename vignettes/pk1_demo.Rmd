@@ -159,16 +159,10 @@ lines(out_IV[, "time"], out_IV[, "C"], lty = 2, lwd = 2)
 legend("topright", c("Oral", "IV"), lty = c(1, 2), lwd = 2)
 ```
 
+## Comparing AUC Values for Oral and IV Dosing Scenarios
+
 Because the PK model we're using assumes that 100% of the substance in the exposure compartment (i.e., $A_0$) will eventually be transferred to the central compartment (i.e., 100% bioavailability for the oral exposure scenario) and 100% of an IV dose is delivered directly to the central compartment, the AUCs (at $t = \infty$) for the oral and IV exposure scenarios should be equal. We can verify that the AUCs at $t = 20$ hours (by which time most of the substance has been cleared) for both scenarios are approximately equal by examining the value of the $\textrm{AUC}$ output variable in the final row of the respective output matrices.
 ```{r}
 out_oral[nrow(out_oral), "AUC"]
 out_IV[nrow(out_IV), "AUC"]
-```
-
-## Removing Output Files
-
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup` method.
-```{r, results='hide'}
-# Remove output files that were created when building the model.
-pk1_mod$cleanup()
 ```

@@ -31,22 +31,36 @@ Model <- setRefClass("Model",
     #' @field parms Named vector of parameter values for the associated MCSim model.
     #' @field Y0 Named vector of initial conditions for the state variables of the associated MCSim model.
     #' @field paths List of character strings that are names of files associated with the model.
+    #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
-    paths = "list"
+    paths = "list", writeTemp = "logical"
   ),
   methods = list(
     initialize = function(...) {
       "Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString)."
       callSuper(...)
+      if (length(mName) == 0 & length(mString) == 0) {
+        stop("To create a Model object, supply either a file name (mName) or a model specification string (mString).")
+      }
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
       }
       if (length(mString) > 0) {
+        if (writeTemp == FALSE) {
+          stop("The value of writeTemp must be TRUE when creating a Model object using a model specification string (mstring).")
+        }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
       } else {
-        file <- normalizePath(paste0(mName, ".model"))
+        if (writeTemp == TRUE) {
+          source_file <- normalizePath(paste0(mName, ".model"))
+          temp_directory <- tempdir()
+          file <- file.path(temp_directory, basename(source_file))
+          file_copied <- file.copy(from = source_file, to = file)
+        } else {
+          file <- normalizePath(paste0(mName, ".model"))
+        }
       }
       mList <- .fixPath(file)
       mName <<- mList$mName

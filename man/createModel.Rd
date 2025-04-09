@@ -4,12 +4,17 @@
 \alias{createModel}
 \title{Function to create an MCSimMod Model object}
 \usage{
-createModel(mName = character(0), mString = character(0))
+createModel(mName = character(0), mString = character(0), writeTemp = TRUE)
 }
 \arguments{
 \item{mName}{Name of an MCSim model specification file, excluding the file name extension \code{.model}.}
 
 \item{mString}{A character string containing MCSim model specification text.}
+
+\item{writeTemp}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE (the default), model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
+}
+\value{
+Model object.
 }
 \description{
 This function creates a \code{Model} object using an MCSim model specification
