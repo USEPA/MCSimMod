@@ -25,37 +25,38 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
   # Create a C model file (ending with ".c") and an R parameter
   # initialization file (ending with "_inits.R") from the GNU MCSim model
-  # specification file (ending with ".model"). Using the "-R" option generates
-  # code compatible with functions in the R deSolve package. Write translator
-  # output to the text connection.
+  # specification file (ending with ".model"). Write translator output to the
+  # text connection.
   sink(text_conn)
   .C("c_mod", model_file, c_file)
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
 
-  # If there was an error during translation, bubble up to an R exception
-  # and show user location of stdout file to investigate.
-  if (grepl("\\*\\*\\* Error:", mod_output)) {
+  # Check to see if there was an error during translation. If so, save the
+  # translator output to a file, print a message about its location, and stop
+  # execution.
+  if (grepl("*** Error:", mod_output, fixed = TRUE)) {
     temp_directory <- tempdir()
     out_file <- file.path(temp_directory, "mod_output.txt")
     write(mod_output, file = out_file)
     stop(
-      "There was an error translating the MCSim model specification ",
-      "to C. Full details are available in the file ",
+      "An error was identified when translating the MCSim model specification ",
+      "text to C. Full details are available in the file ",
       normalizePath(out_file), "."
     )
   }
 
-  # If there was a warning during translation, bubble up to an R warning
-  # and show user location of stdout file to investigate.
-  if (grepl("\\*\\*\\* Warning:", mod_output)) {
+  # Check to see if there was a warning during translation. If so, save the
+  # translator output to a file, print a message about its location, and raise a
+  # warning.
+  if (grepl("*** Warning:", mod_output, fixed = TRUE)) {
     temp_directory <- tempdir()
     out_file <- file.path(temp_directory, "mod_output.txt")
     write(mod_output, file = out_file)
     warning(
-      "There was a warning translating the MCSim model specification ",
-      "to C. Full details are available in the file ",
+      "A warning was identified when translating the MCSim model ",
+      "specification text to C. Full details are available in the file ",
       normalizePath(out_file), "."
     )
   }
@@ -64,7 +65,10 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # machine code file (ending with ".dll" or ".so"). Write compiler output
   # to a character string.
   r_path <- file.path(R.home("bin"), "R")
-  compiler_output <- system(paste(shQuote(r_path), "CMD SHLIB", shQuote(c_file)), intern = TRUE)
+  compiler_output <- system(paste(
+    shQuote(r_path), "CMD SHLIB",
+    shQuote(c_file)
+  ), intern = TRUE)
 
   # Save the compiler output to a file and print a message about its location.
   temp_directory <- tempdir()

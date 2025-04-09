@@ -3,7 +3,7 @@ testthat::test_that("compileModel::error", {
   model <- createModel(mString = modelString)
   testthat::expect_error(
     model$loadModel(),
-    "There was an error translating the MCSim model specification to C"
+    "An error was identified when translating the MCSim model specification"
   )
 })
 
@@ -33,6 +33,6 @@ testthat::test_that("compileModel::warning", {
   model <- createModel(mString = modelString)
   testthat::expect_warning(
     model$loadModel(),
-    "There was a warning translating the MCSim model specification to C"
+    "A warning was identified when translating the MCSim model specification"
   )
 })
