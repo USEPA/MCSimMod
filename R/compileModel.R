@@ -36,7 +36,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
 
   # Check to see if there was an error during translation. If so, save the
-  # translator output to a file, print a message about its location, and stop\
+  # translator output to a file, print a message about its location, and stop
   # execution.
   if (grepl("Error", mod_output)) {
     temp_directory <- tempdir()
@@ -48,13 +48,13 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
       normalizePath(out_file), "."
     )
   }
-  
+
   # Compile the C model to obtain an object file (ending with ".o") and a
   # machine code file (ending with ".dll" or ".so"). Write compiler output
-  # to a character string..
+  # to a character string.
   r_path <- file.path(R.home("bin"), "R")
   compiler_output <- system(paste(r_path, "CMD SHLIB", c_file), intern = TRUE)
-  
+
   # Save the compiler output to a file and print a message about its location.
   temp_directory <- tempdir()
   out_file <- file.path(temp_directory, "compiler_output.txt")
@@ -63,7 +63,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "C compilation complete. Full details are available in the file ",
     normalizePath(out_file), "."
   )
-  
+
   # If hash file name was provided, create a hash (md5 sum) for the model file
   # and print a message about its location.
   if (!is.null(hash_file)) {
