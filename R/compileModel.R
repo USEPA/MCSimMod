@@ -18,11 +18,11 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   if (is.loaded("derivs", PACKAGE = dll_name)) {
     dyn.unload(dll_file)
   }
-  
+
   # Create a text connection to store output messages generated during the
   # translation from MCSim model specification text to C.
   text_conn <- textConnection("mod_output", open = "w")
-  
+
   # Create a C model file (ending with ".c") and an R parameter
   # initialization file (ending with "_inits.R") from the GNU MCSim model
   # specification file (ending with ".model"). Using the "-R" option generates
@@ -33,7 +33,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
-  
+
 
   # Check to see if there was an error during translation. If so, print the
   # translator output and stop execution.
@@ -41,18 +41,22 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     temp_directory <- tempdir()
     out_file <- file.path(temp_directory, "mod_output.txt")
     write(mod_output, file = out_file)
-    stop("There was a problem with translating the MCSim model specification ",
-         "text to C. Full details are available in the file ",
-         normalizePath(out_file), ".")
+    stop(
+      "There was a problem with translating the MCSim model specification ",
+      "text to C. Full details are available in the file ",
+      normalizePath(out_file), "."
+    )
   }
 
   # Compile the C model to obtain an object file (ending with ".o") and a
   # machine code file (ending with ".dll" or ".so").
   r_path <- file.path(R.home("bin"), "R")
-  system(paste0(r_path, " CMD SHLIB ", c_file), ignore.stdout = TRUE,
-         ignore.stderr = TRUE)
+  system(paste0(r_path, " CMD SHLIB ", c_file),
+    ignore.stdout = TRUE,
+    ignore.stderr = TRUE
+  )
   message("Compiled model file created: ", normalizePath(dll_file))
-  
+
   if (!is.null(hash_file)) {
     file_hash <- as.character(md5sum(model_file))
     write(file_hash, file = hash_file)
