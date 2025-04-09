@@ -34,27 +34,38 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
 
-
-  # Check to see if there was an error during translation. If so, save the
-  # translator output to a file, print a message about its location, and stop\
-  # execution.
-  if (grepl("Error", mod_output)) {
+  # If there was an error during translation, bubble up to an R exception
+  # and show user location of stdout file to investigate.
+  if (grepl("\\*\\*\\* Error:", mod_output)) {
     temp_directory <- tempdir()
     out_file <- file.path(temp_directory, "mod_output.txt")
     write(mod_output, file = out_file)
     stop(
-      "There was a problem with translating the MCSim model specification ",
-      "text to C. Full details are available in the file ",
+      "There was an error translating the MCSim model specification ",
+      "to C. Full details are available in the file ",
       normalizePath(out_file), "."
     )
   }
-  
+
+  # If there was a warning during translation, bubble up to an R warning
+  # and show user location of stdout file to investigate.
+  if (grepl("\\*\\*\\* Warning:", mod_output)) {
+    temp_directory <- tempdir()
+    out_file <- file.path(temp_directory, "mod_output.txt")
+    write(mod_output, file = out_file)
+    warning(
+      "There was a warning translating the MCSim model specification ",
+      "to C. Full details are available in the file ",
+      normalizePath(out_file), "."
+    )
+  }
+
   # Compile the C model to obtain an object file (ending with ".o") and a
   # machine code file (ending with ".dll" or ".so"). Write compiler output
   # to a character string..
   r_path <- file.path(R.home("bin"), "R")
-  compiler_output <- system(paste(r_path, "CMD SHLIB", c_file), intern = TRUE)
-  
+  compiler_output <- system(paste(shQuote(r_path), "CMD SHLIB", shQuote(c_file)), intern = TRUE)
+
   # Save the compiler output to a file and print a message about its location.
   temp_directory <- tempdir()
   out_file <- file.path(temp_directory, "compiler_output.txt")
@@ -63,7 +74,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "C compilation complete. Full details are available in the file ",
     normalizePath(out_file), "."
   )
-  
+
   # If hash file name was provided, create a hash (md5 sum) for the model file
   # and print a message about its location.
   if (!is.null(hash_file)) {
