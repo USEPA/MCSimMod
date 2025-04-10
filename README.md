@@ -2,9 +2,10 @@
 
 
 [![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
-[![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
+[![](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
-[![GitHub License](https://img.shields.io/github/license/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
 
 MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
 
@@ -16,14 +17,22 @@ install.packages("deSolve")
 ```
 
 ## Installation
-Before installing `MCSimMod` for use on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
 
-One can install `MCSimMod` directly from GitHub using `devtools::install_github()`. If the package `devtools` has not already been installed, use `install.packages("devtools")`. Then, install `MCSimMod` using the following command.
+As a prerequisite for installation on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
+
+To install the latest stable version from [CRAN](https://cran.r-project.org/web/packages/MCSimMod/), use the command:
+
+```R
+install.packages("MCSimMod")
+```
+
+For the latest development version, install from GitHub using `devtools::install_github()`. If the package `devtools` has not already been installed, use `install.packages("devtools")`. Then, install `MCSimMod` using the following command:
 ```R
 devtools::install_github("https://github.com/USEPA/MCSimMod.git", build_vignettes = TRUE)
 ```
 
-Alternatively, one can install `MCSimMod` from a compressed "tarball" file. For example, if you have a compressed tarball file named `MCSimMod.tar.gz`, use the following command.
+Alternatively, one can install `MCSimMod` from a compressed "tarball" file. For example, if you have a compressed tarball file named `MCSimMod.tar.gz`, use the following command:
+
 ```R
 install.packages("MCSimMod.tar.gz", repos = NULL, type = "source")
 ```
