@@ -481,7 +481,7 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
     PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
-      int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
+      int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1; //
       if (len > MAX_EQN) {
         Rprintf("\n***Error: max string length MAX_EQN exceeded in "
                 "Transcribe1AlgEqn: %s%s%s\n",
@@ -489,8 +489,10 @@ __attribute__((warn_unused_result)) int Transcribe1AlgEqn(PFILE pfile, PVMMAPSTR
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      snprintf(szTmpEqSwap, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
-      strncpy(szTmpEq, szTmpEqSwap, len);
+      // because of the check above we ensure we will be under MAX_EQN 
+      // so the following operations will always emit non negative values
+      strncat(szTmpEq, pV->szName, MAX_EQN - strlen(szTmpEq) - 1);
+      strncat(szTmpEq, szLex, MAX_EQN - strlen(szTmpEq) - 1);
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
@@ -567,7 +569,7 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
     PROPAGATE_EXIT(NextLex(&ibDummy, szLex, &iType)); /* ...all errors reported */
 
     if ((iType == LX_IDENTIFIER) && !(IsMathFunc(szLex)) && (szLex[0] == '_')) {
-      int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1;
+      int len = strlen(szTmpEq) + strlen(pV->szName) + strlen(szLex) + 1; 
       if (len > MAX_EQN) {
         Rprintf("\n***Error: max string length MAX_EQN exceeded in "
                 "Transcribe1DiffEqn: %s%s%s\n",
@@ -575,8 +577,11 @@ __attribute__((warn_unused_result)) int Transcribe1DiffEqn(PFILE pfile, PVMMAPST
         Rprintf("Exiting...\n\n");
         return EXIT_ERROR;
       }
-      snprintf(szTmpEqSwap, len, "%s%s%s", szTmpEq, pV->szName, szLex); /* extend */
-      strncpy(szTmpEq, szTmpEqSwap, len);
+      // because of the check above we ensure we will be under MAX_EQN 
+      // so the following operations will always emit non negative values
+      strncat(szTmpEq, pV->szName, MAX_EQN - strlen(szTmpEq) - 1);
+      strncat(szTmpEq, szLex, MAX_EQN - strlen(szTmpEq) - 1);
+
     } else {
       int len = strlen(szTmpEq) + 1 + strlen(szLex) + 1;
       if (len > MAX_EQN) {
