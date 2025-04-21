@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
@@ -85,12 +85,12 @@ Dynamics {
 Next, we will use the **MCSimMod** package to define the ODE model and solve an initial value problem. Solving an initial value problem is synonymous with "performing a simulation" with the model.
 
 First, we load the **MCSimMod** package as follows.
-```{r}
+```{r, results = 'hide', message = FALSE}
 library(MCSimMod)
 ```
 
 Using the following commands, we create an exponential model object (i.e., an instance of the `Model` class) using the model specification file `exponential.model` that is included in the **MCSimMod** package.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
@@ -102,7 +102,7 @@ exp_mod <- createModel(exp_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows. If necessary (e.g., when the model has not previously been "built"), this step will create output files (with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") in a temporary directory. Some of these model files (the ones with names ending in "_inits.R" and ".dll" or ".so") are used to perform simulations with the model.
-```{r, results='hide'}
+```{r, results = 'hide', message = FALSE}
 # Load the model.
 exp_mod$loadModel()
 ```
@@ -110,7 +110,7 @@ exp_mod$loadModel()
 ## Solving an Initial Value Problem (i.e., Performing a Model Simulation)
 
 Next, we can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for our simulation (i.e., $A_0 = 100$ and $r = -0.5$). 
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Change the values of the model parameters from their default values: set the
 # initial amount (A0) to 100 and the exponential rate (r) to -0.5.
 exp_mod$updateParms(c(A0 = 100, r = -0.5))
@@ -123,7 +123,7 @@ exp_mod$updateY0()
 Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `exp_mod$updateY0()` updated the initial value of the state variable `A` using the updated value of the parameter `A0`. (The class methods `updateParms()` and `updateY0()` implement any logic provided in the "Initialize" section of the model specification file.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Define output times for simulation.
 times <- seq(from = 0, to = 20, by = 0.1)
 
@@ -134,19 +134,19 @@ out <- exp_mod$runModel(times)
 ## Examining the Results
 
 The final command shown above, `out <- exp_mod$runModel(times)`,  performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. There is one row for each output time, and one column for each state variable (and each output variable when such variables are included in the model). The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the exponential model, is always labeled "time" in the output data structure.
-```{r, echo=FALSE, results='asis'}
+```{r, echo = FALSE, results = 'asis'}
 library(knitr)
 kable(out[1:5, ])
 ```
 
 We can examine the parameter values and initial conditions that were used for this simulation with the following commands.
-```{r, echo=TRUE}
+```{r, echo = TRUE}
 exp_mod$parms
 exp_mod$Y0
 ```
 
 Finally, we can create a visual representation of the simulation results. For example, we can plot the amount vs. time using the following command.
-```{r, fig.dim=c(6, 4), fig.align='center'}
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
 # Plot simulation results.
 plot(out[, "time"], out[, "A"],
   type = "l", lty = 1, lwd = 2,
