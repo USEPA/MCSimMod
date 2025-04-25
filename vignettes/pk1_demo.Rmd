@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ## Model Description
 
 A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
-```{r, echo=FALSE, fig.cap="A classical PK model", out.width = '100%'}
+```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = '100%'}
 knitr::include_graphics("pk1.png")
 ```
 
@@ -55,12 +55,12 @@ The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` t
 ## Building the Model
 
 First, we load the **MCSimMod** package as follows.
-```{r}
+```{r, results = 'hide', message = FALSE}
 library(MCSimMod)
 ```
 
 Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pk1.model` that is included in the **MCSimMod** package.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
@@ -72,7 +72,7 @@ pk1_mod <- createModel(pk1_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
-```{r, results='hide'}
+```{r, results = 'hide', message = FALSE}
 # Load the model.
 pk1_mod$loadModel()
 ```
@@ -80,7 +80,7 @@ pk1_mod$loadModel()
 ## Predicting the Blood Concentration of a Substance Following an Oral Dose
 
 Suppose we want to predict the blood concentration of a substance during the 20-hour period following oral ingestion of 200 mg of the substance. Let's assume that the oral absorption rate constant ($k_{01}$) is 0.8 h$^{-1}$, the clearance rate constant ($k_{12}$) is 0.4 h$^{-1}$, and the volume of distribution ($V_\textrm{d}$) is 45 L. We can change the parameter values from their default values (which are given in the model specification file) to the values we wish to use for simulation of this scenario as follows.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Change the values of the model parameters from their default values.
 pk1_mod$updateParms(c(k01 = 0.8, k12 = 0.4, Vd = 45, A0_init = 200))
 
@@ -92,7 +92,7 @@ pk1_mod$updateY0()
 Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updated the initial values of the state variables. (We did not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Define output times for simulation.
 times <- seq(from = 0, to = 20, by = 0.1)
 
@@ -103,7 +103,7 @@ out_oral <- pk1_mod$runModel(times)
 ## Examining the Results
 
 The final command shown above, `out_oral = pk1_mod$runModel(times)`, performs a model simulation and stores the simulation results in a "matrix" data structure called `out_oral`. There is one row for each output time, and one column for each state variable and each output variable. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the classical PK model, is always labeled "time" in the output data structure.
-```{r, echo=FALSE, results='asis'}
+```{r, echo = FALSE, results = 'asis'}
 library(knitr)
 kable(out_oral[1:5, ])
 ```
@@ -115,7 +115,7 @@ pk1_mod$Y0
 ```
 
 Finally, we can create a visual representation of the simulation results. For example, we can plot the concentration vs. time using the following commands.
-```{r, fig.dim=c(6, 4), fig.align='center'}
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
 # Plot simulation results.
 plot(out_oral[, "time"], out_oral[, "C"],
   type = "l", lty = 1, lwd = 2,
@@ -126,7 +126,7 @@ plot(out_oral[, "time"], out_oral[, "C"],
 ## Predicting the Blood Concentration of a Substance Following an IV Dose
 
 Suppose we want to predict the blood concentration of a substance during the 20-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Change the values of the model parameters.
 pk1_mod$updateParms(c(k12 = 0.4, Vd = 45, A0_init = 0, A1_init = 200))
 
@@ -143,13 +143,13 @@ pk1_mod$Y0
 (Note that $k_{01}$ was assigned it's default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms` method.)
 
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Run simulation.
 out_IV <- pk1_mod$runModel(times)
 ```
 
 We can create a visual representation of the simulation results for both the oral dosing and IV dosing scenarios using the following commands.
-```{r, fig.dim=c(6, 4), fig.align='center'}
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
 # Plot simulation results.
 plot(out_oral[, "time"], out_oral[, "C"],
   type = "l", lty = 1, lwd = 2,

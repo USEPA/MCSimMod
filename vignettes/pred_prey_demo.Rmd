@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
@@ -36,12 +36,12 @@ In the model specification file, we used the text symbols `x` and `y` to represe
 ## Building the Model
 
 First, we load the **MCSimMod** package as follows.
-```{r}
+```{r, results = 'hide', message = FALSE}
 library(MCSimMod)
 ```
 
 Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pred_prey.model` that is included in the **MCSimMod** package.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
@@ -53,7 +53,7 @@ pp_mod <- createModel(pp_mod_name)
 ```
 
 Once the model object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
-```{r, results='hide'}
+```{r, results = 'hide', message = FALSE}
 # Load the model.
 pp_mod$loadModel()
 ```
@@ -61,12 +61,12 @@ pp_mod$loadModel()
 ## Predicting the Numbers of Rabbits and Foxes
 
 Suppose we want to predict the numbers of rabbits and foxes over a period of 50 days assuming that $\alpha = 0.67$, $\beta = 1.33$, $\gamma = 1.00$, $\delta = 1.00$, and the initial numbers of rabbits and foxes are 1000 and 750, respectively. These are the default values of the model parameters and initial conditions that are provided in the model specification file, and we can verify this with the following commands.
-```{r, echo=TRUE}
+```{r, echo = TRUE}
 pp_mod$parms
 pp_mod$Y0
 ```
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0.0, 0.1, 0.2, \ldots, 50.0$) using the following commands.
-```{r, results='hide'}
+```{r, results = 'hide'}
 # Define output times for simulation.
 times <- seq(from = 0, to = 50, by = 0.1)
 
@@ -77,13 +77,13 @@ out <- pp_mod$runModel(times)
 ## Examining the Results
 
 The final command shown above, `out <- pp_mod$runModel(times)`,  performs a model simulation and stores the simulation results in a "matrix" data structure called `out`. There is one row for each output time, and one column for each state variable. The first five rows of this data structure are shown below. Note that the independent variable, which is $t$ in the case of the predator-prey model, is always labeled "time" in the output data structure.
-```{r, echo=FALSE, results='asis'}
+```{r, echo = FALSE, results = 'asis'}
 library(knitr)
 kable(out[1:5, ])
 ```
 
 We can create visual representations of the simulation results. For example, we can plot the numbers of rabbits and foxes vs. time using the following commands.
-```{r, fig.dim=c(6, 4), fig.align='center'}
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
 # Plot simulation results (numbers vs. time).
 plot(out[, "time"], out[, "x"],
   type = "l", lty = 1, lwd = 2,
@@ -97,18 +97,10 @@ legend("topright", c("Rabbits", "Foxes"),
 ```
 
 Alternatively, we can plot the results in phase-space as follows.
-```{r, fig.dim=c(6, 4), fig.align='center'}
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
 # Plot simulation results (number of foxes vs. number of rabbits).
 plot(out[, "x"], out[, "y"],
   type = "l", lty = 1, lwd = 2,
   xlab = "Number of Rabbits (1000s)", ylab = "Number of Foxes (1000s)"
 )
-```
-
-## Removing Output Files
-
-We can remove output files that were created when building the model (i.e., files with names ending in ".c", ".o", "_inits.R", and ".dll" or ".so") by calling the `cleanup()` method.
-```{r, results='hide'}
-# Remove output files that were created when building the model.
-pp_mod$cleanup()
 ```
