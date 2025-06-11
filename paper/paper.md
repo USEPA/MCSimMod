@@ -61,4 +61,8 @@ We designed `MCSimMod` using the object-oriented programming paradigm, in which 
 
 The authors would like to acknowledge Dr. Celia Schacht and Dr. Caroline Ring for reviewing a preliminary draft of this manuscript and providing helpful suggestions for improvement.
 
+# Disclaimer
+
+The views expressed in this manuscript are those of the authors and do not necessarily represent the views or policies of the U.S. Environmental Protection Agency.
+
 # References
