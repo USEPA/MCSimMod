@@ -43,7 +43,7 @@ In order to obtain a specific solution for a system of ODEs, one must know the i
 \end{equation}
 where $t_0$ is the inital value of the independent variable. Equation \autoref{eq:ic_general} is often described as a statement of the "initial conditions" of the system, and solving a system of ODEs subject to such initial conditions is called solving an initial value problem (IVP).
 
-For the R programming language and environment [@R], there are at least two packages available that facilitate solving of IVPs. The R package `deSolve` [@deSolve] can be used to solve IVPs for ODEs that have been encoded either in R or in a compiled language, such as C or Fortran. For models encoded in a compiled language, one can compile the model source code to generate machine code that typically executes much more quickly than \proglang{R} code, which must be "interpreted" anew each time it's executed on a computer. The `deSolve` package includes functions that provide interfaces to well-documented, public-domain IVP solution routines implemented in FORTRAN, including four ODE integrators from the package ODEPACK, and in C, including solvers of the Runge-Kutta family. The R package `mrgsolve` [@mrgsolve] also includes functions that can be used to solve IVPs. These `mrgsolve` functions provide interfaces to IVP solution routines implemented in C++. Despite their different implementations, the packages `deSolve` and `mrgsolve` use many of the same underlying IVP solution algorithms.
+For the R programming language and environment [@R], there are at least two packages available that facilitate solving of IVPs. The R package `deSolve` [@deSolve] can be used to solve IVPs for ODEs that have been encoded either in R or in a compiled language, such as C or Fortran. For models encoded in a compiled language, one can compile the model source code to generate machine code that typically executes much more quickly than R code, which must be "interpreted" anew each time it's executed on a computer. The `deSolve` package includes functions that provide interfaces to well-documented, public-domain IVP solution routines implemented in FORTRAN, including four ODE integrators from the package ODEPACK, and in C, including solvers of the Runge-Kutta family. The R package `mrgsolve` [@mrgsolve] also includes functions that can be used to solve IVPs. These `mrgsolve` functions provide interfaces to IVP solution routines implemented in C++. Despite their different implementations, the packages `deSolve` and `mrgsolve` use many of the same underlying IVP solution algorithms.
 
 # Statement of need
 
@@ -55,9 +55,9 @@ Physiologically based pharmacokinetic (PBPK) models, which are a class of ODE mo
 
 The `MCSimMod` package facilitates ODE modeling within the R environment. `MCSimMod` allows one to solve IVPs for ODE models that have been described in the MCSim [@MCSim] model specification language using ODE integration functions from the R package `deSolve` [@deSolve]. This system enables users to take advantage of the flexibility and post hoc data analysis capabilities of the interpreted language R while also achieving computational speeds typically associated with compiled programming languages like C and FORTRAN. Furthermore, this system encourages modelers to use separate files for defining models and executing model simulations, which can, in turn, improve modularity and reusability of source code developed for modeling analyses. 
 
-We designed `MCSimMod` using the object-oriented programming paradigm, in which computer programs are based on objects that comprise attributes (i.e., data) and methods (i.e., functionality). In particular, the MCSimMod package defines a class called `Model` that provides a template for model objects. One creates a `Model` object (i.e., an instance of the `Model` class) to represent a given ODE model. As illustrated in \autoref{fig:model_object}, a `Model` object has both attributes (i.e., things the object "knows"" about itself) and methods (i.e., things the object can "do"). `Model` attributes include: the name of the model (`mName`); a vector of parameter names and values (`parms`); and a vector of initial conditions (`Y0`). `Model` methods include functions for: translating, compiling, and loading the model (`loadModel()`); updating parameter values (`updateParms()`); updating initial conditions (`updateY0()`); and running model simulations (`runModel()`). So, for example, if `mod` is a `Model` object, it will have an attribute called `parms` that can be accessed using the R expression `mod$parms`. Similarly, `mod` will have a method called `updateParms()` that can be accessed using the R expression `mod$updateParms()`.
+We designed `MCSimMod` using the object-oriented programming paradigm, in which computer programs are based on objects that comprise attributes (i.e., data) and methods (i.e., functionality). In particular, the MCSimMod package defines a class called `Model` that provides a template for model objects. One creates a `Model` object (i.e., an instance of the `Model` class) to represent a given ODE model. As illustrated in \autoref{fig:model_object}, a `Model` object has both attributes (i.e., things the object "knows" about itself) and methods (i.e., things the object can "do"). `Model` attributes include: the name of the model (`mName`); a vector of parameter names and values (`parms`); and a vector of initial conditions (`Y0`). `Model` methods include functions for: translating, compiling, and loading the model (`loadModel()`); updating parameter values (`updateParms()`); updating initial conditions (`updateY0()`); and running model simulations (`runModel()`). So, for example, if `mod` is a `Model` object, it will have an attribute called `parms` that can be accessed using the R expression `mod$parms`. Similarly, `mod` will have a method called `updateParms()` that can be accessed using the R expression `mod$updateParms()`.
 
-![MCSimMod `Model` object schema.\label{fig:model_object}](./Figures/ModelObjectFigure.png)
+![MCSimMod `Model` object schema.\label{fig:model_object}](./Figures/ModelObjectFigure.png){width=50%}
 
 
 # Mathematics
@@ -77,32 +77,8 @@ You can also use plain \LaTeX for equations
 \end{equation}
 and refer to \autoref{eq:fourier} from text.
 
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+We acknowledge contributions from ...
 
 # References
