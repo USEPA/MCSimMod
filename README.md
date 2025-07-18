@@ -11,6 +11,8 @@ MCSimMod is an R package that facilitates ordinary differential equation (ODE) m
 
 Documentation is available at https://usepa.github.io/MCSimMod.
 
+For users new to R, we recommend [RStudio](https://posit.co/download/rstudio-desktop/) to install packages and edit/run scripts.
+
 To work with `MCSimMod`, the package `deSolve` must be installed.
 ```R
 install.packages("deSolve")
