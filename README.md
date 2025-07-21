@@ -52,7 +52,7 @@ To report an issue with MCSimMod, please use the [issue tracker](https://github.
 
 For any technical questions regarding modeling and usage of MCSimMod, [send us an e-mail](mailto:some.one@epa.gov).
 
-# License
+## License
 [GNU General Public License 2.0](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
 
 ## Developer Installation
