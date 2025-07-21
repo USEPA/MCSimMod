@@ -47,6 +47,14 @@ browseVignettes(package = "MCSimMod")
 
 If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
 
+## Contact
+To report an issue with MCSimMod, please use the [issue tracker](https://github.com/USEPA/MCSimMod/issues).
+
+For any technical questions regarding modeling and usage of MCSimMod, [send us an e-mail](mailto:some.one@epa.gov).
+
+# License
+[GNU General Public License 2.0](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
+
 ## Developer Installation
 
 If you wish to contribute to development of `MCSimMod`, first clone the [MCSimMod repository](https://github.com/USEPA/MCSimMod.git). Then, start an R session and set the current working directory to a directory within the repository. To document, build, install, and test the package, use the following commands.
