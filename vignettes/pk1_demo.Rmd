@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ## Model Description
 
 A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
-```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = '100%'}
+```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = "100%"}
 knitr::include_graphics("pk1.png")
 ```
 

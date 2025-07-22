@@ -25,7 +25,7 @@ The **MCSimMod** package allows one to solve ordinary differential equation (ODE
 ## A Classical Pharmacokinetic Model
 
 For this demonstration, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
-```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = '100%'}
+```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = "100%"}
 knitr::include_graphics("pk1.png")
 ```
 

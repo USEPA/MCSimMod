@@ -31,7 +31,7 @@ bibliography: paper.bib
 
 # Summary
 
-Many physical and biological phenomena can be described using mathematical models based on ordinary differential equations (ODEs). In such a model, an ODE describes how a "state variable" changes (quantitatively) with respect to an independent variable (e.g., time or position). In general, a model can include several state variables, each with its own ODE, so the model can be expressed as a system of ODEs. Thus, if $y$ is a vector of $n$ state variables, an ODE model that describes the state of the system at $t$ (i.e., at a specific time or value of the independent variable) can be expressed as
+Many physical and biological phenomena can be described using mathematical models based on ordinary differential equations (ODEs). In such a model, an ODE describes how a "state variable" changes (quantitatively) with respect to an independent variable (e.g., time or position). In general, an ODE model can include several state variables, each with its own ODE, so the model can be expressed as a system of ODEs. Thus, if $y$ is a vector of $n$ state variables, an ODE model that describes the state of the system at $t$ (i.e., at a specific time or value of the independent variable) can be expressed as
 \begin{equation} \label{eq:ode_general}
   \frac{\textrm{d}}{\textrm{d}t} y(t) = f(y(t), \theta, t),
 \end{equation}
