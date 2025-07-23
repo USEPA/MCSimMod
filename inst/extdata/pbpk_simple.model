@@ -1,0 +1,167 @@
+#-------------------------------------------------------------------------------
+# pbpk_simple.model
+#
+# A simple PBPK model that describes absorption, distribution, metabolism, and
+# excretion of Substance X.
+#
+# Author: Dustin Kapraun, U.S. EPA, June 2022
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# STATE VARIABLES for the model (for which ODEs are provided).
+
+States = {
+    A_G,            # Amount in gut lumen (mg)
+    A_L,            # ... liver (mg)
+    A_F,            # ... fat (mg)
+    A_AB,           # ... arterial blood (mg)
+    A_VB,           # ... venous blood (mg)
+    A_R,            # ... rest of body (mg)
+    A_dose,         # Cumulative amount that has entered organism (mg)
+    A_m,            # Cumulative amount that has been metabolized (mg)
+    AUC,            # Area under the venous blood concentration curve (mg*h/L)
+};
+
+# End of STATE VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# OUTPUT VARIABLES for the model (which can be obtained at any point in time
+# as analytic functions of state variables, inputs, and parameters).
+
+Outputs = {
+    A_tot,          # Total amount (mg)
+    C_L,            # Concentration in liver (mg/L)
+    C_F,            # ... fat (mg/L)
+    C_AB,           # ... arterial blood (mg/L)
+    C_VB,           # ... venous blood (mg/L)
+    C_R,            # ... rest of body (mg/L)
+    R_m,            # Rate of metabolism (mg/h)
+    R_abs           # Rate of absorption (mg/h)
+};
+
+# End of OUTPUT VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# INPUT VARIABLES for the model (which are independent of other variables, and
+# which may vary in time).
+Inputs = {};
+
+# End of INPUT VARIABLES.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# PARAMETERS for the model (which are independent of time).
+
+# Anatomical and physiological parameters.
+M = 0.25;               # Body weight (kg)
+Q_CC = 15.0;            # Cardiac output (L/h/kg^0.75)
+Q_LC = 0.21;            # Proportion of cardiac output to liver 
+Q_FC = 0.06;            # ... to fat
+V_LC = 0.04;            # Volume fraction (L/kg) of body mass that is liver
+V_FC = 0.07;            # ... fat
+V_ABC = 0.02;           # ... arterial blood
+V_VBC = 0.05;           # ... venous blood
+ 
+# Chemical-specific parameters.
+P_L = 3.5;              # Liver/blood partition coefficient
+P_F = 86.5;             # Fat/blood partition coefficient
+P_R = 2.3;              # Rest of body/blood partition coefficient
+V_maxC = 10.0;          # Maximum metabolic rate constant (mg/h/kg^0.75)
+K_m = 6.0;              # Affinity constant for saturable metabolism (mg/L)
+k_abs = 1.25;           # First-order oral absorption rate constant (h^-1)
+
+# Dosing parameters.
+D_oral = 0.0;           # Body mass normalized daily oral dose rate (mg/kg/d)
+D_IV = 0.0;             # Body mass normalized daily IV dose rate (mg/kg/d)
+
+# Parameters calculated in MODEL INITIALIZATION.
+Q_C = 0.0;              # Cardiac output (L/h)
+Q_L = 0.0;              # Blood flow rate to liver (L/h)
+Q_F = 0.0;              # Blood flow rate to fat (L/h)
+Q_RC = 0.0;             # Proportion of cardiac output to rest of body
+Q_R = 0.0;              # Blood flow rate to rest of body (L/h)
+V_L = 0.0;              # Volume of liver (L)
+V_F = 0.0;              # Volume of fat (L)
+V_AB = 0.0;             # Volume of arterial blood (L)
+V_VB = 0.0;             # Volume of venous blood (L)
+V_RC = 0.0;             # Volume fraction (L/h) of body mass that is rest
+V_R = 0.0;              # Volume of rest of body (L)
+V_max = 0.0;            # Maximum rate of metabolism (mg/h)
+R_oral = 0.0;           # Oral dose rate (mg/h)
+R_IV = 0.0;             # IV dose rate (mg/h)
+
+# End of PARAMETERS.
+#-------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------
+# MODEL INITIALIZATION section.
+Initialize {
+    # Assign an initial value for each state.
+    A_G = 0.0;
+    A_L = 0.0;
+    A_F = 0.0;
+    A_AB = 0.0;
+    A_VB = 0.0;
+    A_R = 0.0;
+    A_dose = 0.0;
+    A_m = 0.0;
+    AUC = 0.0;
+
+    # Calculated paramters.
+    Q_C = Q_CC * pow(M, 0.75);      # Cardiac output (L/h)
+    Q_L = Q_LC * Q_C;               # Blood flow rate to liver (L/h)
+    Q_F = Q_FC * Q_C;               # Blood flow rate to fat (L/h)
+    Q_RC = 1.0 - (Q_LC + Q_FC);     # Proportion of cardiac output to rest
+    Q_R = Q_RC * Q_C;               # Blood flow rate to rest of body (L/h)
+    V_L = V_LC * M;                 # Volume of liver (L)
+    V_F = V_FC * M;                 # Volume of fat (L)
+    V_AB = V_ABC * M;               # Volume of arterial blood (L)
+    V_VB = V_VBC * M;               # Volume of venous blood (L)
+    V_RC = 1.0 - (V_LC + V_FC + V_ABC + V_VBC); # Volume fraction (L/h) of rest
+    V_R = V_RC * M;                 # Volume of rest of body (L)
+    V_max = V_maxC * pow(M, 0.75);  # Maximum rate of metabolism (mg/h)
+    R_oral = D_oral * M / 24;       # Oral dose rate (mg/h)
+    R_IV = D_IV * M / 24;           # IV dose rate (mg/h)
+}
+# End of MODEL INITIALIZATION.
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# DYNAMICS section.
+Dynamics {
+    # Time-varying outputs.
+    A_tot = A_dose - (A_G + A_L + A_F + A_AB + A_VB + A_R) - A_m;
+    C_L = A_L / V_L;
+    C_F = A_F / V_F;
+    C_AB = A_AB / V_AB;
+    C_VB = A_VB / V_VB;
+    C_R = A_R / V_R;
+    R_m = (V_max * C_L / P_L) / (K_m + C_L / P_L);
+    R_abs = k_abs * A_G;
+
+    # Time rates of change of states (ODEs).
+    dt(A_G) = R_oral - R_abs;
+    dt(A_L) = Q_L * (C_AB - C_L / P_L) + R_abs - R_m;
+    dt(A_F) = Q_F * (C_AB - C_F / P_F);
+    dt(A_AB) = Q_C * (C_VB - C_AB);
+    dt(A_VB) = Q_L * C_L / P_L + Q_F * C_F / P_F + Q_R * C_R / P_R - Q_C * C_VB
+        + R_IV;
+    dt(A_R) = Q_R * (C_AB - C_R / P_R);
+    dt(A_dose) = R_oral + R_IV;
+    dt(A_m) = R_m;
+	dt(AUC) = C_VB;
+}
+# End of DYNAMICS.
+#------------------------------------------------------------------------------
+
+
+End.
