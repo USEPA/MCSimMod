@@ -13,14 +13,6 @@
 
 States = {
     A_G,            # Amount in gut lumen (mg)
-    A_L,            # ... liver (mg)
-    A_F,            # ... fat (mg)
-    A_AB,           # ... arterial blood (mg)
-    A_VB,           # ... venous blood (mg)
-    A_R,            # ... rest of body (mg)
-    A_dose,         # Cumulative amount that has entered organism (mg)
-    A_m,            # Cumulative amount that has been metabolized (mg)
-    AUC,            # Area under the venous blood concentration curve (mg*h/L)
 };
 
 # End of STATE VARIABLES.
@@ -33,13 +25,6 @@ States = {
 
 Outputs = {
     A_tot,          # Total amount (mg)
-    C_L,            # Concentration in liver (mg/L)
-    C_F,            # ... fat (mg/L)
-    C_AB,           # ... arterial blood (mg/L)
-    C_VB,           # ... venous blood (mg/L)
-    C_R,            # ... rest of body (mg/L)
-    R_m,            # Rate of metabolism (mg/h)
-    R_abs           # Rate of absorption (mg/h)
 };
 
 # End of OUTPUT VARIABLES.
@@ -106,14 +91,6 @@ R_IV = 0.0;             # IV dose rate (mg/h)
 Initialize {
     # Assign an initial value for each state.
     A_G = 0.0;
-    A_L = 0.0;
-    A_F = 0.0;
-    A_AB = 0.0;
-    A_VB = 0.0;
-    A_R = 0.0;
-    A_dose = 0.0;
-    A_m = 0.0;
-    AUC = 0.0;
 
     # Calculated paramters.
     Q_C = Q_CC * pow(M, 0.75);      # Cardiac output (L/h)
@@ -139,26 +116,10 @@ Initialize {
 # DYNAMICS section.
 Dynamics {
     # Time-varying outputs.
-    A_tot = A_dose - (A_G + A_L + A_F + A_AB + A_VB + A_R) - A_m;
-    C_L = A_L / V_L;
-    C_F = A_F / V_F;
-    C_AB = A_AB / V_AB;
-    C_VB = A_VB / V_VB;
-    C_R = A_R / V_R;
-    R_m = (V_max * C_L / P_L) / (K_m + C_L / P_L);
-    R_abs = k_abs * A_G;
+    A_tot = 0;
 
     # Time rates of change of states (ODEs).
-    dt(A_G) = R_oral - R_abs;
-    dt(A_L) = Q_L * (C_AB - C_L / P_L) + R_abs - R_m;
-    dt(A_F) = Q_F * (C_AB - C_F / P_F);
-    dt(A_AB) = Q_C * (C_VB - C_AB);
-    dt(A_VB) = Q_L * C_L / P_L + Q_F * C_F / P_F + Q_R * C_R / P_R - Q_C * C_VB
-        + R_IV;
-    dt(A_R) = Q_R * (C_AB - C_R / P_R);
-    dt(A_dose) = R_oral + R_IV;
-    dt(A_m) = R_m;
-	dt(AUC) = C_VB;
+    dt(A_G) = 0;
 }
 # End of DYNAMICS.
 #------------------------------------------------------------------------------
