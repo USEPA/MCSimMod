@@ -32,14 +32,15 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
+  
+  # Save the translator output to a file.
+  temp_directory <- tempdir()
+  out_file <- file.path(temp_directory, "mod_output.txt")
+  write(mod_output, file = out_file)
 
-  # Check to see if there was an error during translation. If so, save the
-  # translator output to a file, print a message about its location, and stop
-  # execution.
+  # Check to see if there was an error during translation. If so, print a
+  # message about the location of the translation log file and stop execution.
   if (grepl("*** Error:", mod_output, fixed = TRUE)) {
-    temp_directory <- tempdir()
-    out_file <- file.path(temp_directory, "mod_output.txt")
-    write(mod_output, file = out_file)
     stop(
       "An error was identified when translating the MCSim model specification ",
       "text to C. Full details are available in the file ",
@@ -47,17 +48,23 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     )
   }
 
-  # Check to see if there was a warning during translation. If so, save the
-  # translator output to a file, print a message about its location, and raise a
-  # warning.
-  if (grepl("*** Warning:", mod_output, fixed = TRUE)) {
-    temp_directory <- tempdir()
-    out_file <- file.path(temp_directory, "mod_output.txt")
-    write(mod_output, file = out_file)
+  # Check to see if there was a warning during translation. If so, print a
+  # message about the location of the translation log file and raise a warning.
+  else if (grepl("*** Warning:", mod_output, fixed = TRUE)) {
     warning(
       "A warning was identified when translating the MCSim model ",
       "specification text to C. Full details are available in the file ",
-      normalizePath(out_file), "."
+      normalizePath(out_file), ".\n"
+    )
+  }
+  
+  # If there was no error or warning during translation, just print a message
+  # about the location of the translation log file.
+  else {
+    message(
+      "Translation of model specification text complete. Full details are ",
+      "available in the file ",
+      normalizePath(out_file), ".\n"
     )
   }
 
@@ -76,7 +83,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   write(compiler_output, file = out_file)
   message(
     "C compilation complete. Full details are available in the file ",
-    normalizePath(out_file), "."
+    normalizePath(out_file), ".\n"
   )
 
   # If hash file name was provided, create a hash (md5 sum) for the model file
@@ -86,7 +93,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     write(file_hash, file = hash_file)
     message(
       "Hash created and saved in the file ", normalizePath(hash_file),
-      "."
+      ".\n"
     )
   }
 }
