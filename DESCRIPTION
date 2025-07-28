@@ -15,7 +15,7 @@ Depends:
 	tools
 Imports:
     deSolve
-URL: https://CRAN.R-project.org/package=MCSimMod, https://github.com/USEPA/MCSimMod, https://usepa.github.io/mcsimmod/
+URL: https://CRAN.R-project.org/package=MCSimMod, https://github.com/USEPA/MCSimMod
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
