@@ -32,7 +32,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
-  
+
   # Save the translator output to a file.
   temp_directory <- tempdir()
   out_file <- file.path(temp_directory, "mod_output.txt")
@@ -57,7 +57,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
       normalizePath(out_file), ".\n"
     )
   }
-  
+
   # If there was no error or warning during translation, just print a message
   # about the location of the translation log file.
   else {
