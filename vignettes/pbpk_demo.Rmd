@@ -140,3 +140,23 @@ Also, in addition to the time-varying quantities previously mentioned, the model
 that represents the total amount of substance that has been "lost" vs. time. This amount is calculated as [total (cumulative) amount that has entered in the organism] - [total amount currently in the organism] - [total (cumulative) amount that has been eliminated from the organism]. Therefore, if the model "conserves mass" as it should, the value of $A_\textrm{tot}(t)$ should be zero (or very close to zero for numerical solutions to an IVP) at all times $t$.
 
 Note that the model specification file uses text symbols to represent the state variables, output variables, and parameters in the model. For example, the state variable $A_\textrm{L}$ is represented by the text symbol `A_L`, the output variable $C_\textrm{L}$ is represented by the text symbol `C_L`, and the parameter $Q_\textrm{LC}$ is represented by the text symbol `Q_LC`.
+
+## Building the Model
+
+First, we load the **MCSimMod** package as follows.
+```{r, results = 'hide', message = FALSE}
+library(MCSimMod)
+```
+
+Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pbpk_simple.model` that is included in the **MCSimMod** package.
+```{r, results = 'hide'}
+# Get the full name of the package directory that contains the example MCSim
+# model specification file.
+mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
+
+# Create a model object using the example MCSim model specification file
+# "pbpk_simple.model" included in the MCSimMod package.
+pbpk_mod_name <- file.path(mod_path, "pbpk_simple")
+pbpk_mod <- createModel(pbpk_mod_name)
+```
+
