@@ -20,7 +20,7 @@ jobs:
       matrix:
         config:
           - {os: ubuntu-24.04, r: 'release'} #ensures we are running with a recent version of gcc similar to CRAN
-          - {os: windows-2025, r: 'release'}
+          - {os: windows-2022, r: 'release'}
     env:
       R_KEEP_PKG_SOURCE: yes
     steps:
@@ -43,13 +43,8 @@ jobs:
       - name: Debug Issue with PBPK Vignette
         shell: Rscript {0}
         run: |
+          devtools::document()
           devtools::build()
-          devtools::install()
-          library(MCSimMod)
-          mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
-          pbpk_mod_name <- file.path(mod_path, "pbpk_simple")
-          pbpk_mod <- createModel(pbpk_mod_name)
-          pbpk_mod$loadModel()
       - name: Check Package
         uses: r-lib/actions/check-r-package@v2
       - name: Test Coverage
