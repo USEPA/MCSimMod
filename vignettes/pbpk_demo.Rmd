@@ -160,3 +160,8 @@ pbpk_mod_name <- file.path(mod_path, "pbpk_simple")
 pbpk_mod <- createModel(pbpk_mod_name)
 ```
 
+This last command creates a `Model` object called `pbpk_mod`. Once that object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
+```{r, results = 'hide', message = FALSE}
+# Load the model.
+pbpk_mod$loadModel()
+```
