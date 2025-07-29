@@ -35,6 +35,15 @@ jobs:
           needs: |
             dev
             website
+      - name: DEBUGGING
+        shell: Rscript {0}
+        run: |
+          devtools::install('.')
+          pbpk_mod = MCSimMod::createModel(mName="inst/extdata/pbpk_simple")
+          pbpk_mod$loadModel()
+          pbpk_mod$updateParms(c(D_oral = 1))
+          times <- seq(from = 0, to = 100, by = 0.1)
+          out_oral <- pbpk_mod$runModel(times)
       - name: Check R Code Style
         shell: bash
         run: |

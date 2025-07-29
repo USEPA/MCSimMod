@@ -79,12 +79,15 @@ Model <- setRefClass("Model",
     },
     loadModel = function(force = FALSE) {
       "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
+      print("Z1")
       hash_exists <- file.exists(paths$hash_file)
+      print("Z2")
       if (hash_exists) {
         hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
       } else {
         hash_has_changed <- TRUE
       }
+      print("Z3")
 
       # Conditions for compiling a model:
       # 1. The DLL (on Windows) or SO (on Unix) associated with the model
@@ -99,19 +102,24 @@ Model <- setRefClass("Model",
       if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
         compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file)
       }
+      print("Z4")
 
       # Load the compiled model (DLL).
       dyn.load(paths$dll_file)
+      print("Z5")
 
       # Run script that defines initialization functions.
       source(paths$inits_file, local = TRUE)
+      print("Z6")
       initParms <<- initParms
       initStates <<- initStates
 
       Outputs <<- Outputs
 
+      print("Z7")
       parms <<- initParms()
       Y0 <<- initStates(parms)
+      print("Z8")
     },
     updateParms = function(new_parms = NULL) {
       "Update values of parameters for the Model object."
