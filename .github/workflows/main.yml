@@ -44,6 +44,7 @@ jobs:
           pbpk_mod$updateParms(c(D_oral = 1))
           times <- seq(from = 0, to = 100, by = 0.1)
           out_oral <- pbpk_mod$runModel(times)
+          devtools::build_vignettes('.')
       - name: Check R Code Style
         shell: bash
         run: |
