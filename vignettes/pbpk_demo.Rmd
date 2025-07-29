@@ -122,7 +122,7 @@ The state equations for the PBPK model are:
 * $\frac{\textrm{d}}{\textrm{d}t} A_\textrm{dose}(t) = R_\textrm{oral} + R_\textrm{IV}$; and
 * $\frac{\textrm{d}}{\textrm{d}t} A_\textrm{m}(t) = R_\textrm{m}(t)$.
 
-In order to solve an initial value problem for the PBPK model, one needs to provide the values of the basic parameters (but not the calculated paramters) and initial values for all the state variables.
+In order to solve an initial value problem for the PBPK model, one needs to provide the values of the basic parameters (but not the calculated parameters) and initial values for all the state variables.
 
 ## MCSim Model Specification
 
@@ -170,13 +170,13 @@ pbpk_mod$loadModel()
 
 We can demonstrate that the PBPK model for Substance X conserves mass by performing a simulation in which a rat is orally administered 1 mg/kg/d of Substance X and plotting total amount of substance lost, $A_\textrm{tot}(t)$, vs. time, $t$.
 
-The default values of the anatomical and physiological model parameters that are provided in the model specification file, `pbpk_simple.model`, are for a rat. This can be verified by examining the attribute `parms` of the `Model` object `pbpk_mod` as follows.
+The default values of the anatomical and physiological model parameters that are provided in the model specification file, `pbpk_simple.model`, are for a rat, and these are the values that are assigned to the parameters when one calls the `loadModel()` method. This can be verified by examining the attribute `parms` of the `Model` object `pbpk_mod` as follows.
 
 ```{r}
 pbpk_mod$parms
 ```
 
-We want to perform a simulation in which a rat is orally administered 1 mg/kg/d of Substance X, so we will change the value of the parameter $R_\textrm{oral}$ from 0 to 1.
+We want to perform a simulation in which a rat is orally administered 1 mg/kg/d of Substance X, so we will change the value of the parameter $D_\textrm{oral}$ from 0 to 1.
 
 ```{r}
 pbpk_mod$updateParms(c(D_oral = 1))
@@ -196,7 +196,7 @@ pbpk_mod$Y0
 
 As stated in the model specification file, `pbpk_simple.model`, the default values for the initial conditions are all zero.
 
-Suppose that we want to examine results for 100 hours following oral administration with an output resolution of 0.1 hours. We can specify the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
+Suppose that we want to examine results for 100 hours following oral administration with an output resolution of 0.1 hours. We can create a vector of desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
 
 ```{r, results = 'hide'}
 times <- seq(from = 0, to = 100, by = 0.1)
@@ -217,4 +217,47 @@ plot(out_oral[, "time"], out_oral[, "A_tot"],
 )
 ```
 
-Note that the total amount lost is close to zero (less than 10${}^{-12}$) at all time points examined. The degree of "closeness" to zero is determined by the numerical precision of the ODE solver, which can be tuned using arguments `rtol` and `atol` passed through `runModel()` to the `deSolve` function `ode`. Further details about these arguments can be found the documentation for the `deSolve` package.
+Note that the total amount lost is close to zero (less than 10${}^{-12}$) at all time points examined. The degree of "closeness" to zero is determined by the numerical precision of the ODE solver, which can be adjusted using the arguments `rtol` and `atol` passed through `runModel()` to the `deSolve` function `ode`. Further details about these arguments can be found the documentation for the `deSolve` package.
+
+## Verifying Conservation of Flow
+
+We can also verify that the total blood flow to the non-blood compartments in our PBPK model equals the total cardiac output using the following commands.
+
+```{r}
+cat(
+  "Total blood flow to compartments:", pbpk_mod$parms[["Q_L"]] + pbpk_mod$parms[["Q_F"]] + pbpk_mod$parms[["Q_R"]],
+  "L/h\n"
+)
+cat("Total cardiac output:", pbpk_mod$parms[["Q_C"]], "L/h\n")
+```
+
+## Examining the Simulation Results
+
+After performing a simulation and storing the results (in this case, in `out_oral`), we can create visual representations of these results. For example, we can plot the venous blood concentration vs. time using the following commands.
+
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
+plot(out_oral[, "time"], out_oral[, "C_VB"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time (h)", ylab = "Concentration (mg/L)"
+)
+```
+
+We can plot the concentrations in all non-blood compartments (on a logarithmic scale) as follows.
+
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
+plot(out_oral[, "time"], out_oral[, "C_L"],
+  type = "l", lty = 1, lwd = 2,
+  log = "y", ylim = c(0.0001, 10),
+  xlab = "Time (h)", ylab = "Concentration (mg/L)"
+)
+lines(out_oral[, "time"], out_oral[, "C_F"],
+  lty = 2, lwd = 2
+)
+lines(out_oral[, "time"], out_oral[, "C_R"],
+  lty = 3, lwd = 2
+)
+legend("bottomright",
+  legend = c("Liver", "Fat", "Rest of Body"),
+  lty = c(1, 2, 3), lwd = 2
+)
+```
