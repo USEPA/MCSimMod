@@ -159,3 +159,62 @@ mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
 pbpk_mod_name <- file.path(mod_path, "pbpk_simple")
 pbpk_mod <- createModel(pbpk_mod_name)
 ```
+
+This last command creates a `Model` object called `pbpk_mod`. Once that object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
+```{r, results = 'hide', message = FALSE}
+# Load the model.
+pbpk_mod$loadModel()
+```
+
+## Verifying Conservation of Mass
+
+We can demonstrate that the PBPK model for Substance X conserves mass by performing a simulation in which a rat is orally administered 1 mg/kg/d of Substance X and plotting total amount of substance lost, $A_\textrm{tot}(t)$, vs. time, $t$.
+
+The default values of the anatomical and physiological model parameters that are provided in the model specification file, `pbpk_simple.model`, are for a rat. This can be verified by examining the attribute `parms` of the `Model` object `pbpk_mod` as follows.
+
+```{r}
+pbpk_mod$parms
+```
+
+We want to perform a simulation in which a rat is orally administered 1 mg/kg/d of Substance X, so we will change the value of the parameter $R_\textrm{oral}$ from 0 to 1.
+
+```{r}
+pbpk_mod$updateParms(c(D_oral = 1))
+```
+
+Now, if we examine the values of the model parameters, we can see that the body mass normalized oral administration rate (represented by $D_\textrm{oral}$ and `D_oral`) has been updated from 0 to 1 mg/kg/d and the actual oral administration rate (represented by (represented by $R_\textrm{oral}$ and `R_oral`), which is a calculated parameter, has also been updated (from 0 to approximately 0.0104 mg/h).
+
+```{r}
+pbpk_mod$parms
+```
+
+We can examine the initial conditions for the state variables in the model using the following command.
+
+```{r}
+pbpk_mod$Y0
+```
+
+As stated in the model specification file, `pbpk_simple.model`, the default values for the initial conditions are all zero.
+
+Suppose that we want to examine results for 100 hours following oral administration with an output resolution of 0.1 hours. We can specify the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
+
+```{r, results = 'hide'}
+times <- seq(from = 0, to = 100, by = 0.1)
+```
+
+Then, we can perform the simulation and store the results in a "matrix" data structure called `out_oral` as follows.
+
+```{r, results = 'hide'}
+out_oral <- pbpk_mod$runModel(times)
+```
+
+Finally, we can plot the total amount lost vs. time using the following command.
+
+```{r, fig.dim = c(6, 4), fig.align = 'center'}
+plot(out_oral[, "time"], out_oral[, "A_tot"],
+  type = "l", lty = 1, lwd = 2,
+  xlab = "Time (h)", ylab = "Amount (mg)"
+)
+```
+
+Note that the total amount lost is close to zero (less than 10${}^{-12}$) at all time points examined. The degree of "closeness" to zero is determined by the numerical precision of the ODE solver, which can be tuned using arguments `rtol` and `atol` passed through `runModel()` to the `deSolve` function `ode`. Further details about these arguments can be found the documentation for the `deSolve` package.

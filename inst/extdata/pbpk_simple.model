@@ -93,18 +93,18 @@ Initialize {
     A_G = 0.0;
 
     # Calculated paramters.
-    Q_C = Q_CC * pow(M, 0.75);      # Cardiac output (L/h)
+    # Q_C = Q_CC * pow(M, 0.75);      # Cardiac output (L/h)
     Q_L = Q_LC * Q_C;               # Blood flow rate to liver (L/h)
     Q_F = Q_FC * Q_C;               # Blood flow rate to fat (L/h)
-    Q_RC = 1.0 - (Q_LC + Q_FC);     # Proportion of cardiac output to rest
-    Q_R = Q_RC * Q_C;               # Blood flow rate to rest of body (L/h)
+    # Q_RC = 1.0 - (Q_LC + Q_FC);     # Proportion of cardiac output to rest
+    # Q_R = Q_RC * Q_C;               # Blood flow rate to rest of body (L/h)
     V_L = V_LC * M;                 # Volume of liver (L)
     V_F = V_FC * M;                 # Volume of fat (L)
     V_AB = V_ABC * M;               # Volume of arterial blood (L)
     V_VB = V_VBC * M;               # Volume of venous blood (L)
-    V_RC = 1.0 - (V_LC + V_FC + V_ABC + V_VBC); # Volume fraction (L/h) of rest
-    V_R = V_RC * M;                 # Volume of rest of body (L)
-    V_max = V_maxC * pow(M, 0.75);  # Maximum rate of metabolism (mg/h)
+    # V_RC = 1.0 - (V_LC + V_FC + V_ABC + V_VBC); # Volume fraction (L/h) of rest
+    # V_R = V_RC * M;                 # Volume of rest of body (L)
+    # V_max = V_maxC * pow(M, 0.75);  # Maximum rate of metabolism (mg/h)
     R_oral = D_oral * M / 24;       # Oral dose rate (mg/h)
     R_IV = D_IV * M / 24;           # IV dose rate (mg/h)
 }
