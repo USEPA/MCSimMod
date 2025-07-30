@@ -24,6 +24,7 @@ Like any pharmacokinetic (PK) model, a physiologically based pharmacokinetic (PB
 ```{r, echo = FALSE, fig.cap = "Figure 1: A simple PBPK model", out.width = "50%"}
 knitr::include_graphics("pbpk_basic_model_schematic.png")
 ```
+
 Substance X can enter the body through oral and/or intravenous routes and it is eliminated via saturable metabolism in the liver. The kinetics of distribution are assumbed to be "perfusion limited," so concentrations in different tissues depend on steady state concentration ratios, or "partition coefficients," for each type of tissue.
 
 The state variables for the PBPK model include:
@@ -238,7 +239,9 @@ plot(out_oral[, "time"], out_oral[, "A_tot"],
   xlab = "Time (h)", ylab = "Amount (mg)"
 )
 ```
-
+```{r, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("amount_lost_vs_time.png")
+```
 Note that the total amount lost is close to zero (less than 10${}^{-12}$) at all time points examined. The degree of "closeness" to zero is determined by the numerical precision of the ODE solver, which can be adjusted using the arguments `rtol` and `atol` passed through `runModel()` to the `deSolve` function `ode`. Further details about these arguments can be found the documentation for the `deSolve` package.
 
 ## Verifying Conservation of Flow
@@ -265,6 +268,9 @@ plot(out_oral[, "time"], out_oral[, "C_VB"],
   xlab = "Time (h)", ylab = "Concentration (mg/L)"
 )
 ```
+```{r, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("conc_vb_vs_time.png")
+```
 
 We can plot the concentrations in all non-blood compartments (on a logarithmic scale) as follows.
 
@@ -285,3 +291,7 @@ legend("bottomright",
   lty = c(1, 2, 3), lwd = 2
 )
 ```
+```{r, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("conc_comp_vs_time.png")
+```
+
