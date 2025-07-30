@@ -20,6 +20,7 @@ jobs:
       matrix:
         config:
           - {os: ubuntu-24.04, r: 'release'} #ensures we are running with a recent version of gcc similar to CRAN
+          - {os: windows-2022, r: 'release'}
     env:
       R_KEEP_PKG_SOURCE: yes
     steps:

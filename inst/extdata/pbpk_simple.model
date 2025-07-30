@@ -29,7 +29,7 @@ States = {
 
 #-------------------------------------------------------------------------------
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
-# as analytic functions of state variables, inputs, and parameters).
+# as analytic functions of state variables, input variables, and parameters).
 
 Outputs = {
     A_tot,          # Total amount (mg)
@@ -49,6 +49,7 @@ Outputs = {
 #-------------------------------------------------------------------------------
 # INPUT VARIABLES for the model (which are independent of other variables, and
 # which may vary in time).
+
 Inputs = {};
 
 # End of INPUT VARIABLES.
@@ -67,7 +68,7 @@ V_LC = 0.04;            # Volume fraction (L/kg) of body mass that is liver
 V_FC = 0.07;            # ... fat
 V_ABC = 0.02;           # ... arterial blood
 V_VBC = 0.05;           # ... venous blood
- 
+
 # Chemical-specific parameters.
 P_L = 3.5;              # Liver/blood partition coefficient
 P_F = 86.5;             # Fat/blood partition coefficient
@@ -100,11 +101,11 @@ R_IV = 0.0;             # IV dose rate (mg/h)
 #-------------------------------------------------------------------------------
 
 
-
 #-------------------------------------------------------------------------------
 # MODEL INITIALIZATION section.
+
 Initialize {
-    # Assign an initial value for each state.
+    # Assign an initial value for each state variable.
     A_G = 0.0;
     A_L = 0.0;
     A_F = 0.0;
@@ -138,6 +139,7 @@ Initialize {
 
 #-------------------------------------------------------------------------------
 # DYNAMICS section.
+
 Dynamics {
     # Time-varying outputs.
     A_tot = A_dose - (A_G + A_L + A_F + A_AB + A_VB + A_R) - A_m;
@@ -149,7 +151,7 @@ Dynamics {
     R_m = (V_max * C_L / P_L) / (K_m + C_L / P_L);
     R_abs = k_abs * A_G;
 
-    # Time rates of change of states (ODEs).
+    # Time rate of change (ODE) for each state variable.
     dt(A_G) = R_oral - R_abs;
     dt(A_L) = Q_L * (C_AB - C_L / P_L) + R_abs - R_m;
     dt(A_F) = Q_F * (C_AB - C_F / P_F);
@@ -159,10 +161,11 @@ Dynamics {
     dt(A_R) = Q_R * (C_AB - C_R / P_R);
     dt(A_dose) = R_oral + R_IV;
     dt(A_m) = R_m;
-	dt(AUC) = C_VB;
+    dt(AUC) = C_VB;
 }
+
 # End of DYNAMICS.
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 
 End.

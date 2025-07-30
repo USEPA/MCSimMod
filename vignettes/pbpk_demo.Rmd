@@ -144,12 +144,12 @@ Note that the model specification file uses text symbols to represent the state 
 ## Building the Model
 
 First, we load the **MCSimMod** package as follows.
-```{r, results = 'hide', message = FALSE}
+```{r, eval = FALSE}
 library(MCSimMod)
 ```
 
 Using the following commands, we create a model object (i.e., an instance of the `Model` class) using the model specification file `pbpk_simple.model` that is included in the **MCSimMod** package.
-```{r, results = 'hide'}
+```{r, eval = FALSE}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
 mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
@@ -161,7 +161,7 @@ pbpk_mod <- createModel(pbpk_mod_name)
 ```
 
 This last command creates a `Model` object called `pbpk_mod`. Once that object is created, we can "load" the model (so that it's ready for use in a given R session) as follows.
-```{r, results = 'hide', message = FALSE}
+```{r, eval = FALSE}
 # Load the model.
 pbpk_mod$loadModel()
 ```
@@ -172,45 +172,67 @@ We can demonstrate that the PBPK model for Substance X conserves mass by perform
 
 The default values of the anatomical and physiological model parameters that are provided in the model specification file, `pbpk_simple.model`, are for a rat, and these are the values that are assigned to the parameters when one calls the `loadModel()` method. This can be verified by examining the attribute `parms` of the `Model` object `pbpk_mod` as follows.
 
-```{r}
+```{r, eval = FALSE}
 pbpk_mod$parms
+#>          M       Q_CC       Q_LC       Q_FC       V_LC       V_FC      V_ABC 
+#>  0.2500000 15.0000000  0.2100000  0.0600000  0.0400000  0.0700000  0.0200000 
+#>      V_VBC        P_L        P_F        P_R     V_maxC        K_m      k_abs 
+#>  0.0500000  3.5000000 86.5000000  2.3000000 10.0000000  6.0000000  1.2500000 
+#>     D_oral       D_IV        Q_C        Q_L        Q_F       Q_RC        Q_R 
+#>  0.0000000  0.0000000  5.3033009  1.1136932  0.3181981  0.7300000  3.8714096 
+#>        V_L        V_F       V_AB       V_VB       V_RC        V_R      V_max 
+#>  0.0100000  0.0175000  0.0050000  0.0125000  0.8200000  0.2050000  3.5355339 
+#>     R_oral       R_IV 
+#>  0.0000000  0.0000000
 ```
 
 We want to perform a simulation in which a rat is orally administered 1 mg/kg/d of Substance X, so we will change the value of the parameter $D_\textrm{oral}$ from 0 to 1.
 
-```{r}
+```{r, eval = FALSE}
 pbpk_mod$updateParms(c(D_oral = 1))
 ```
 
 Now, if we examine the values of the model parameters, we can see that the body mass normalized oral administration rate (represented by $D_\textrm{oral}$ and `D_oral`) has been updated from 0 to 1 mg/kg/d and the actual oral administration rate (represented by (represented by $R_\textrm{oral}$ and `R_oral`), which is a calculated parameter, has also been updated (from 0 to approximately 0.0104 mg/h).
 
-```{r}
+```{r, eval = FALSE}
 pbpk_mod$parms
+#>           M        Q_CC        Q_LC        Q_FC        V_LC        V_FC 
+#>  0.25000000 15.00000000  0.21000000  0.06000000  0.04000000  0.07000000 
+#>       V_ABC       V_VBC         P_L         P_F         P_R      V_maxC 
+#>  0.02000000  0.05000000  3.50000000 86.50000000  2.30000000 10.00000000 
+#>         K_m       k_abs      D_oral        D_IV         Q_C         Q_L 
+#>  6.00000000  1.25000000  1.00000000  0.00000000  5.30330086  1.11369318 
+#>         Q_F        Q_RC         Q_R         V_L         V_F        V_AB 
+#>  0.31819805  0.73000000  3.87140963  0.01000000  0.01750000  0.00500000 
+#>        V_VB        V_RC         V_R       V_max      R_oral        R_IV 
+#>  0.01250000  0.82000000  0.20500000  3.53553391  0.01041667  0.00000000
 ```
 
 We can examine the initial conditions for the state variables in the model using the following command.
 
-```{r}
+```{r, eval = FALSE}
 pbpk_mod$Y0
+#>    A_G    A_L    A_F   A_AB   A_VB    A_R A_dose    A_m    AUC 
+#>      0      0      0      0      0      0      0      0      0
 ```
 
 As stated in the model specification file, `pbpk_simple.model`, the default values for the initial conditions are all zero.
 
 Suppose that we want to examine results for 100 hours following oral administration with an output resolution of 0.1 hours. We can create a vector of desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
 
-```{r, results = 'hide'}
+```{r, eval = FALSE}
 times <- seq(from = 0, to = 100, by = 0.1)
 ```
 
 Then, we can perform the simulation and store the results in a "matrix" data structure called `out_oral` as follows.
 
-```{r, results = 'hide'}
+```{r, eval = FALSE}
 out_oral <- pbpk_mod$runModel(times)
 ```
 
 Finally, we can plot the total amount lost vs. time using the following command.
 
-```{r, fig.dim = c(6, 4), fig.align = 'center'}
+```{r, eval = FALSE}
 plot(out_oral[, "time"], out_oral[, "A_tot"],
   type = "l", lty = 1, lwd = 2,
   xlab = "Time (h)", ylab = "Amount (mg)"
@@ -223,19 +245,21 @@ Note that the total amount lost is close to zero (less than 10${}^{-12}$) at all
 
 We can also verify that the total blood flow to the non-blood compartments in our PBPK model equals the total cardiac output using the following commands.
 
-```{r}
+```{r, eval = FALSE}
 cat(
   "Total blood flow to compartments:", pbpk_mod$parms[["Q_L"]] + pbpk_mod$parms[["Q_F"]] + pbpk_mod$parms[["Q_R"]],
   "L/h\n"
 )
+#> Total blood flow to compartments: 5.303301 L/h
 cat("Total cardiac output:", pbpk_mod$parms[["Q_C"]], "L/h\n")
+#> Total cardiac output: 5.303301 L/h
 ```
 
 ## Examining the Simulation Results
 
 After performing a simulation and storing the results (in this case, in `out_oral`), we can create visual representations of these results. For example, we can plot the venous blood concentration vs. time using the following commands.
 
-```{r, fig.dim = c(6, 4), fig.align = 'center'}
+```{r, eval = FALSE}
 plot(out_oral[, "time"], out_oral[, "C_VB"],
   type = "l", lty = 1, lwd = 2,
   xlab = "Time (h)", ylab = "Concentration (mg/L)"
@@ -244,7 +268,7 @@ plot(out_oral[, "time"], out_oral[, "C_VB"],
 
 We can plot the concentrations in all non-blood compartments (on a logarithmic scale) as follows.
 
-```{r, fig.dim = c(6, 4), fig.align = 'center'}
+```{r, eval = FALSE}
 plot(out_oral[, "time"], out_oral[, "C_L"],
   type = "l", lty = 1, lwd = 2,
   log = "y", ylim = c(0.0001, 10),
