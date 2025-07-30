@@ -53,19 +53,19 @@ knitr::include_graphics("ModelSpecificationComponents.png")
 
 One can create a new `Model` object using the function `createModel()`. It is necessary to supply (as an argument to the `createModel()` function) either a string (`mString`) or the name of a file (`mName`) that contains the model specification text. For example, if `mod_string` is a character string containing model specification text, one could use the following command to create a `Model` object from that string.
 
-```{verbatim}
+```{r, eval = FALSE}
 mod <- createModel(mString = mod_string)
 ```
 
 Alternatively, one could save the model specification text in a file called `ex.model` and then use the following command to create a `Model` object from the file (assuming that the file is in the current working directory for the R session).
 
-```{verbatim}
+```{r, eval = FALSE}
 mod <- createModel(mName = "ex")
 ```
 
 Note that the suffix (or file name extension) `.model` should be included in the name of file saved on the user's computer, but it should not be included in the `mName` character string argument that is passed to the function `createModel()`. One can also provide a full file system path for the argument mName (again excluding the suffix `.model`) as shown in the following example command.
 
-```{verbatim}
+```{r, eval = FALSE}
 mod <- createModel(mName = "/path/to/ex")
 ```
 
@@ -73,7 +73,7 @@ mod <- createModel(mName = "/path/to/ex")
 
 Once a `Model` object has been created, it can be loaded (i.e., made available for use in the current R session) by calling the method `loadModel()`. For a `Model` object called `mod`, the call to `loadModel()` would look like this.
 
-```{verbatim}
+```{r, eval = FALSE}
 mod$loadModel()
 ```
 
@@ -85,7 +85,7 @@ knitr::include_graphics("ModelFiles.png")
 
 After a `Model` object has been loaded, one can use the method `updateParms()` to modify the values of the parameters and the method `updateY0()` to modify the initial values of the state variables. Finally, one can perform a simulation (i.e., solve an IVP) with the `Model` by calling the `runModel()` method. One must pass (as an argument to `runModel()`) a vector of "times" (i.e., values of the independent variable) at which values of the state variables and output variables are desired, as shown in the following example command.
 
-```{verbatim}
+```{r, eval = FALSE}
 out <- model$runModel(times)
 ```
 
@@ -107,6 +107,6 @@ There is also an optional argument for `compileModel()`:
 * `hash_file`, the name of a file containing a hash key for determining if `model_file` has changed since the previous translation and compilation.
 
 For example, the following command would use MCSim model specification text in the file `ex.model` to create the other files shown in Figure 3.
-```{verbatim}
+```{r, eval = FALSE}
 compileModel("ex.model", "ex_model.c", "ex_model", "ex_model.dll", "ex_model.md5")
 ```
