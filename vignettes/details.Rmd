@@ -23,7 +23,7 @@ an ODE model that describes the state of the system at $t$ (i.e., at a specific 
 \begin{equation}
   \frac{\textrm{d}}{\textrm{d}t}y(t) = f(y(t), \theta, t),
 \end{equation}
-where $f$ is a vector-value function (of dimension $n$) and \theta is a vector of parameters (i.e., constants or variables other than state variables and the independent variable).
+where $f$ is a vector-value function (of dimension $n$) and $\theta$ is a vector of parameters (i.e., constants or variables other than state variables and the independent variable).
 
 In order to obtain a specific solution for a system of ODEs, one must know the initial state of the system,
 \begin{equation}
