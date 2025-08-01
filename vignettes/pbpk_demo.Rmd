@@ -104,7 +104,7 @@ To construct the state equations for the model, the following “calculated para
 
 In addition to the model parameters, the following time-varying quantities are needed to construct the state equations:
 
-* $C_\textrm{L}(t) = \frac{A_\textrm{L}(t))}{V_\textrm{L}}$, the concentration (of Substance X) in the liver (mg/L) at time $t$;
+* $C_\textrm{L}(t) = \frac{A_\textrm{L}(t)}{V_\textrm{L}}$, the concentration (of Substance X) in the liver (mg/L) at time $t$;
 * $C_\textrm{F}(t) = \frac{A_\textrm{F}(t)}{V_\textrm{F}}$, the concentration in the fat (mg/L) at time $t$;
 * $C_\textrm{AB}(t) = \frac{A_\textrm{AB}(t)}{V_\textrm{AB}}$, the concentration in the arterial blood (mg/L) at time $t$;
 * $C_\textrm{VB}(t) = \frac{A_\textrm{VB}(t)}{V_\textrm{VB}}$, the concentration in the venous blood (mg/L) at time $t$;
@@ -219,7 +219,7 @@ pbpk_mod$Y0
 
 As stated in the model specification file, `pbpk_simple.model`, the default values for the initial conditions are all zero.
 
-Suppose that we want to examine results for 100 hours following oral administration with an output resolution of 0.1 hours. We can create a vector of desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
+Suppose that we want to perform a simulation and generate results for 100 hours following oral administration with an output resolution of 0.1 hours. We can create a vector of desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 100.0$) using the following command.
 
 ```{r, eval = FALSE}
 times <- seq(from = 0, to = 100, by = 0.1)
@@ -250,7 +250,8 @@ We can also verify that the total blood flow to the non-blood compartments in ou
 
 ```{r, eval = FALSE}
 cat(
-  "Total blood flow to compartments:", pbpk_mod$parms[["Q_L"]] + pbpk_mod$parms[["Q_F"]] + pbpk_mod$parms[["Q_R"]],
+  "Total blood flow to compartments:",
+  pbpk_mod$parms[["Q_L"]] + pbpk_mod$parms[["Q_F"]] + pbpk_mod$parms[["Q_R"]],
   "L/h\n"
 )
 #> Total blood flow to compartments: 5.303301 L/h
