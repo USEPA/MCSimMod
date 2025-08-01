@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 ## Model Description
 
-According to Newton's Law of Cooling, a the rate of change of the temperature of a body is proportional to the difference in the ambient temperature and the current temperature of the body. So, if $T(t)$ is the temperature of the body at time $t$, $T_\textrm{amb}$ is the ambient temperature, and $r>0$ is a constant of proportionality (with units of one over time), then
+According to Newton's Law of Cooling, the rate of change of the temperature of a body is proportional to the difference in the ambient temperature and the current temperature of the body. So, if $T(t)$ is the temperature of the body at time $t$, $T_\textrm{amb}$ is the ambient temperature, and $r>0$ is a constant of proportionality (with units of one over time), then
 \begin{equation}
   \frac{\textrm{d}}{\textrm{d}t}T(t) = -r \left( T(t) - T_\textrm{amb} \right).
 \end{equation}
