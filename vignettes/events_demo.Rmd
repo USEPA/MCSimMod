@@ -41,7 +41,7 @@ where $k_{01}$ is the rate constant (with units of one over time) that, along wi
 \end{equation}
 where $V_\textrm{d}$ is a parameter representing the effective volume of the central compartment, or the "volume of distribution." The model includes another output variable,
 \begin{equation}
-  A_\textrm{tot} = A_0 + A_1 + A_2,
+  A_\textrm{tot}(t) = A_0(t) + A_1(t) + A_2(t),
 \end{equation}
 that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}

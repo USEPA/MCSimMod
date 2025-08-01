@@ -37,22 +37,22 @@ In this ODE model, there are three "compartments" (represented as rectangular bo
 \end{align}
 where $k_{01}$ is the rate constant (with units of one over time) that, along with the value of $A_0$, determines the rate of delivery of the substance to the body and $k_{12}$ is the rate constant (with units of one over time) that, along with the value of $A_1$, determines the rate of clearance from the body. In addition to the state variables, the model includes an "output" variable, $C$, that represents the concentration in the central compartment. The value of this variable is computed as
 \begin{equation}
-  C(t) = \frac{A_1(t)}{V_\textrm{d}},
+  C(t) = \frac{A_1(t)}{V_\textrm{d}(t)},
 \end{equation}
-where $V_\textrm{d}$ is a variable representing the effective volume of the central compartment, or the "volume of distribution." For this model,
+where $V_\textrm{d}(t)$ is a variable representing the effective volume of the central compartment, or the "volume of distribution," at time $t$. For this model,
 \begin{equation}
   V_\textrm{d}(t) = V_\textrm{d}^\textrm{C} \cdot M(t),
 \end{equation}
 where $V_\textrm{d}^\textrm{C}$ is a scaling constant (parameter) and $M(t)$ is an input variable that represents body mass. The model also includes an output variable,
 \begin{equation}
-  A_\textrm{tot} = A_0 + A_1 + A_2,
+  A_\textrm{tot}(t) = A_0(t) + A_1(t) + A_2(t),
 \end{equation}
 that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
   \frac{\textrm{d}}{\textrm{d}t} \textrm{AUC}(t) = C(t).
 \end{equation}
 
-In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$), an input variable ($M(t)$), and the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
+In order to solve an initial value problem for the classical PK model, one needs to provide the values of the three parameters ($k_{01}$, $k_{12}$, and $V_\textrm{d}^\textrm{C}$), an input variable ($M$), and the initial values of the four state variables ($A_0$, $A_1$, $A_2$, and $\textrm{AUC}$).
 
 ## MCSim Model Specification
 
@@ -93,7 +93,7 @@ pk1_mod$parms
 pk1_mod$Y0
 ```
 
-Suppose the animal being dosed has a body mass of 0.25 kg initially (i.e., at the beginning of the simulation) and a body mass of 1.0 kg 20 hours later. (Admittedly, this is a large relative increase in body mass over a 20-hour period, but serves to illustrate the diluting effect of increased body mass on concentration, as we shall see.) We can define a matrix that lists the values of the body mass at various times. The default behavior of the **deSolve** integrators is to use linear interpolation to determine values of input variables at times that are not listed, but other options are available. We can create an appropriate input variable matrix for our simulation (and examine it) using the following commands.
+Suppose the animal being dosed has a body mass of 0.25 kg initially (i.e., at the beginning of the simulation) and a body mass of 1.0 kg 20 hours later. (Admittedly, this is a large relative increase in body mass over a 20-hour period, but serves to illustrate the diluting effect of increasing body mass on concentration, as we shall see.) We can define a matrix that lists the values of the body mass at various times. The default behavior of the **deSolve** integrators is to use linear interpolation to determine values of input variables at times that are not listed, but other options are available. We can create an appropriate input variable matrix for our simulation (and examine it) using the following commands.
 ```{r}
 # Define body mass input.
 M_table <- cbind(times = c(0, 20), M_in = c(0.25, 1.0))
@@ -139,4 +139,4 @@ legend("topright",
   lty = c(1, 2), lwd = 2
 )
 ```
-Note that for the "varying body mass" simulation, the increase in body mass had a diluting effect on concentration. That is, concentrations tended to be less for the "varying body mass" scenario than for the "constant body mass" scenario because increases in body mass ($M$) and corresponding increases in volume of distribution ($V_\textrm{d}$) caused concentration ($C$) to decrease more rapidly than would be the case for a constant body mass scenario in which clearance processes alone effect reductions in concentration.
+Note that for the "varying body mass" simulation, the increase in body mass had a diluting effect on concentration. That is, concentrations tended to be less for the "varying body mass" scenario than for the "constant body mass" scenario because increases in body mass ($M$) and corresponding increases in volume of distribution ($V_\textrm{d}$) caused concentration ($C$) to decrease more rapidly than would be the case for the constant body mass scenario, in which clearance processes alone effected reductions in concentration.
