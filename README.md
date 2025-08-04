@@ -1,9 +1,9 @@
 # MCSimMod: An R Package for Working with MCSim Models
 
 
-[![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
-[![](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
-[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
+[![Documentation](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
+[![CRAN Version](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
 [![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
 
