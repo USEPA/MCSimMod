@@ -25,7 +25,7 @@ Like any pharmacokinetic (PK) model, a physiologically based pharmacokinetic (PB
 knitr::include_graphics("pbpk_basic_model_schematic.png")
 ```
 
-Substance X can enter the body through oral and/or intravenous routes and it is eliminated via saturable metabolism in the liver. The kinetics of distribution are assumbed to be "perfusion limited," so concentrations in different tissues depend on steady state concentration ratios, or "partition coefficients," for each type of tissue.
+Substance X can enter the body through oral and/or intravenous routes and it is eliminated via saturable metabolism in the liver. The kinetics of distribution are assumed to be "perfusion limited," so concentrations in different tissues depend on steady state concentration ratios, or "partition coefficients," for each type of tissue.
 
 The state variables for the PBPK model include:
 
