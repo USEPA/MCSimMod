@@ -140,7 +140,7 @@ We can examine the parameter values and initial conditions that will be used for
 pk1_mod$parms
 pk1_mod$Y0
 ```
-(Note that $k_{01}$ was assigned it's default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms()` method.)
+(Note that $k_{01}$ was assigned its default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms()` method.)
 
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results = 'hide'}
