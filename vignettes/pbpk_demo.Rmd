@@ -99,8 +99,8 @@ To construct the state equations for the model, the following “calculated para
 * $V_\textrm{RC} = 1.0 - (V_\textrm{LC} + V_\textrm{FC} + V_\textrm{ABC} + V_\textrm{VBC})$, constant volume fraction of body mass that is the rest of body (L/kg);
 * $V_\textrm{R} = V_\textrm{RC} \cdot M$, volume of the rest of body (L);
 * $V_\textrm{max} = V_\textrm{maxC} \cdot M^{0.75}$, maximum rate of metabolism (mg/h);
-* $R_\textrm{oral} = D_\textrm{oral} \cdot M ⁄ 24$, the oral dose rate (mg/h); and
-* $R_\textrm{IV} = D_\textrm{IV} \cdot M ⁄ 24$, the intravenous dose rate (mg/h);
+* $R_\textrm{oral} = D_\textrm{oral} \cdot M / 24$, the oral dose rate (mg/h); and
+* $R_\textrm{IV} = D_\textrm{IV} \cdot M / 24$, the intravenous dose rate (mg/h);
 
 In addition to the model parameters, the following time-varying quantities are needed to construct the state equations:
 
@@ -109,7 +109,7 @@ In addition to the model parameters, the following time-varying quantities are n
 * $C_\textrm{AB}(t) = \frac{A_\textrm{AB}(t)}{V_\textrm{AB}}$, the concentration in the arterial blood (mg/L) at time $t$;
 * $C_\textrm{VB}(t) = \frac{A_\textrm{VB}(t)}{V_\textrm{VB}}$, the concentration in the venous blood (mg/L) at time $t$;
 * $C_\textrm{R}(t) = \frac{A_\textrm{R}(t)}{V_\textrm{R}}$, the concentration in the rest of body (mg/L) at time $t$;
-* $R_\textrm{m}(t) = \frac{V_\textrm{max} \cdot C_\textrm{L}(t) ⁄ P_\textrm{L}}{  K_\textrm{m} + C_\textrm{L}(t) ⁄ P_\textrm{L}}$, the rate of metabolism in the liver (mg/h) at time $t$; and
+* $R_\textrm{m}(t) = \frac{V_\textrm{max} \cdot C_\textrm{L}(t) / P_\textrm{L}}{  K_\textrm{m} + C_\textrm{L}(t) / P_\textrm{L}}$, the rate of metabolism in the liver (mg/h) at time $t$; and
 * $R_\textrm{abs}(t) = k_\textrm{abs} \cdot A_\textrm{G}(t)$, the rate of absorption from the gut lumen to the liver (mg/h) at time $t$.
 
 The state equations for the PBPK model are:
@@ -136,7 +136,7 @@ In addition to the state variables that have already been described, we included
 
 Also, in addition to the time-varying quantities previously mentioned, the model includes another output variable,
 \begin{equation}
-  A_\textrm{tot}(t) = A_\textrm{dose}(t) - \left( A_\textrm{G}(t) + A_\textrm{F}(t) +  A_\textrm{AB}(t) + A_\textrm{VB}(t) + A_\textrm{R}(t) \right) - A_\textrm{m}(t),
+  A_\textrm{tot}(t) = A_\textrm{dose}(t) - \left( A_\textrm{G}(t) + A_\textrm{F}(t) + A_\textrm{AB}(t) + A_\textrm{VB}(t) + A_\textrm{R}(t) \right) - A_\textrm{m}(t),
 \end{equation}
 that represents the total amount of substance that has been "lost" vs. time. This amount is calculated as [total (cumulative) amount that has entered in the organism] - [total amount currently in the organism] - [total (cumulative) amount that has been eliminated from the organism]. Therefore, if the model "conserves mass" as it should, the value of $A_\textrm{tot}(t)$ should be zero (or very close to zero for numerical solutions to an IVP) at all times $t$.
 
