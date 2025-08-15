@@ -4,8 +4,7 @@
 [![Documentation](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
 [![CRAN Version](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
-[![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
+[![DOI](https://zenodo.org/badge/762490254.svg)](https://zenodo.org/badge/latestdoi/762490254)
 
 `MCSimMod` is an R package that facilitates ordinary differential equation (ODE) modeling. Many physical and biological phenomena can be described using mathematical models based on ODEs, and several example ODE models are described in "vignettes" included with the `MCSimMod` package. `MCSimMod` allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
 
