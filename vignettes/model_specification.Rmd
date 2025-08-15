@@ -1,10 +1,10 @@
 ---
-title: "(2) Using Model Specification Files"
+title: "(3) Model Specification"
 author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{(2) Using Model Specification Files}
+  %\VignetteIndexEntry{(3) Model Specification}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+When working with **MCSimMod**, one must define an ordinary differential equation (ODE) model using "model specification" text. Such text can be provided as a text (character) string or as a text file. In either case, the text should be formatted according to the rules of the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language. To demonstrate this, we will consider a simple ODE model for exponential growth or decay.
 
 ## A Mathematical Model for Exponential Growth or Decay
 
@@ -30,7 +31,11 @@ In order to solve an initial value problem involving an exponential growth or de
 
 ## MCSim Model Specification
 
-We will use the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the exponential model. Recall that this model has a single state variable, $A$, and two parameters, $r$ and $A_0$, the latter of which is an initial condition for the state variable. All of these components of the exponential model can be included in a text file that we refer to as an "MCSim model specification file." The complete MCSim model specification file for the exponential model, `exponential.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package. Also, a full description of rules and syntax for MCSim model specification files can be found in Section 5 of the [GNU MCSim User's Manual](https://www.gnu.org/software/mcsim/mcsim.html).
+We will use the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the exponential model. Recall that this model has a single state variable, $A$, and two parameters, $r$ and $A_0$, the latter of which is an initial condition for the state variable. All of these components of the exponential model can be included in a text file that we refer to as an "MCSim model specification file." The model specification text should be written using standard C statements, which may include the assignment operator (`=`), arithmetic operators (`+`, `-`, `*`, `/`, and `%`), and various mathematical functions (e.g., `pow`, `exp`, `log`, `sin`, and `cos`). A full description of rules and syntax for MCSim model specification files can be found in Section 5 of the [GNU MCSim User's Manual](https://www.gnu.org/software/mcsim/mcsim.html).
+
+The complete MCSim model specification file for the exponential model, `exponential.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package installation directory. Here, we describe the seven essential elements of that file.
+
+### Element 1: States
 
 The first element of the MCSim model specification file is a listing of the state variables in the ordinary differential equation (ODE) model. We use the text symbol `A` to represent the state variable $A$ in the exponential model.
 ```{verbatim}
@@ -41,19 +46,25 @@ States = {
 ```
 Note that the `#` character indicates the start of a comment. That is, any text following the `#` character on any line will be ignored when translating the model specification file into machine language. Note also that the state variables should be provided in a comma-delimited list that begins with `{` and ends with `};` (with a semicolon).
 
-The model specification file can also include a listing of the "output variables" for the model. These are variables for which values can be calculated as analytic functions of state variables, "input variables" (which will be described next), and/or parameters. For the exponential model, we will not include any output variables, so we will use a blank list. (This element of the model specification file could be omitted.)
+### Element 2: Outputs
+
+The model specification file can also include a listing of the "output variables" for the model. These are variables for which values can be calculated as analytic functions of state variables, "input variables" (which will be described next), and/or parameters. For the exponential model, we will not include any output variables, so we will provide a blank list in this case. (This element of the model specification file is optional -- it could be omitted.)
 ```{verbatim}
 # OUTPUT VARIABLES for the model (which can be obtained at any point in time
 # as analytic functions of state variables, input variables, and parameters).
 Outputs = {};
 ```
 
-Another optional element of the model specification file is a listing of the "input variables" for the model. These variables are independent of other variables and can vary in time. For the exponential model, we will not include any input variables. (This element of the model specification file could be omitted.)
+### Element 3: Inputs
+
+Another optional element of the model specification file is a listing of the "input variables" for the model. These variables are independent of other variables and can vary in time. For the exponential model, we will not include any input variables. (This element of the model specification file is optional -- it could be omitted.)
 ```{verbatim}
 # INPUT VARIABLES for the model (which are independent of other variables, and
 # which may vary in time).
 Inputs = {};
 ```
+
+### Element 4: Parameters
 
 The next element of the model specification file allows one to name the parameters and to provide default values for those parameters. (Note that the parameter values to be used for specific model simulations can be changed without editing the model specification file.) Recall that the parameters for the exponential model are $A_0$ and $r$, for which we use the text symbols `A0` and `r`, respectively.
 ```{verbatim}
@@ -61,6 +72,8 @@ The next element of the model specification file allows one to name the paramete
 A0 = 0;          # Initial amount.
 r = 0;           # Exponential rate of change (time^-1).
 ```
+
+### Element 5: Initialize Section
 
 The "Initialize" section is the next element of the model specification file. In this section, the values of any static parameters that need to be calculated (e.g., based on the values of other parameters) can be determined and initial values of the state variables can be provided. Note that this section begins with `Initialize {` and ends with `}` (with no semicolon).
 ```{verbatim}
@@ -71,7 +84,9 @@ Initialize {
 }
 ```
 
-Finally, we have the "Dynamics" section. In this section of the model specification file, the state equations (ODEs) for all state variables should be provided. This section begins with `Dynamics {` and ends with `}` (with no semicolon). For each state variable in the model, the state equation should be provided using `dt` followed by the text symbol for the state variable in parentheses, the `=` symbol, and then a mathematical expression that represents the time rate of change of the state variable.
+### Element 6: Dynamics Section
+
+Next, we have the "Dynamics" section. In this section of the model specification file, the state equations (ODEs) for all state variables should be provided. This section begins with `Dynamics {` and ends with `}` (with no semicolon). For each state variable in the model, the state equation should be provided using `dt` followed by the text symbol for the state variable in parentheses, the `=` symbol, and then a mathematical expression that represents the time rate of change of the state variable.
 ```{verbatim}
 # DYNAMICS section.
 Dynamics {
@@ -80,9 +95,15 @@ Dynamics {
 }
 ```
 
+### Element 7: End Keyword
+The final element of the model specification file is the "End" keyword (which is followed by a period).
+```{verbatim}
+End.
+```
+
 ## Building the Model
 
-Next, we will use the **MCSimMod** package to define the ODE model and solve an initial value problem. Solving an initial value problem is synonymous with "performing a simulation" with the model.
+Next, we will use the **MCSimMod** package to define the exponential ODE model and solve an initial value problem. Solving an initial value problem is synonymous with "performing a simulation" with the model.
 
 First, we load the **MCSimMod** package as follows.
 ```{r, results = 'hide', message = FALSE}
@@ -120,7 +141,7 @@ exp_mod$updateParms(c(A0 = 100, r = -0.5))
 exp_mod$updateY0()
 ```
 
-Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `exp_mod$updateY0()` updated the initial value of the state variable `A` using the updated value of the parameter `A0`. (The class methods `updateParms()` and `updateY0()` implement any logic provided in the "Initialize" section of the model specification file.)
+Note that executing the command `exp_mod$updateParms(c(A0=100, r=-0.5))` updates the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `exp_mod$updateY0()` updates the initial value of the state variable `A` using the updated value of the parameter `A0`. (The class methods `updateParms()` and `updateY0()` implement any logic provided in the "Initialize" section of the model specification file.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results = 'hide'}

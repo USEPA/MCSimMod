@@ -1,10 +1,10 @@
 ---
-title: "(4) A Predator-Prey Model"
+title: "(5) A Predator-Prey Model"
 author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{(4) A Predator-Prey Model}
+  %\VignetteIndexEntry{(5) A Predator-Prey Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,9 +29,9 @@ where $\alpha$ (day$^{-1}$) is a parameter that determines the birth rate of rab
 
 ## MCSim Model Specification
 
-We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the predator-prey model. The complete MCSim model specification file for this model, `pred_prey.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the predator-prey model. The complete MCSim model specification file for this model, `pred_prey.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package installation directory.
 
-In the model specification file, we used the text symbols `x` and `y` to represent the state variables $x$ and $y$ and the text symbols `alpha`, `beta`, `gamma`, and `delta` to represent the parameters $\alpha$, $\beta$, $\gamma$, and $\delta$, respectively.
+In the model specification file, the text symbols `x` and `y` are used to represent the state variables $x$ and $y$ and the text symbols `alpha`, `beta`, `gamma`, and `delta` are used to represent the parameters $\alpha$, $\beta$, $\gamma$, and $\delta$, respectively.
 
 ## Building the Model
 

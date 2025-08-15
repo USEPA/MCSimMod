@@ -6,10 +6,12 @@ articles:
 - title: Articles
   navbar: ~
   contents:
-  - quickstart
-  - exponential_demo
+  - intro
+  - details
+  - model_specification
   - newt_cool_demo
   - pred_prey_demo
   - pk1_demo
   - inputs_demo
   - events_demo
+  - pbpk_demo

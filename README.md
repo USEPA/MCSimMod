@@ -1,13 +1,13 @@
 # MCSimMod: An R Package for Working with MCSim Models
 
 
-[![Docs Badge](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
-[![](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
-[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
+[![Documentation](https://img.shields.io/badge/Documentation-online-brightgreen)](https://usepa.github.io/MCSimMod)
+[![CRAN Version](https://www.r-pkg.org/badges/version/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/MCSimMod)](https://cran.r-project.org/web/packages/MCSimMod/)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/USEPA/MCSimMod/main.yml)](https://github.com/USEPA/MCSimMod/actions?query=branch%3Amain)
 [![GitHub Release](https://img.shields.io/github/v/release/USEPA/MCSimMod)](https://github.com/USEPA/MCSimMod/releases)
 
-MCSimMod is an R package that facilitates ordinary differential equation (ODE) modeling. It allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
+`MCSimMod` is an R package that facilitates ordinary differential equation (ODE) modeling. Many physical and biological phenomena can be described using mathematical models based on ODEs, and several example ODE models are described in "vignettes" included with the `MCSimMod` package. `MCSimMod` allows one to perform simulations for ODE models that are encoded in the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language using ODE solvers from the R package [deSolve](https://cran.r-project.org/web/packages/deSolve/index.html).
 
 Documentation is available at https://usepa.github.io/MCSimMod.
 
@@ -20,7 +20,7 @@ install.packages("deSolve")
 
 As a prerequisite for installation on a Windows operating system, be sure to install [RTools](https://cran.r-project.org/bin/windows/Rtools/). RTools includes utilities that compile C source code for use in R. Installation of RTools is not required when using `MCSimMod` on a Unix operating system.
 
-To install the latest stable version from [CRAN](https://cran.r-project.org/web/packages/MCSimMod/), use the command:
+To install the latest stable version of `MCSimMod` from [CRAN](https://cran.r-project.org/web/packages/MCSimMod/), use the command:
 
 ```R
 install.packages("MCSimMod")
@@ -43,7 +43,11 @@ To learn about the `MCSimMod` package and how to use it, check out the vignettes
 browseVignettes(package = "MCSimMod")
 ```
 
-If you are interested in contributing or want to report a bug, please start a discussion or submit an issue [here](https://github.com/USEPA/MCSimMod.git).
+## Contact
+To report an issue with `MCSimMod`, please use the [issue tracker](https://github.com/USEPA/MCSimMod/issues).
+
+## License
+[GNU General Public License 3.0](https://github.com/USEPA/MCSimMod/blob/main/LICENSE)
 
 ## Developer Installation
 
@@ -53,7 +57,7 @@ devtools::document()
 devtools::build()
 devtools::install()
 devtools::test()
-covr::report(file='coverage_html/index.html')
+covr::report(file = "coverage_html/index.html")
 ```
 
 You can also issue these commands from a Windows or Unix command line terminal as follows.
@@ -62,20 +66,20 @@ R -e "devtools::document()"
 R -e "devtools::build()"
 R -e "devtools::install()"
 R -e "devtools::test()"
-R -e "covr::report(file='coverage_html/index.html')"
+R -e "covr::report(file = 'coverage_html/index.html')"
 ```
 
 ## Code Formatting
 To maintain a consistent format for all `MCSimMod` source code, we use the [styler](https://styler.r-lib.org/) package to format R code. Note that we use a specific version of the package.
 ```R
-# install the pinned version
+# Install version 1.10.3 of the styler package.
 install.packages("styler", version = "1.10.3")
 
-# style all files in the package, including vignettes and tests
+# Apply styler format conventions to all files in the package.
 styler::style_pkg(".")
 ```
 
-A check is added in continuous integration to ensure that the code is formatted correctly. If the code is not formatted correctly, the style check will fail.
+A check is added in continuous integration to ensure that the code conforms to formatting conventions. If it does not, the style check will fail.
 
 
 ## Disclaimer

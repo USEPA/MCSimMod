@@ -1,20 +1,19 @@
 Package: MCSimMod
 Title: Working with 'MCSim' Models
-Version: 0.9.1.9000
+Version: 1.0
 Authors@R: c(
- person("Dustin F.", "Kapraun", role=c("aut", "cre"), email = "kapraun.dustin@epa.gov", comment = c(ORCID = "0000-0001-5570-6383")),
-	person("Todd J.", "Zurlinden", role="aut", comment = c(ORCID = "0000-0003-1372-3913")),
-	person("Andrew J.", "Shapiro", role="aut", comment = c(ORCID = "0000-0002-5233-8092")),
-	person("Ryan D.", "Friese", role="aut", comment = c(ORCID = "0000-0002-4121-2195")),
-	person("Frederic Y.", "Bois", role="ctb", comment = c(ORCID = " 0000-0002-4154-0391")),
-	person("Free Software Foundation, Inc.", role="cph")
-	)
+  person("Dustin F.", "Kapraun", role=c("aut", "cre"), email = "kapraun.dustin@epa.gov", comment = c(ORCID = "0000-0001-5570-6383")),
+  person("Todd J.", "Zurlinden", role="aut", comment = c(ORCID = "0000-0003-1372-3913")),
+  person("Andrew J.", "Shapiro", role="aut", comment = c(ORCID = "0000-0002-5233-8092")),
+  person("Ryan D.", "Friese", role="aut", comment = c(ORCID = "0000-0002-4121-2195")),
+  person("Frederic Y.", "Bois", role="ctb", comment = c(ORCID = " 0000-0002-4154-0391")),
+  person("Free Software Foundation, Inc.", role="cph")
+  )
 Description: Tools that facilitate ordinary differential equation (ODE) modeling in 'R'. This package allows one to perform simulations for ODE models that are encoded in the GNU 'MCSim' model specification language (Bois, 2009) <doi:10.1093/bioinformatics/btp162> using ODE solvers from the 'R' package 'deSolve' (Soetaert et al., 2010) <doi:10.18637/jss.v033.i09>.
-Depends:
-	methods,
-	tools
 Imports:
-    deSolve
+  deSolve,
+  methods,
+  tools
 URL: https://CRAN.R-project.org/package=MCSimMod, https://github.com/USEPA/MCSimMod
 License: GPL-3
 Encoding: UTF-8
@@ -22,15 +21,15 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0)
+  knitr,
+  rmarkdown,
+  testthat (>= 3.0.0)
 Config/Needs/dev:
-    devtools,
-    styler (== 1.10.3),
-    testthat,
-    covr
+  devtools,
+  styler (== 1.10.3),
+  testthat,
+  covr
 Config/Needs/website:
-    r-lib/pkgdown
+  r-lib/pkgdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr

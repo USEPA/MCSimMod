@@ -1,10 +1,10 @@
 ---
-title: "(7) Incorporating Events into a Simulation"
+title: "(8) Incorporating Events into a Simulation"
 author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{(7) Incorporating Events into a Simulation}
+  %\VignetteIndexEntry{(8) Incorporating Events into a Simulation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,7 +25,7 @@ The **MCSimMod** package allows one to solve ordinary differential equation (ODE
 ## A Classical Pharmacokinetic Model
 
 For this demonstration, we will use the classical pharmacokinetic (PK) model illustrated in the figure below.
-```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = '100%'}
+```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = "100%"}
 knitr::include_graphics("pk1.png")
 ```
 
@@ -41,7 +41,7 @@ where $k_{01}$ is the rate constant (with units of one over time) that, along wi
 \end{equation}
 where $V_\textrm{d}$ is a parameter representing the effective volume of the central compartment, or the "volume of distribution." The model includes another output variable,
 \begin{equation}
-  A_\textrm{tot} = A_0 + A_1 + A_2,
+  A_\textrm{tot}(t) = A_0(t) + A_1(t) + A_2(t),
 \end{equation}
 that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
@@ -52,7 +52,7 @@ In order to solve an initial value problem for the classical PK model, one needs
 
 ## MCSim Model Specification
 
-We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the Newton's Law of Cooling model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package installation directory.
 
 The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateY0()` method of the `Model` class) the initial conditions of the state variables.
 

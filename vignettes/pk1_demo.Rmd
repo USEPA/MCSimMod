@@ -1,10 +1,10 @@
 ---
-title: "(5) A Classical Pharmacokinetic Model"
+title: "(6) A Classical Pharmacokinetic Model"
 author: "Dustin Kapraun"
 date: "`r Sys.Date()`"
 output: html_vignette
 vignette: >
-  %\VignetteIndexEntry{(5) A Classical Pharmacokinetic Model}
+  %\VignetteIndexEntry{(6) A Classical Pharmacokinetic Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ## Model Description
 
 A pharmacokinetic (PK) model is a mathematical description of the absorption, distribution, metabolism, and excretion of a substance by an organism. The figure below shows a schematic representation of a "one-compartment" classical PK model.
-```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = '100%'}
+```{r, echo = FALSE, fig.cap = "A classical PK model", out.width = "100%"}
 knitr::include_graphics("pk1.png")
 ```
 
@@ -37,7 +37,7 @@ where $k_{01}$ is the rate constant (with units of one over time) that, along wi
 \end{equation}
 where $V_\textrm{d}$ is a parameter representing the effective volume of the central compartment, or the "volume of distribution." The model includes another output variable,
 \begin{equation}
-  A_\textrm{tot} = A_0 + A_1 + A_2,
+  A_\textrm{tot}(t) = A_0(t) + A_1(t) + A_2(t),
 \end{equation}
 that represents the total amount of substance in the system. Finally, the model includes an additional state variable that represents the area under the concentration vs. time curve (AUC), as this is a quantity that is often computed in pharmacokinetic analyses. The AUC for the period from time $0$ to time $t$ is given by $\textrm{AUC}(t) = \int_0^t C(\tau) \, \textrm{d}\tau$ and thus the state equation for this quantity is
 \begin{equation}
@@ -48,7 +48,7 @@ In order to solve an initial value problem for the classical PK model, one needs
 
 ## MCSim Model Specification
 
-We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package.
+We used the [GNU MCSim](https://www.gnu.org/software/mcsim/) model specification language to implement the classical PK model. The complete MCSim model specification file for this model, `pk1.model`, can be found in the `extdata` subdirectory of the **MCSimMod** package installation directory.
 
 The model specification file uses the text symbols `A0`, `A1`, `A2`, and `AUC` to represent the state variables $A_0$, $A_1$, $A_2$, and $\textrm{AUC}$, respectively, and the text symbols `k01`, `k12`, and `Vd` to represent the parameters $k_{01}$, $k_{12}$, and $V_\textrm{d}$, respectively. In addition, the text symbols `A0_init`, `A1_init`, `A2_init`, and `AUC_init` represent parameters that can be used to set (via the `updateY0` method of the `Model` class) the initial conditions of the state variables.
 
@@ -89,7 +89,7 @@ pk1_mod$updateParms(c(k01 = 0.8, k12 = 0.4, Vd = 45, A0_init = 200))
 pk1_mod$updateY0()
 ```
 
-Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updated the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updated the initial values of the state variables. (We did not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
+Note that executing the command `pk1_mod$updateParms(c(k01=0.8, k12=0.4, Vd=45, A0_init=200))` updates the parameter values (replacing the default values that were provided in the model specification file) and that executing the command `pk1_mod$updateY0()` updates the initial values of the state variables. (We do not need to provide values for the parameters that correspond to the initial values of the state variables other than $A_0$, as the default values of zero for those state variables are appropriate for this scenario.)
 
 Finally, we can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results = 'hide'}
@@ -125,7 +125,7 @@ plot(out_oral[, "time"], out_oral[, "C"],
 
 ## Predicting the Blood Concentration of a Substance Following an IV Dose
 
-Suppose we want to predict the blood concentration of a substance during the 20-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and the volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
+Suppose we want to predict the blood concentration of a substance during the 20-hour period following an intravenous (IV) injection of 200 mg of the substance. Let's assume the same clearance rate constant ($k_{12} = 0.4 \, \textrm{h}^{-1}$) and volume of distribution ($V_\textrm{d} = 45 \, \textrm{L}$) as we used for the oral exposure scenario. (The value of the absorption rate constant, $k_{01}$, won't matter because there will never be any substance in the exposure compartment.) We can change the parameter values from their default values to the values we wish to use for simulation of this scenario as follows.
 ```{r, results = 'hide'}
 # Change the values of the model parameters.
 pk1_mod$updateParms(c(k12 = 0.4, Vd = 45, A0_init = 0, A1_init = 200))
@@ -140,7 +140,7 @@ We can examine the parameter values and initial conditions that will be used for
 pk1_mod$parms
 pk1_mod$Y0
 ```
-(Note that $k_{01}$ was assigned it's default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms` method.)
+(Note that $k_{01}$ was assigned its default value of 1.0 because it wasn't specifically provided a value in the call to the `updateParms()` method.)
 
 We can perform a simulation that provides results for the desired output times (i.e., $t = 0, 0.1, 0.2, \ldots, 20.0$) using the following commands.
 ```{r, results = 'hide'}

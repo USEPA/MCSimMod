@@ -20,3 +20,4 @@ tests/data/*.o
 /docs/
 /inst/doc
 /Meta/
+/paper/Figures/.Rhistory
