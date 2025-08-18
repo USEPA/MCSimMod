@@ -130,7 +130,7 @@ __attribute__((warn_unused_result)) int PromptFilenames(PSTR *pszFileIn, PSTR *p
 /* ----------------------------------------------------------------------------
    ShowHelp
 */
-void ShowHelp() {
+void ShowHelp(void) {
   Rprintf("Help:\n");
   Rprintf("Usage: mod [options] [input-file [output-file]]\n");
   Rprintf("Options:\n");
