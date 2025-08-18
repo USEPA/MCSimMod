@@ -1,0 +1,50 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Kapraun
+  given-names: Dustin F.
+  orcid: "https://orcid.org/0000-0001-5570-6383"
+- family-names: Zurlinden
+  given-names: Todd J.
+  orcid: "https://orcid.org/0000-0003-1372-3913"
+- family-names: Friese
+  given-names: Ryan D.
+  orcid: "https://orcid.org/0000-0002-4121-2195"
+- family-names: Shapiro
+  given-names: Andrew J.
+  orcid: "https://orcid.org/0000-0002-5233-8092"
+contact:
+- family-names: Kapraun
+  given-names: Dustin F.
+  orcid: "https://orcid.org/0000-0001-5570-6383"
+doi: 10.5281/zenodo.16883665
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Kapraun
+    given-names: Dustin F.
+    orcid: "https://orcid.org/0000-0001-5570-6383"
+  - family-names: Zurlinden
+    given-names: Todd J.
+    orcid: "https://orcid.org/0000-0003-1372-3913"
+  - family-names: Friese
+    given-names: Ryan D.
+    orcid: "https://orcid.org/0000-0002-4121-2195"
+  - family-names: Shapiro
+    given-names: Andrew J.
+    orcid: "https://orcid.org/0000-0002-5233-8092"
+  date-published: 2025-08-15
+  doi: 10.21105/joss.08492
+  issn: 2475-9066
+  issue: 112
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 8492
+  title: "MCSimMod: An R Package for Working with Ordinary Differential
+    Equation Models Encoded in the MCSim Model Specification Language"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.08492"
+  volume: 10
+title: "MCSimMod: An R Package for Working with Ordinary Differential
+  Equation Models Encoded in the MCSim Model Specification Language"
