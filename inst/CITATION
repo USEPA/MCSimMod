@@ -9,7 +9,7 @@ bibentry(
              person("Andrew J. Shapiro")),
   journal  = "Journal of Open Source Software",
   volume   = "10",
-  number   - "112",
+  number   = "112",
   pages    = "8492",
   year     = "2025",
   doi      = "10.21105/joss.08492",
