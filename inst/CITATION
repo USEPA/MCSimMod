@@ -1,0 +1,20 @@
+citHeader("To cite R package 'MCSimMod' in publications use:")
+
+bibentry(
+  bibtype = "Article",
+  title = "MCSimMod: An R Package for Working with Ordinary Differential Equation Models Encoded in the MCSim Model Specification Language",
+  author = c(person("Dustin F. Kapraun"),
+             person("Todd J. Zurlinden"),
+             person("Ryan D. Friese"),
+             person("Andrew J. Shapiro")),
+  journal  = "Journal of Open Source Software",
+  volume   = "10",
+  number   = "112",
+  pages    = "8492",
+  year     = "2025",
+  doi      = "10.21105/joss.08492",
+  textVersion =  paste("Dustin F. Kapraun, Todd J. Zurlinden, Ryan D. Friese, Andrew J. Shapiro (2025).",
+  "MCSimMod: An R Package for Working with Ordinary Differential Equation Models Encoded in the MCSim Model Specification Language",
+  "Journal of Open Source Software, 10(112), 8492.",
+  "doi:10.21105/joss.08492")
+)
