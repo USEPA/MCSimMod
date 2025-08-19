@@ -14,4 +14,3 @@ bibentry(
   year     = "2025",
   doi      = "10.21105/joss.08492",
   textVersion =  paste("Dustin F. Kapraun, Todd J. Zurlinden, Ryan D. Friese, Andrew J. Shapiro (2025).", "MCSimMod: An R Package for Working with Ordinary Differential Equation Models Encoded in the MCSim Model Specification Language", "Journal of Open Source Software, 10(112), 8492.", "doi:10.21105/joss.08492")
-)
