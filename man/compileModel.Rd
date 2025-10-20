@@ -24,7 +24,7 @@ compileModel(
 
 \item{hash_file}{Name of a file containing a hash key for determining if \code{model_file} has changed since the previous translation and compilation.}
 
-\item{verbose_output}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written standard output; if value is FALSE, messages will be written to files in a temporary directory.}
+\item{verbose_output}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.}
 }
 \value{
 No return value. Creates files and saves them in locations specified by function arguments.

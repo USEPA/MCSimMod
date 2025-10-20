@@ -18,7 +18,7 @@ createModel(
 
 \item{writeTemp}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE (the default), model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
 
-\item{verboseOutput}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written standard output; if value is FALSE, messages will be written to files in a temporary directory.}
+\item{verboseOutput}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.}
 }
 \value{
 Model object.
