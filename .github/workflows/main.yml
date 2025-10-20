@@ -14,7 +14,6 @@ jobs:
 
   check:
     runs-on: ${{ matrix.config.os }}
-    timeoutInMinutes: 30  # Set timeout for this job to 30 minutes
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     strategy:
       fail-fast: false
