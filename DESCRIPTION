@@ -26,7 +26,7 @@ Suggests:
   testthat (>= 3.0.0)
 Config/Needs/dev:
   devtools,
-  styler (== 1.10.3),
+  styler (== 1.11.0),
   testthat,
   covr
 Config/Needs/website:
