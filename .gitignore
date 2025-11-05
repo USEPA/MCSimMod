@@ -8,6 +8,7 @@ MCSimMod.Rproj
 *.dll
 *.so
 *.html
+*.DS_Store
 
 mcsimmod_*.model
 
