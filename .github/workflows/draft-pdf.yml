@@ -32,4 +32,4 @@ jobs:
       with:
         message: '(auto) Paper PDF Draft'
         # This should be the path to the paper within your repo.
-        # add: 'paper/paper.pdf'
+        add: 'paper/paper.pdf'
