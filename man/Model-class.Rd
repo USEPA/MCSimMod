@@ -47,7 +47,9 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 
 \item{\code{paths}}{List of character strings that are names of files associated with the model.}
 
-\item{\code{writeTemp}}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.}
+\item{\code{writeTemp}}{Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be written to a temporary directory; if value is FALSE, model files will be written to the same directory that contains the model specification file.}
+
+\item{\code{verboseOutput}}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.}
 }}
 
 \section{Methods}{

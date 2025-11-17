@@ -72,8 +72,8 @@ R -e "covr::report(file = 'coverage_html/index.html')"
 ## Code Formatting
 To maintain a consistent format for all `MCSimMod` source code, we use the [styler](https://styler.r-lib.org/) package to format R code. Note that we use a specific version of the package.
 ```R
-# Install version 1.10.3 of the styler package.
-install.packages("styler", version = "1.10.3")
+# Install version 1.11.0 of the styler package.
+install.packages("styler", version = "1.11.0")
 
 # Apply styler format conventions to all files in the package.
 styler::style_pkg(".")

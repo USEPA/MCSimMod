@@ -31,10 +31,11 @@ Model <- setRefClass("Model",
     #' @field parms Named vector of parameter values for the associated MCSim model.
     #' @field Y0 Named vector of initial conditions for the state variables of the associated MCSim model.
     #' @field paths List of character strings that are names of files associated with the model.
-    #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.
+    #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be written to a temporary directory; if value is FALSE, model files will be written to the same directory that contains the model specification file.
+    #' @field verboseOutput Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
-    paths = "list", writeTemp = "logical"
+    paths = "list", writeTemp = "logical", verboseOutput = "logical"
   ),
   methods = list(
     initialize = function(...) {
@@ -97,7 +98,7 @@ Model <- setRefClass("Model",
       #    specification file has been changed since the last translation and
       #    compiling.
       if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
-        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file)
+        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
       }
 
       # Load the compiled model (DLL).

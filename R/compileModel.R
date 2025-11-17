@@ -9,11 +9,12 @@
 #' @param dll_name Name of a DLL or SO file without the extension (".dll" or ".so").
 #' @param dll_file Name of the same DLL or SO file with the appropriate extension (".dll" or ".so").
 #' @param hash_file Name of a file containing a hash key for determining if `model_file` has changed since the previous translation and compilation.
+#' @param verbose_output Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
 #' @returns No return value. Creates files and saves them in locations specified by function arguments.
 #' @import tools
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
-compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL) {
+compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL, verbose_output = FALSE) {
   # Unload DLL if it has been loaded.
   if (is.loaded("derivs", PACKAGE = dll_name)) {
     dyn.unload(dll_file)
@@ -34,38 +35,61 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   mod_output <- paste(mod_output, collapse = "\n")
 
   # Save the translator output to a file.
-  temp_directory <- tempdir()
-  out_file <- file.path(temp_directory, "mod_output.txt")
-  write(mod_output, file = out_file)
+  if (!verbose_output) {
+    temp_directory <- tempdir()
+    out_file <- file.path(temp_directory, "mod_output.txt")
+    write(mod_output, file = out_file)
+  }
 
   # Check to see if there was an error during translation. If so, print a
-  # message about the location of the translation log file and stop execution.
+  # message about where to find full details and stop execution.
   if (grepl("*** Error:", mod_output, fixed = TRUE)) {
-    stop(
-      "An error was identified when translating the MCSim model specification ",
-      "text to C. Full details are available in the file ",
-      normalizePath(out_file), "."
-    )
+    if (verbose_output) {
+      stop(
+        "An error was identified when translating the MCSim model ",
+        "specification text to C. Full details follow.\n", mod_output
+      )
+    } else {
+      stop(
+        "An error was identified when translating the MCSim model ",
+        "specification text to C. Full details are available in the file ",
+        normalizePath(out_file), "."
+      )
+    }
   }
 
   # Check to see if there was a warning during translation. If so, print a
   # message about the location of the translation log file and raise a warning.
   else if (grepl("*** Warning:", mod_output, fixed = TRUE)) {
-    warning(
-      "A warning was identified when translating the MCSim model ",
-      "specification text to C. Full details are available in the file ",
-      normalizePath(out_file), ".\n"
-    )
+    if (verbose_output) {
+      warning(
+        "A warning was generated when translating the MCSim model ",
+        "specification text to C. Full details follow.\n", mod_output
+      )
+    } else {
+      warning(
+        "A warning was generated when translating the MCSim model ",
+        "specification text to C. Full details are available in the file ",
+        normalizePath(out_file), ".\n"
+      )
+    }
   }
 
   # If there was no error or warning during translation, just print a message
   # about the location of the translation log file.
   else {
-    message(
-      "Translation of model specification text complete. Full details are ",
-      "available in the file ",
-      normalizePath(out_file), ".\n"
-    )
+    if (verbose_output) {
+      message(
+        "Translation of model specification text complete. Full details ",
+        "follow.\n", mod_output
+      )
+    } else {
+      message(
+        "Translation of model specification text complete. Full details are ",
+        "available in the file ",
+        normalizePath(out_file), ".\n"
+      )
+    }
   }
 
   # Compile the C model to obtain an object file (ending with ".o") and a

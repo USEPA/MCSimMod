@@ -24,8 +24,9 @@
 #' @param mName Name of an MCSim model specification file, excluding the file name extension `.model`.
 #' @param mString A character string containing MCSim model specification text.
 #' @param writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE (the default), model files will be Written to a temporary directory; if value is FALSE, model files will be Written to the same directory that contains the model specification file.
+#' @param verboseOutput Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
 #' @returns Model object.
 #' @export
-createModel <- function(mName = character(0), mString = character(0), writeTemp = TRUE) {
-  return(Model(mName = mName, mString = mString, writeTemp = writeTemp))
+createModel <- function(mName = character(0), mString = character(0), writeTemp = TRUE, verboseOutput = FALSE) {
+  return(Model(mName = mName, mString = mString, writeTemp = writeTemp, verboseOutput = verboseOutput))
 }
