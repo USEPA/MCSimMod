@@ -119,7 +119,7 @@ Model <- setRefClass("Model",
       parms <<- initParms(new_parms)
     },
     updateY0 = function(new_states = NULL) {
-      "Update values of initital conditions of state variables for the Model object."
+      "Update values of initial conditions of state variables for the Model object."
       Y0 <<- initStates(parms, new_states)
     },
     runModel = function(times, ...) {
