@@ -106,10 +106,24 @@ Model <- setRefClass("Model",
 
       # Run script that defines initialization functions.
       source(paths$inits_file, local = TRUE)
-      initParms <<- initParms
-      initStates <<- initStates
 
-      Outputs <<- Outputs
+      # Associate initParms for this model with the initParms function defined
+      # in inits_file.
+      r_command_string <- paste0("initParms <<- initParms_", mName)
+      r_expression <- parse(text = r_command_string)
+      eval(r_expression)
+
+      # Associate initStates for this model with the initStates function defined
+      # in inits_file.
+      r_command_string <- paste0("initStates <<- initStates_", mName)
+      r_expression <- parse(text = r_command_string)
+      eval(r_expression)
+
+      # Associate Outputs for this model with the Outputs variable defined in
+      # inits_file.
+      r_command_string <- paste0("Outputs <<- Outputs_", mName)
+      r_expression <- parse(text = r_command_string)
+      eval(r_expression)
 
       parms <<- initParms()
       Y0 <<- initStates(parms)
@@ -125,10 +139,13 @@ Model <- setRefClass("Model",
     runModel = function(times, ...) {
       "Perform a simulation for the Model object using the \\code{deSolve} function \\code{ode} for the specified \\code{times}."
       # Solve the ODE system using the "ode" function from the package "deSolve".
+      derivs_name <- paste0("derivs_", mName)
+      initforc_name <- paste0("initforc_", mName)
+      initmod_name <- paste0("initmod_", mName)
       out <- ode(Y0, times,
-        func = "derivs", parms = parms, dllname = paths$dll_name,
-        initforc = "initforc", initfunc = "initmod", nout = length(Outputs),
-        outnames = Outputs, ...
+        func = derivs_name, parms = parms, dllname = paths$dll_name,
+        initforc = initforc_name, initfunc = initmod_name,
+        nout = length(Outputs), outnames = Outputs, ...
       )
 
       # Return the simulation output.
