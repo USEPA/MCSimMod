@@ -16,7 +16,11 @@
 #' @export
 compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL, verbose_output = FALSE) {
   # Unload DLL if it has been loaded.
-  if (is.loaded("derivs", PACKAGE = dll_name)) {
+  mList <- .fixPath(model_file)
+  model_name <- mList$mName
+  model_path <- mList$mPath
+  derivs_name <- paste0("derivs_", model_name)
+  if (is.loaded(derivs_name, PACKAGE = dll_name)) {
     dyn.unload(dll_file)
   }
 
@@ -91,6 +95,73 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
       )
     }
   }
+
+  # Code to update C source file using model-specific names for objects.
+
+  # Read the original C source file.
+  lines <- readLines(c_file)
+
+  # Find and replace C object names with model-specific names.
+  item_to_replace <- c(
+    "parms",
+    "forc",
+    "Nout",
+    "nr",
+    "ytau",
+    "yini",
+    "lagvalue",
+    "CalcDelay",
+    "initmod",
+    "initforc",
+    "initState",
+    "getParms",
+    "derivs",
+    "jac",
+    "event",
+    "root"
+  )
+  for (idx in seq(length(item_to_replace))) {
+    lines <- gsub(
+      paste0("\\b", item_to_replace[idx], "\\b"),
+      paste0(item_to_replace[idx], "_", model_name),
+      lines
+    )
+  }
+
+  # Overwrite the C source file with the updated text.
+  writeLines(lines, c_file)
+
+
+  # Code to update inits R source file using model-specific names for objects.
+
+  # Get inits R source file name.
+  inits_file <- file.path(
+    model_path,
+    paste0(model_name, "_model_inits.R")
+  )
+
+  # Read the original inits R source file.
+  lines <- readLines(inits_file)
+
+  # Find and replace R and C object names with model-specific names.
+  item_to_replace <- c(
+    "initParms",
+    "getParms",
+    "Outputs",
+    "initStates",
+    "initState"
+  )
+  for (idx in seq(length(item_to_replace))) {
+    lines <- gsub(
+      paste0("\\b", item_to_replace[idx], "\\b"),
+      paste0(item_to_replace[idx], "_", model_name),
+      lines
+    )
+  }
+
+  # Overwrite the R inits source file with the updated text.
+  writeLines(lines, inits_file)
+
 
   # Compile the C model to obtain an object file (ending with ".o") and a
   # machine code file (ending with ".dll" or ".so"). Write compiler output

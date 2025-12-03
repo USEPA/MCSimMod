@@ -65,6 +65,6 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 
 \item{\code{updateParms(new_parms = NULL)}}{Update values of parameters for the Model object.}
 
-\item{\code{updateY0(new_states = NULL)}}{Update values of initital conditions of state variables for the Model object.}
+\item{\code{updateY0(new_states = NULL)}}{Update values of initial conditions of state variables for the Model object.}
 }}
 
