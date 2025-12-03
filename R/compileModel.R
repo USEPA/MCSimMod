@@ -113,7 +113,8 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # If hash file name was provided, create a hash (md5 sum) for the model file
   # and print a message about its location.
   if (!is.null(hash_file)) {
-    file_hash <- as.character(md5sum(model_file))
+    # Always hash the model_file (the file that gets compiled)
+    file_hash <- as.character(tools::md5sum(model_file))
     write(file_hash, file = hash_file)
     message(
       "Hash created and saved in the file ", normalizePath(hash_file),

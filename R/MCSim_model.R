@@ -47,26 +47,41 @@ Model <- setRefClass("Model",
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
       }
+      # Track user's model file for proper change detection
+      model_file_path <- NULL
       if (length(mString) > 0) {
         if (writeTemp == FALSE) {
           stop("The value of writeTemp must be TRUE when creating a Model object using a model specification string (mstring).")
         }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
+        # For mString, model and working files are the same
+        model_file_path <- file
       } else {
         if (writeTemp == TRUE) {
-          source_file <- normalizePath(paste0(mName, ".model"))
+          model_file <- normalizePath(paste0(mName, ".model"))
+          model_file_path <- model_file  # Store user's model file path
           temp_directory <- tempdir()
-          file <- file.path(temp_directory, basename(source_file))
-          file_copied <- file.copy(from = source_file, to = file)
+          file <- file.path(temp_directory, basename(model_file))
+          file_copied <- file.copy(from = model_file, to = file)
         } else {
           file <- normalizePath(paste0(mName, ".model"))
+          model_file_path <- file  # writeTemp=FALSE: model and working are same
         }
       }
       mList <- .fixPath(file)
       mName <<- mList$mName
       mPath <- mList$mPath
 
+      # Determine hash file location based on model file
+      if (writeTemp == TRUE && length(mString) == 0) {
+        # For writeTemp=TRUE with mName, store hash alongside user's model file
+        model_mList <- .fixPath(model_file_path)
+        hash_file_path <- file.path(model_mList$mPath, paste0(model_mList$mName, "_model.md5"))
+      } else {
+        # For writeTemp=FALSE or mString cases, store hash with working files
+        hash_file_path <- file.path(mPath, paste0(mName, "_model.md5"))
+      }
 
       paths <<- list(
         dll_name = paste0(mName, "_model"),
@@ -74,17 +89,35 @@ Model <- setRefClass("Model",
         o_file = file.path(mPath, paste0(mName, "_model.o")),
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
-        model_file = file.path(mPath, paste0(mName, ".model")),
-        hash_file = file.path(mPath, paste0(mName, "_model.md5"))
+        source_file = file.path(mPath, paste0(mName, ".model")),
+        model_file = model_file_path,
+        hash_file = hash_file_path
       )
     },
     loadModel = function(force = FALSE) {
       "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
+        # Check changes against user's model file, not working copy
         hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
+
+        # If model file changed and we're using temp directory, update working copy
+        if (hash_has_changed && writeTemp == TRUE && length(mString) == 0) {
+          file_copied <- file.copy(from = paths$model_file, to = paths$source_file, overwrite = TRUE)
+          if (!file_copied) {
+            stop("Failed to update working file from model file: ", paths$model_file)
+          }
+        }
       } else {
         hash_has_changed <- TRUE
+        
+        # If no hash exists and we're using temp directory, ensure working copy is current
+        if (writeTemp == TRUE && length(mString) == 0 && !identical(paths$model_file, paths$source_file)) {
+          file_copied <- file.copy(from = paths$model_file, to = paths$source_file, overwrite = TRUE)
+          if (!file_copied) {
+            stop("Failed to update working file from model file: ", paths$model_file)
+          }
+        }
       }
 
       # Conditions for compiling a model:
@@ -97,8 +130,15 @@ Model <- setRefClass("Model",
       #    match the previously saved hash, indicating that the model
       #    specification file has been changed since the last translation and
       #    compiling.
-      if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
-        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
+      if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_has_changed)) {
+        # When writeTemp = TRUE and model file has changed, update the working copy
+        if (writeTemp && hash_has_changed && !identical(paths$model_file, paths$source_file)) {
+          file.copy(from = paths$model_file, to = paths$source_file, overwrite = TRUE)
+        }
+        
+        # Call compileModel - always compile and hash the working copy (source_file)
+        compileModel(paths$source_file, paths$c_file, paths$dll_name, paths$dll_file, 
+                    hash_file = paths$hash_file, verbose_output = verboseOutput)
       }
 
       # Load the compiled model (DLL).
