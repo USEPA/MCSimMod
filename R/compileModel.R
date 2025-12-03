@@ -37,6 +37,11 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
+  
+  # Add a small delay on Windows to ensure files are fully written
+  if (.Platform$OS.type == "windows") {
+    Sys.sleep(0.1)
+  }
 
   # Save the translator output to a file.
   if (!verbose_output) {
@@ -98,8 +103,17 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
   # Code to update C source file using model-specific names for objects.
 
-  # Read the original C source file.
-  lines <- readLines(c_file)
+  # Check if C file was created successfully
+  if (!file.exists(c_file)) {
+    stop("C file was not created: ", c_file)
+  }
+
+  # Read the original C source file with error handling
+  tryCatch({
+    lines <- readLines(c_file)
+  }, error = function(e) {
+    stop("Failed to read C file '", c_file, "': ", e$message)
+  })
 
   # Find and replace C object names with model-specific names.
   item_to_replace <- c(
@@ -120,7 +134,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "event",
     "root"
   )
-  for (idx in seq(length(item_to_replace))) {
+  for (idx in seq_along(item_to_replace)) {
     lines <- gsub(
       paste0("\\b", item_to_replace[idx], "\\b"),
       paste0(item_to_replace[idx], "_", model_name),
@@ -140,8 +154,17 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     paste0(model_name, "_model_inits.R")
   )
 
-  # Read the original inits R source file.
-  lines <- readLines(inits_file)
+  # Check if inits file was created successfully
+  if (!file.exists(inits_file)) {
+    stop("Inits R file was not created: ", inits_file)
+  }
+
+  # Read the original inits R source file with error handling
+  tryCatch({
+    lines <- readLines(inits_file)
+  }, error = function(e) {
+    stop("Failed to read inits R file '", inits_file, "': ", e$message)
+  })
 
   # Find and replace R and C object names with model-specific names.
   item_to_replace <- c(
@@ -151,7 +174,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "initStates",
     "initState"
   )
-  for (idx in seq(length(item_to_replace))) {
+  for (idx in seq_along(item_to_replace)) {
     lines <- gsub(
       paste0("\\b", item_to_replace[idx], "\\b"),
       paste0(item_to_replace[idx], "_", model_name),
