@@ -60,13 +60,13 @@ Model <- setRefClass("Model",
       } else {
         if (writeTemp == TRUE) {
           model_file <- normalizePath(paste0(mName, ".model"))
-          model_file_path <- model_file  # Store user's model file path
+          model_file_path <- model_file # Store user's model file path
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(model_file))
           file_copied <- file.copy(from = model_file, to = file)
         } else {
           file <- normalizePath(paste0(mName, ".model"))
-          model_file_path <- file  # writeTemp=FALSE: model and working are same
+          model_file_path <- file # writeTemp=FALSE: model and working are same
         }
       }
       mList <- .fixPath(file)
@@ -110,7 +110,7 @@ Model <- setRefClass("Model",
         }
       } else {
         hash_has_changed <- TRUE
-        
+
         # If no hash exists and we're using temp directory, ensure working copy is current
         if (writeTemp == TRUE && length(mString) == 0 && !identical(paths$model_file, paths$source_file)) {
           file_copied <- file.copy(from = paths$model_file, to = paths$source_file, overwrite = TRUE)
@@ -135,10 +135,11 @@ Model <- setRefClass("Model",
         if (writeTemp && hash_has_changed && !identical(paths$model_file, paths$source_file)) {
           file.copy(from = paths$model_file, to = paths$source_file, overwrite = TRUE)
         }
-        
+
         # Call compileModel - always compile and hash the working copy (source_file)
-        compileModel(paths$source_file, paths$c_file, paths$dll_name, paths$dll_file, 
-                    hash_file = paths$hash_file, verbose_output = verboseOutput)
+        compileModel(paths$source_file, paths$c_file, paths$dll_name, paths$dll_file,
+          hash_file = paths$hash_file, verbose_output = verboseOutput
+        )
       }
 
       # Load the compiled model (DLL).
