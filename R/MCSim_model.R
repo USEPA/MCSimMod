@@ -54,22 +54,25 @@ Model <- setRefClass("Model",
           stop("The value of writeTemp must be TRUE when creating a Model object using a model specification string (mstring).")
         }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
-        
+
         # Write model string to file with error handling and ensure it's flushed
-        tryCatch({
-          writeLines(mString, file)
-          # On Windows, ensure file is flushed to disk
-          if (.Platform$OS.type == "windows") {
-            Sys.sleep(0.01)  # Small delay to ensure write completes
+        tryCatch(
+          {
+            writeLines(mString, file)
+            # On Windows, ensure file is flushed to disk
+            if (.Platform$OS.type == "windows") {
+              Sys.sleep(0.01) # Small delay to ensure write completes
+            }
+            # Verify file was written correctly
+            if (!file.exists(file) || file.size(file) == 0) {
+              stop("Failed to write model file or file is empty: ", file)
+            }
+          },
+          error = function(e) {
+            stop("Failed to create model file from mString: ", e$message)
           }
-          # Verify file was written correctly
-          if (!file.exists(file) || file.size(file) == 0) {
-            stop("Failed to write model file or file is empty: ", file)
-          }
-        }, error = function(e) {
-          stop("Failed to create model file from mString: ", e$message)
-        })
-        
+        )
+
         # For mString, model and working files are the same
         model_file_path <- file
       } else {

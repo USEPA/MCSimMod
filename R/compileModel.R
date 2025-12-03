@@ -126,23 +126,26 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   if (!file.exists(c_file)) {
     # Provide diagnostic information for debugging
     inits_file <- sub("\\.c$", "_inits.R", c_file)
-    
+
     # Try to read model file content for diagnosis
     model_content <- "Could not read model file"
     if (file.exists(model_file)) {
-      tryCatch({
-        model_content <- paste(readLines(model_file), collapse = "\n")
-        if (nchar(model_content) == 0) {
-          model_content <- "[Model file is empty]"
+      tryCatch(
+        {
+          model_content <- paste(readLines(model_file), collapse = "\n")
+          if (nchar(model_content) == 0) {
+            model_content <- "[Model file is empty]"
+          }
+        },
+        error = function(e) {
+          model_content <- paste("Error reading model file:", e$message)
         }
-      }, error = function(e) {
-        model_content <- paste("Error reading model file:", e$message)
-      })
+      )
     }
-    
+
     diagnostics <- paste0(
       "C file was not created: ", c_file, "\n",
-      "Model file: ", model_file, " (exists: ", file.exists(model_file), 
+      "Model file: ", model_file, " (exists: ", file.exists(model_file),
       ", size: ", ifelse(file.exists(model_file), file.size(model_file), "N/A"), " bytes)\n",
       "Expected inits file: ", inits_file, " (exists: ", file.exists(inits_file), ")\n",
       "Working directory: ", getwd(), "\n",
