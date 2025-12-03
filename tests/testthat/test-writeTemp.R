@@ -4,9 +4,9 @@
 
 testthat::test_that("writeTemp=TRUE with local file: change detection and recompilation", {
   # Create a model file outside of tempdir to properly test writeTemp behavior
-  test_dir <- file.path(dirname(tempdir()), "test_mcsim_writeTemp")
+  test_dir <- normalizePath(file.path(dirname(tempdir()), "test_mcsim_writeTemp"), mustWork = FALSE)
   dir.create(test_dir, showWarnings = FALSE, recursive = TRUE)
-  original_model_path <- file.path(test_dir, "test_model.model")
+  original_model_path <- normalizePath(file.path(test_dir, "test_model.model"), mustWork = FALSE)
 
   # Create a simple test model
   model_content <- c(
@@ -28,7 +28,7 @@ testthat::test_that("writeTemp=TRUE with local file: change detection and recomp
   writeLines(model_content, original_model_path)
 
   # Test 1: Create model with writeTemp=TRUE using local file (Scenario 1)
-  model <- createModel(mName = file.path(test_dir, "test_model"), writeTemp = TRUE)
+  model <- createModel(mName = normalizePath(file.path(test_dir, "test_model"), mustWork = FALSE), writeTemp = TRUE)
 
   # Verify paths are set correctly
   testthat::expect_true(file.exists(model$paths$model_file))
@@ -92,8 +92,8 @@ testthat::test_that("writeTemp=TRUE with local file: change detection and recomp
 
 testthat::test_that("writeTemp=FALSE behavior unchanged", {
   # Create a temporary model file to test with
-  temp_dir <- tempdir()
-  model_path <- file.path(temp_dir, "test_model_false.model")
+  temp_dir <- normalizePath(tempdir())
+  model_path <- normalizePath(file.path(temp_dir, "test_model_false.model"), mustWork = FALSE)
 
   # Create a simple test model using intro.Rmd nomenclature
   model_content <- c(
@@ -111,7 +111,7 @@ testthat::test_that("writeTemp=FALSE behavior unchanged", {
   writeLines(model_content, model_path)
 
   # Test 1: Create model with writeTemp=FALSE
-  model <- createModel(mName = file.path(temp_dir, "test_model_false"), writeTemp = FALSE)
+  model <- createModel(mName = normalizePath(file.path(temp_dir, "test_model_false"), mustWork = FALSE), writeTemp = FALSE)
 
   # Verify source_file and model_file are the same
   testthat::expect_equal(model$paths$source_file, model$paths$model_file)

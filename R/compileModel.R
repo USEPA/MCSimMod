@@ -17,11 +17,11 @@
 compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL, verbose_output = FALSE) {
   # Normalize paths for Windows compatibility
   if (.Platform$OS.type == "windows") {
-    model_file <- normalizePath(model_file, winslash = "/", mustWork = TRUE)
+    model_file <- normalizePath(model_file, mustWork = TRUE)
     # For c_file, normalize the directory and rebuild the path
     c_dir <- dirname(c_file)
     if (dir.exists(c_dir)) {
-      c_file <- file.path(normalizePath(c_dir, winslash = "/"), basename(c_file))
+      c_file <- file.path(normalizePath(c_dir), basename(c_file))
     }
   }
 

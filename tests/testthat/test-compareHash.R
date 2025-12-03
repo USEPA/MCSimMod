@@ -4,7 +4,7 @@ testthat::test_that("test_compareHash", {
   # Test to make sure changing the file returns a changed path
 
   dir.create(file.path(tempdir(), "testDir"))
-  mName <- tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir"))
+  mName <- normalizePath(tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir")), mustWork = FALSE)
   mString <- readLines(file.path(testthat::test_path(), "data", "exponential.model"))
   writeLines(mString, paste0(mName, ".model"))
 

@@ -153,11 +153,11 @@ Using the following commands, we create a model object (i.e., an instance of the
 ```{r, eval = FALSE}
 # Get the full name of the package directory that contains the example MCSim
 # model specification file.
-mod_path <- file.path(system.file(package = "MCSimMod"), "extdata")
+mod_path <- normalizePath(file.path(system.file(package = "MCSimMod"), "extdata"))
 
 # Create a model object using the example MCSim model specification file
 # "pbpk_simple.model" included in the MCSimMod package.
-pbpk_mod_name <- file.path(mod_path, "pbpk_simple")
+pbpk_simple_mod_name <- file.path(mod_path, "pbpk_simple")
 pbpk_mod <- createModel(pbpk_mod_name)
 ```
 

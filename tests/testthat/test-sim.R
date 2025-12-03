@@ -21,7 +21,7 @@ testthat::test_that("Model$localModel", {
 })
 
 testthat::test_that("Model$relativeModel", {
-  mName <- file.path(testthat::test_path(), "data", "exponential")
+  mName <- normalizePath(file.path(testthat::test_path(), "data", "exponential"), mustWork = FALSE)
   testthat::expect_true(file.exists(paste0(mName, ".model")))
 
   model <- createModel(mName)
@@ -45,8 +45,8 @@ testthat::test_that("Model$absoluteModel", {
   # Use absolute path of temp directory,
   # Test to make sure changing the file returns a changed path
 
-  dir.create(file.path(tempdir(), "testDir"))
-  mName <- tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir"))
+  dir.create(file.path(tempdir(), "testDir"), showWarnings = FALSE)
+  mName <- normalizePath(tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir")), mustWork = FALSE)
   mString <- readLines(file.path(testthat::test_path(), "data", "exponential.model"))
   writeLines(mString, paste0(mName, ".model"))
 
