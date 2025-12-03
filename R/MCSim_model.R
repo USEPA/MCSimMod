@@ -41,11 +41,25 @@ Model <- setRefClass("Model",
     initialize = function(...) {
       "Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString)."
       callSuper(...)
+      
+      # Validate input arguments first
       if (length(mName) == 0 & length(mString) == 0) {
         stop("To create a Model object, supply either a file name (mName) or a model specification string (mString).")
       }
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
+      }
+      
+      # Set intelligent defaults based on input type
+      if (length(writeTemp) == 0) {
+        if (length(mString) > 0) {
+          writeTemp <<- TRUE   # mString always requires temp files
+        } else {
+          writeTemp <<- FALSE  # mName defaults to local file handling
+        }
+      }
+      if (length(verboseOutput) == 0) {
+        verboseOutput <<- FALSE
       }
       # Track user's model file for proper change detection
       model_file_path <- NULL
@@ -58,18 +72,35 @@ Model <- setRefClass("Model",
         # Write model string to file with error handling and ensure it's flushed
         tryCatch(
           {
-            writeLines(mString, file)
-            # On Windows, ensure file is flushed to disk
-            if (.Platform$OS.type == "windows") {
-              Sys.sleep(0.01) # Small delay to ensure write completes
+            # Validate mString before writing
+            if (length(mString) == 0 || all(nchar(mString) == 0)) {
+              stop("mString is empty or contains no content")
             }
+            
+            # Use cat for more reliable file writing in all contexts
+            cat(paste(mString, collapse = "\n"), "\n", file = file, sep = "")
+            
+            # On Windows, ensure file is fully written to disk
+            if (.Platform$OS.type == "windows") {
+              Sys.sleep(0.1) # Increased delay for package build context
+            }
+            
             # Verify file was written correctly
-            if (!file.exists(file) || file.size(file) == 0) {
-              stop("Failed to write model file or file is empty: ", file)
+            if (!file.exists(file)) {
+              stop("Model file was not created: ", file)
+            }
+            
+            # Basic validation that file has content
+            file_size <- file.size(file)
+            if (is.na(file_size) || file_size == 0) {
+              stop("Model file is empty after writing: ", file, " (size: ", file_size, ")")
             }
           },
           error = function(e) {
-            stop("Failed to create model file from mString: ", e$message)
+            # Enhanced error message with context
+            stop("Failed to create model file from mString: ", e$message, 
+                 " (mString length: ", length(mString), 
+                 ", mString chars: ", sum(nchar(mString)), ")")
           }
         )
 
@@ -107,7 +138,7 @@ Model <- setRefClass("Model",
         o_file = file.path(mPath, paste0(mName, "_model.o")),
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
-        source_file = file.path(mPath, paste0(mName, ".model")),
+        source_file = file,  # Use the actual file path (tempfile for mString, or copied file for mName)
         model_file = model_file_path,
         hash_file = hash_file_path
       )
