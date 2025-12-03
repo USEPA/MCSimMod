@@ -18,10 +18,11 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # Normalize paths for Windows compatibility
   if (.Platform$OS.type == "windows") {
     model_file <- normalizePath(model_file, winslash = "/", mustWork = TRUE)
-    # For c_file, normalize the directory and rebuild the path
-    c_dir <- dirname(c_file)
-    if (dir.exists(c_dir)) {
-      c_file <- file.path(normalizePath(c_dir, winslash = "/"), basename(c_file))
+    # For c_file, ensure proper path normalization
+    c_file <- normalizePath(c_file, winslash = "/", mustWork = FALSE)
+    dll_file <- normalizePath(dll_file, winslash = "/", mustWork = FALSE)
+    if (!is.null(hash_file)) {
+      hash_file <- normalizePath(hash_file, winslash = "/", mustWork = FALSE)
     }
   }
 
@@ -243,6 +244,10 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # machine code file (ending with ".dll" or ".so"). Write compiler output
   # to a character string.
   r_path <- file.path(R.home("bin"), "R")
+  if (.Platform$OS.type == "windows") {
+    r_path <- normalizePath(r_path, winslash = "/")
+    c_file <- normalizePath(c_file, winslash = "/")
+  }
   compiler_output <- system(paste(
     shQuote(r_path), "CMD SHLIB",
     shQuote(c_file)
