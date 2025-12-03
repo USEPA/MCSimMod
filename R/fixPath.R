@@ -12,15 +12,18 @@
     new.mPath <- normalizePath(new.mPath, winslash = "/", mustWork = FALSE)
     # Only use shortPathName if there are spaces and it's needed
     if (grepl(" ", new.mPath)) {
-      tryCatch({
-        short_path <- utils::shortPathName(new.mPath)
-        if (short_path != "" && short_path != new.mPath) {
-          new.mPath <- gsub("\\\\", "/", short_path)
+      tryCatch(
+        {
+          short_path <- utils::shortPathName(new.mPath)
+          if (short_path != "" && short_path != new.mPath) {
+            new.mPath <- gsub("\\\\", "/", short_path)
+          }
+        },
+        error = function(e) {
+          # If shortPathName fails, keep the original path
+          # The compilation might still work with quoted paths
         }
-      }, error = function(e) {
-        # If shortPathName fails, keep the original path
-        # The compilation might still work with quoted paths
-      })
+      )
     }
   }
 

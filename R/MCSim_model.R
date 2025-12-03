@@ -41,7 +41,7 @@ Model <- setRefClass("Model",
     initialize = function(...) {
       "Initialize the Model object using an MCSim model specification file (mName) or an MCSim model specification string (mString)."
       callSuper(...)
-      
+
       # Validate input arguments first
       if (length(mName) == 0 & length(mString) == 0) {
         stop("To create a Model object, supply either a file name (mName) or a model specification string (mString).")
@@ -49,13 +49,13 @@ Model <- setRefClass("Model",
       if (length(mName) > 0 & length(mString) > 0) {
         stop("Cannot create a Model object using both a file name (mName) and a model specification string (mString). Provide only one of these arguments.")
       }
-      
+
       # Set intelligent defaults based on input type
       if (length(writeTemp) == 0) {
         if (length(mString) > 0) {
-          writeTemp <<- TRUE   # mString always requires temp files
+          writeTemp <<- TRUE # mString always requires temp files
         } else {
-          writeTemp <<- FALSE  # mName defaults to local file handling
+          writeTemp <<- FALSE # mName defaults to local file handling
         }
       }
       if (length(verboseOutput) == 0) {
@@ -76,20 +76,20 @@ Model <- setRefClass("Model",
             if (length(mString) == 0 || all(nchar(mString) == 0)) {
               stop("mString is empty or contains no content")
             }
-            
+
             # Use cat for more reliable file writing in all contexts
             cat(paste(mString, collapse = "\n"), "\n", file = file, sep = "")
-            
+
             # On Windows, ensure file is fully written to disk
             if (.Platform$OS.type == "windows") {
               Sys.sleep(0.1) # Increased delay for package build context
             }
-            
+
             # Verify file was written correctly
             if (!file.exists(file)) {
               stop("Model file was not created: ", file)
             }
-            
+
             # Basic validation that file has content
             file_size <- file.size(file)
             if (is.na(file_size) || file_size == 0) {
@@ -98,9 +98,11 @@ Model <- setRefClass("Model",
           },
           error = function(e) {
             # Enhanced error message with context
-            stop("Failed to create model file from mString: ", e$message, 
-                 " (mString length: ", length(mString), 
-                 ", mString chars: ", sum(nchar(mString)), ")")
+            stop(
+              "Failed to create model file from mString: ", e$message,
+              " (mString length: ", length(mString),
+              ", mString chars: ", sum(nchar(mString)), ")"
+            )
           }
         )
 
@@ -138,7 +140,7 @@ Model <- setRefClass("Model",
         o_file = file.path(mPath, paste0(mName, "_model.o")),
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
-        source_file = file,  # Use the actual file path (tempfile for mString, or copied file for mName)
+        source_file = file, # Use the actual file path (tempfile for mString, or copied file for mName)
         model_file = model_file_path,
         hash_file = hash_file_path
       )
