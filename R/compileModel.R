@@ -37,7 +37,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
-  
+
   # Add a small delay on Windows to ensure files are fully written
   if (.Platform$OS.type == "windows") {
     Sys.sleep(0.1)
@@ -109,11 +109,14 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   }
 
   # Read the original C source file with error handling
-  tryCatch({
-    lines <- readLines(c_file)
-  }, error = function(e) {
-    stop("Failed to read C file '", c_file, "': ", e$message)
-  })
+  tryCatch(
+    {
+      lines <- readLines(c_file)
+    },
+    error = function(e) {
+      stop("Failed to read C file '", c_file, "': ", e$message)
+    }
+  )
 
   # Find and replace C object names with model-specific names.
   item_to_replace <- c(
@@ -160,11 +163,14 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   }
 
   # Read the original inits R source file with error handling
-  tryCatch({
-    lines <- readLines(inits_file)
-  }, error = function(e) {
-    stop("Failed to read inits R file '", inits_file, "': ", e$message)
-  })
+  tryCatch(
+    {
+      lines <- readLines(inits_file)
+    },
+    error = function(e) {
+      stop("Failed to read inits R file '", inits_file, "': ", e$message)
+    }
+  )
 
   # Find and replace R and C object names with model-specific names.
   item_to_replace <- c(
