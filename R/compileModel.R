@@ -15,6 +15,16 @@
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
 compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL, verbose_output = FALSE) {
+  # Normalize paths for Windows compatibility
+  if (.Platform$OS.type == "windows") {
+    model_file <- normalizePath(model_file, winslash = "/", mustWork = TRUE)
+    # For c_file, normalize the directory and rebuild the path
+    c_dir <- dirname(c_file)
+    if (dir.exists(c_dir)) {
+      c_file <- file.path(normalizePath(c_dir, winslash = "/"), basename(c_file))
+    }
+  }
+
   # Unload DLL if it has been loaded.
   mList <- .fixPath(model_file)
   model_name <- mList$mName
@@ -33,7 +43,16 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
   # specification file (ending with ".model"). Write translator output to the
   # text connection.
   sink(text_conn)
-  .C("c_mod", model_file, c_file)
+  tryCatch(
+    {
+      .C("c_mod", model_file, c_file)
+    },
+    error = function(e) {
+      sink()
+      close(text_conn)
+      stop("MCSim translator failed: ", e$message)
+    }
+  )
   sink()
   close(text_conn)
   mod_output <- paste(mod_output, collapse = "\n")
@@ -105,7 +124,16 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
 
   # Check if C file was created successfully
   if (!file.exists(c_file)) {
-    stop("C file was not created: ", c_file)
+    # Provide diagnostic information for debugging
+    inits_file <- sub("\\.c$", "_inits.R", c_file)
+    diagnostics <- paste0(
+      "C file was not created: ", c_file, "\n",
+      "Model file: ", model_file, " (exists: ", file.exists(model_file), ")\n",
+      "Expected inits file: ", inits_file, " (exists: ", file.exists(inits_file), ")\n",
+      "Working directory: ", getwd(), "\n",
+      "MCSim output:\n", mod_output
+    )
+    stop(diagnostics)
   }
 
   # Read the original C source file with error handling
