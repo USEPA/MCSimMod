@@ -53,20 +53,25 @@ Model <- setRefClass("Model",
         }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
+        source_file <- normalizePath(file, winslash = '/')
+        file <- source_file
       } else {
         if (writeTemp == TRUE) {
           source_file <- normalizePath(paste0(mName, ".model"), winslash = '/')
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(source_file))
           file_copied <- file.copy(from = source_file, to = file)
+          file <- normalizePath(file, winslash = '/')
         } else {
-          file <- normalizePath(paste0(mName, ".model"), winslash = '/')
+          source_file <- normalizePath(paste0(mName, ".model"), winslash = '/')
+          file <- source_file
         }
       }
       mList <- .fixPath(file)
+      sList <- .fixPath(source_file)
       mName <<- mList$mName
       mPath <- mList$mPath
-
+      sPath <- sList$mPath
 
       paths <<- list(
         dll_name = paste0(mName, "_model"),
@@ -75,6 +80,7 @@ Model <- setRefClass("Model",
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
         model_file = file.path(mPath, paste0(mName, ".model")),
+        source_file = file.path(sPath, paste0(mName, ".model")),
         hash_file = file.path(mPath, paste0(mName, "_model.md5"))
       )
     },
@@ -82,7 +88,7 @@ Model <- setRefClass("Model",
       "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
-        hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
+        hash_has_changed <- .fileHasChanged(paths$source_file, paths$hash_file)
       } else {
         hash_has_changed <- TRUE
       }

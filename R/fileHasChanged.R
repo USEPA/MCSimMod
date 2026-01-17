@@ -5,7 +5,7 @@
 
 .fileHasChanged <- function(model_file, hash_file) {
   # Calculate hash for current model file
-  current_hash <- as.character(md5sum(model_file))
+  current_hash <- as.character(tools::md5sum(model_file))
 
   # Read saved hash
   saved_hash <- readLines(hash_file, n = 1)
