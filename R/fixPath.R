@@ -7,9 +7,6 @@
 .fixPath <- function(file) {
   new.mName <- strsplit(basename(file), "[.]")[[1]][1]
   new.mPath <- dirname(file)
-  if (.Platform$OS.type == "windows") {
-    new.mPath <- gsub("\\\\", "/", utils::shortPathName(new.mPath))
-  }
 
   has_space <- grepl(" ", new.mPath)
   if (has_space == T) {
