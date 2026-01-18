@@ -3,6 +3,7 @@
 ^\.covrignore$
 ^\.github$
 ^.*\.Rproj$
+^paper$
 ^\_pkgdown.yml$
 .clang-format
 README.md
