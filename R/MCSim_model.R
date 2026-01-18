@@ -84,7 +84,7 @@ Model <- setRefClass("Model",
         source_file = file.path(sPath, paste0(mName, ".model")),
         hash_file = file.path(mPath, paste0(mName, "_model.md5"))
       )
-      
+
       # Calculate and save initial hash during initialization
       # This allows loadModel to immediately check if source has changed
       if (!file.exists(paths$hash_file)) {
