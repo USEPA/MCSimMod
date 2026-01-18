@@ -33,7 +33,7 @@ Model <- setRefClass("Model",
     #' @field paths List of character strings that are names of files associated with the model.
     #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be written to a temporary directory; if value is FALSE, model files will be written to the same directory that contains the model specification file.
     #' @field verboseOutput Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
-    #' @field recompiled Boolean specifying is model has been recompiled due to change in source file
+    #' @field recompiled Boolean specifying if the model has been recompiled due to change in source file
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
     paths = "list", writeTemp = "logical", verboseOutput = "logical", recompiled = "logical"
