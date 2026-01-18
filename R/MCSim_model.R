@@ -84,6 +84,13 @@ Model <- setRefClass("Model",
         source_file = file.path(sPath, paste0(mName, ".model")),
         hash_file = file.path(mPath, paste0(mName, "_model.md5"))
       )
+      
+      # Calculate and save initial hash during initialization
+      # This allows loadModel to immediately check if source has changed
+      if (!file.exists(paths$hash_file)) {
+        initial_hash <- as.character(tools::md5sum(paths$source_file))
+        write(initial_hash, file = paths$hash_file)
+      }
     },
     loadModel = function(force = FALSE) {
       "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
