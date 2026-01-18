@@ -54,17 +54,17 @@ Model <- setRefClass("Model",
         }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
-        source_file <- normalizePath(file, winslash = '/')
+        source_file <- normalizePath(file, winslash = "/")
         file <- source_file
       } else {
         if (writeTemp == TRUE) {
-          source_file <- normalizePath(paste0(mName, ".model"), winslash = '/')
+          source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(source_file))
           file_copied <- file.copy(from = source_file, to = file)
-          file <- normalizePath(file, winslash = '/')
+          file <- normalizePath(file, winslash = "/")
         } else {
-          source_file <- normalizePath(paste0(mName, ".model"), winslash = '/')
+          source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
           file <- source_file
         }
       }

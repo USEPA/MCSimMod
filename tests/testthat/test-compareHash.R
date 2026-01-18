@@ -31,41 +31,41 @@ testthat::test_that("test_tmp_compileModel", {
   mName <- file.path(source_dir, "test_model")
   mString <- readLines(file.path(testthat::test_path(), "data", "exponential.model"))
   writeLines(mString, paste0(mName, ".model"))
-  
+
   # Verify source file exists
   testthat::expect_true(file.exists(paste0(mName, ".model")))
-  
-  # Create model with writeTemp=TRUE - this should use the source file 
+
+  # Create model with writeTemp=TRUE - this should use the source file
   # and create compilation files in temp directory
-  model <- createModel(mName, writeTemp=TRUE)
-  
+  model <- createModel(mName, writeTemp = TRUE)
+
   # Verify paths are properly separated
   testthat::expect_true(model$paths$source_file != model$paths$model_file)
   testthat::expect_true(file.exists(model$paths$source_file))
   testthat::expect_true(file.exists(model$paths$model_file))
-  
+
   # First load - should compile
   model$loadModel()
   testthat::expect_true(file.exists(model$paths$hash_file)) # Check if hash was created
   testthat::expect_true(model$recompiled) # Should be TRUE on first compile
-  
+
   # Second load - should NOT recompile (no changes)
   model$loadModel()
   testthat::expect_false(.fileHasChanged(model$paths$source_file, model$paths$hash_file))
   testthat::expect_false(model$recompiled) # Should be FALSE, no recompile needed
-  
+
   # Edit source file (what users actually edit)
-  write("# File is edited", file = model$paths$source_file, append = TRUE, sep = '\n')
+  write("# File is edited", file = model$paths$source_file, append = TRUE, sep = "\n")
   testthat::expect_true(.fileHasChanged(model$paths$source_file, model$paths$hash_file))
-  
+
   # Third load after edit - should recompile
   model$loadModel()
   testthat::expect_true(model$recompiled) # Should be TRUE, source changed
-  
+
   # Fourth load - should NOT recompile (our bug fix test!)
   model$loadModel()
   testthat::expect_false(.fileHasChanged(model$paths$source_file, model$paths$hash_file))
   testthat::expect_false(model$recompiled) # Should be FALSE, hash should now match
-  
+
   model$cleanup()
 })
