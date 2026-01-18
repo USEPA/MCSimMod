@@ -51,7 +51,7 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 
 \item{\code{verboseOutput}}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.}
 
-\item{\code{recompiled}}{Boolean specifying is model has been recompiled due to change in source file}
+\item{\code{recompiled}}{Boolean specifying if the model has been recompiled due to a change in the source file}
 }}
 
 \section{Methods}{
