@@ -1,11 +1,11 @@
 #-----------------
 # compareHash
 #----------------
-# Private function to determine if the .model file has changed
+# Private function to determine if the source .model file has changed
 
-.fileHasChanged <- function(model_file, hash_file) {
+.fileHasChanged <- function(source_file, hash_file) {
   # Calculate hash for current model file
-  current_hash <- as.character(tools::md5sum(model_file))
+  current_hash <- tools::md5sum(source_file)
 
   # Read saved hash
   saved_hash <- readLines(hash_file, n = 1)

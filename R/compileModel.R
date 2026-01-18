@@ -8,13 +8,14 @@
 #' @param c_file Name of a C source code file to be created by compiling the MCSim model specification file.
 #' @param dll_name Name of a DLL or SO file without the extension (".dll" or ".so").
 #' @param dll_file Name of the same DLL or SO file with the appropriate extension (".dll" or ".so").
-#' @param hash_file Name of a file containing a hash key for determining if `model_file` has changed since the previous translation and compilation.
+#' @param source_file Name of the original source file to use for hash calculation. Defaults to \code{model_file} for backward compatibility. When \code{writeTemp=TRUE} in \code{createModel()}, this should be set to the original source file path to ensure hash tracking works correctly when the source file is separate from the compiled model file.
+#' @param hash_file Name of a file containing a hash key for determining if `source_file` has changed since the previous translation and compilation.
 #' @param verbose_output Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
 #' @returns No return value. Creates files and saves them in locations specified by function arguments.
 #' @import tools
 #' @useDynLib MCSimMod, .registration=TRUE
 #' @export
-compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NULL, verbose_output = FALSE) {
+compileModel <- function(model_file, c_file, dll_name, dll_file, source_file = model_file, hash_file = NULL, verbose_output = FALSE) {
   # Unload DLL if it has been loaded.
   mList <- .fixPath(model_file)
   model_name <- mList$mName
@@ -120,7 +121,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "event",
     "root"
   )
-  for (idx in seq(length(item_to_replace))) {
+  for (idx in seq_along(item_to_replace)) {
     lines <- gsub(
       paste0("\\b", item_to_replace[idx], "\\b"),
       paste0(item_to_replace[idx], "_", model_name),
@@ -151,7 +152,7 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     "initStates",
     "initState"
   )
-  for (idx in seq(length(item_to_replace))) {
+  for (idx in seq_along(item_to_replace)) {
     lines <- gsub(
       paste0("\\b", item_to_replace[idx], "\\b"),
       paste0(item_to_replace[idx], "_", model_name),
@@ -181,10 +182,10 @@ compileModel <- function(model_file, c_file, dll_name, dll_file, hash_file = NUL
     normalizePath(out_file), ".\n"
   )
 
-  # If hash file name was provided, create a hash (md5 sum) for the model file
+  # If hash file name was provided, create a hash (md5 sum) for the source file
   # and print a message about its location.
   if (!is.null(hash_file)) {
-    file_hash <- as.character(md5sum(model_file))
+    file_hash <- as.character(tools::md5sum(source_file))
     write(file_hash, file = hash_file)
     message(
       "Hash created and saved in the file ", normalizePath(hash_file),

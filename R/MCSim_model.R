@@ -33,9 +33,10 @@ Model <- setRefClass("Model",
     #' @field paths List of character strings that are names of files associated with the model.
     #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be written to a temporary directory; if value is FALSE, model files will be written to the same directory that contains the model specification file.
     #' @field verboseOutput Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
+    #' @field recompiled Boolean specifying is model has been recompiled due to change in source file
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
-    paths = "list", writeTemp = "logical", verboseOutput = "logical"
+    paths = "list", writeTemp = "logical", verboseOutput = "logical", recompiled = "logical"
   ),
   methods = list(
     initialize = function(...) {
@@ -92,6 +93,7 @@ Model <- setRefClass("Model",
       } else {
         hash_has_changed <- TRUE
       }
+      recompiled <<- FALSE
 
       # Conditions for compiling a model:
       # 1. The DLL (on Windows) or SO (on Unix) associated with the model
@@ -104,7 +106,12 @@ Model <- setRefClass("Model",
       #    specification file has been changed since the last translation and
       #    compiling.
       if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
-        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
+        # When using writeTemp=TRUE, ensure the model file is updated from source before compilation
+        if (writeTemp & (paths$source_file != paths$model_file)) {
+          file.copy(from = paths$source_file, to = paths$model_file, overwrite = TRUE)
+        }
+        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, source_file = paths$source_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
+        recompiled <<- TRUE
       }
 
       # Load the compiled model (DLL).
