@@ -45,7 +45,7 @@ testthat::test_that("Model$absoluteModel", {
   # Use absolute path of temp directory,
   # Test to make sure changing the file returns a changed path
 
-  dir.create(file.path(tempdir(), "testDir"))
+  dir.create(file.path(tempdir(), "testDir"), showWarnings = FALSE)
   mName <- tempfile(pattern = "mcsimmod_", tmpdir = file.path(tempdir(), "testDir"))
   mString <- readLines(file.path(testthat::test_path(), "data", "exponential.model"))
   writeLines(mString, paste0(mName, ".model"))

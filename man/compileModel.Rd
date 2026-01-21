@@ -9,6 +9,7 @@ compileModel(
   c_file,
   dll_name,
   dll_file,
+  source_file = model_file,
   hash_file = NULL,
   verbose_output = FALSE
 )
@@ -22,7 +23,9 @@ compileModel(
 
 \item{dll_file}{Name of the same DLL or SO file with the appropriate extension (".dll" or ".so").}
 
-\item{hash_file}{Name of a file containing a hash key for determining if \code{model_file} has changed since the previous translation and compilation.}
+\item{source_file}{Name of the original source file to use for hash calculation. Defaults to \code{model_file} for backward compatibility. When \code{writeTemp=TRUE} in \code{createModel()}, this should be set to the original source file path to ensure hash tracking works correctly when the source file is separate from the compiled model file.}
+
+\item{hash_file}{Name of a file containing a hash key for determining if \code{source_file} has changed since the previous translation and compilation.}
 
 \item{verbose_output}{Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.}
 }

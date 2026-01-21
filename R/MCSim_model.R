@@ -33,9 +33,10 @@ Model <- setRefClass("Model",
     #' @field paths List of character strings that are names of files associated with the model.
     #' @field writeTemp Boolean specifying whether to write model files to a temporary directory. If value is TRUE, model files will be written to a temporary directory; if value is FALSE, model files will be written to the same directory that contains the model specification file.
     #' @field verboseOutput Boolean specifying whether to write translator messages to standard output. If value is TRUE, messages will be written to standard output; if value is FALSE, messages will be written to files in a temporary directory.
+    #' @field recompiled Boolean specifying if the model has been recompiled due to change in source file
     mName = "character", mString = "character", initParms = "function",
     initStates = "function", Outputs = "ANY", parms = "numeric", Y0 = "numeric",
-    paths = "list", writeTemp = "logical", verboseOutput = "logical"
+    paths = "list", writeTemp = "logical", verboseOutput = "logical", recompiled = "logical"
   ),
   methods = list(
     initialize = function(...) {
@@ -53,20 +54,25 @@ Model <- setRefClass("Model",
         }
         file <- tempfile(pattern = "mcsimmod_", fileext = ".model")
         writeLines(mString, file)
+        source_file <- normalizePath(file, winslash = "/")
+        file <- source_file
       } else {
         if (writeTemp == TRUE) {
-          source_file <- normalizePath(paste0(mName, ".model"))
+          source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(source_file))
-          file_copied <- file.copy(from = source_file, to = file)
+          file.copy(from = source_file, to = file)
+          file <- normalizePath(file, winslash = "/")
         } else {
-          file <- normalizePath(paste0(mName, ".model"))
+          source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
+          file <- source_file
         }
       }
       mList <- .fixPath(file)
+      sList <- .fixPath(source_file)
       mName <<- mList$mName
       mPath <- mList$mPath
-
+      sPath <- sList$mPath
 
       paths <<- list(
         dll_name = paste0(mName, "_model"),
@@ -75,17 +81,26 @@ Model <- setRefClass("Model",
         dll_file = file.path(mPath, paste0(mName, "_model", .Platform$dynlib.ext)),
         inits_file = file.path(mPath, paste0(mName, "_model_inits.R")),
         model_file = file.path(mPath, paste0(mName, ".model")),
+        source_file = file.path(sPath, paste0(mName, ".model")),
         hash_file = file.path(mPath, paste0(mName, "_model.md5"))
       )
+
+      # Calculate and save initial hash during initialization
+      # This allows loadModel to immediately check if source has changed
+      if (!file.exists(paths$hash_file)) {
+        initial_hash <- as.character(tools::md5sum(paths$source_file))
+        write(initial_hash, file = paths$hash_file)
+      }
     },
     loadModel = function(force = FALSE) {
       "Translate (if necessary) the model specification text to C, compile (if necessary) the resulting C file to create a dynamic link library (DLL) file (on Windows) or a shared object (SO) file (on Unix), and then load all essential information about the Model object into memory (for use in the current R session)."
       hash_exists <- file.exists(paths$hash_file)
       if (hash_exists) {
-        hash_has_changed <- .fileHasChanged(paths$model_file, paths$hash_file)
+        hash_has_changed <- .fileHasChanged(paths$source_file, paths$hash_file)
       } else {
         hash_has_changed <- TRUE
       }
+      recompiled <<- FALSE
 
       # Conditions for compiling a model:
       # 1. The DLL (on Windows) or SO (on Unix) associated with the model
@@ -98,7 +113,12 @@ Model <- setRefClass("Model",
       #    specification file has been changed since the last translation and
       #    compiling.
       if (!file.exists(paths$dll_file) | (force) | (!hash_exists) | (hash_exists & hash_has_changed)) {
-        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
+        # When using writeTemp=TRUE, ensure the model file is updated from source before compilation
+        if (writeTemp & (paths$source_file != paths$model_file)) {
+          file.copy(from = paths$source_file, to = paths$model_file, overwrite = TRUE)
+        }
+        compileModel(paths$model_file, paths$c_file, paths$dll_name, paths$dll_file, source_file = paths$source_file, hash_file = paths$hash_file, verbose_output = verboseOutput)
+        recompiled <<- TRUE
       }
 
       # Load the compiled model (DLL).
