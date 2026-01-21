@@ -149,11 +149,11 @@ Model <- setRefClass("Model",
       Y0 <<- initStates(parms)
     },
     updateParms = function(new_parms = NULL) {
-      "Update values of parameters for the Model object."
+      "Reset the values of the parameters for the Model object to their default values and then update the values of any parameters named in the argument `new_parms` using values provided in that argument."
       parms <<- initParms(new_parms)
     },
     updateY0 = function(new_states = NULL) {
-      "Update values of initial conditions of state variables for the Model object."
+      "Reset the values of the initial conditions of state variables for the Model object to their default values and then update the values of the initial conditions of any state variables named in the argument `new_states` using values provided in that argument."
       Y0 <<- initStates(parms, new_states)
     },
     runModel = function(times, ...) {

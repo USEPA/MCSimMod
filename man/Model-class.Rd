@@ -65,8 +65,8 @@ expression \code{mod$updateParms()}. Use the \code{createModel()} function to cr
 
 \item{\code{runModel(times, ...)}}{Perform a simulation for the Model object using the \code{deSolve} function \code{ode} for the specified \code{times}.}
 
-\item{\code{updateParms(new_parms = NULL)}}{Update values of parameters for the Model object.}
+\item{\code{updateParms(new_parms = NULL)}}{Reset the values of the parameters for the Model object to their default values and then update the values of any parameters named in the argument `new_parms` using values provided in that argument.}
 
-\item{\code{updateY0(new_states = NULL)}}{Update values of initial conditions of state variables for the Model object.}
+\item{\code{updateY0(new_states = NULL)}}{Reset the values of the initial conditions of state variables for the Model object to their default values and then update the values of the initial conditions of any state variables named in the argument `new_states` using values provided in that argument.}
 }}
 
