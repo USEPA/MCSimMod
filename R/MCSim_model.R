@@ -61,7 +61,7 @@ Model <- setRefClass("Model",
           source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
           temp_directory <- tempdir()
           file <- file.path(temp_directory, basename(source_file))
-          file_copied <- file.copy(from = source_file, to = file)
+          file.copy(from = source_file, to = file)
           file <- normalizePath(file, winslash = "/")
         } else {
           source_file <- normalizePath(paste0(mName, ".model"), winslash = "/")
