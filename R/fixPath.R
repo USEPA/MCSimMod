@@ -12,7 +12,7 @@
   }
 
   has_space <- grepl(" ", new.mPath)
-  if (has_space == T) {
+  if (has_space == TRUE) {
     stop("Error: User-defined directory has space which will throw error for .dll/.so compilation")
   }
 
