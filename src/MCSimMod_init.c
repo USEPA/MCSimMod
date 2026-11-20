@@ -1,12 +1,8 @@
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
 
-/* FIXME: 
-   Check these declarations against the C/Fortran source code.
-*/
-
 /* .C calls */
-extern void c_mod(void *, void *);
+extern int c_mod(void *, void *);
 
 static const R_CMethodDef CEntries[] = {
     {"c_mod", (DL_FUNC) &c_mod, 2},
